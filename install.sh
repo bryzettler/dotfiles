@@ -235,16 +235,19 @@ if [[ ! -d "./oh-my-zsh/custom/plugins/zsh-completions" ]]; then
     bot "cloning zsh-completions"    
     git clone -b next https://github.com/zsh-users/zsh-completions oh-my-zsh/custom/plugins/zsh-completions
     git clone https://github.com/zsh-users/zsh-completions oh-my-zsh/custom/plugins/zsh-completions
+    ok
 fi
 
-if [[ ! -d "./oh-my-zsh/custom/themes/powerlevel10k"]]; then
+if [[ ! -d "./oh-my-zsh/custom/themes/powerlevel10k" ]]; then
   bot "cloaning powerlevel10k"
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git oh-my-zsh/custom/themes/powerlevel10k
+  ok
 fi
 
 if [[ ! -d "./oh-my-zsh/custom/themes/powerlevel9k" ]]; then
   bot "cloaning powerlevel9k"
   git clone https://github.com/bhilburn/powerlevel9k.git oh-my-zsh/custom/themes/powerlevel9k
+  ok
 fi
 
 bot "Dotfiles Setup"
