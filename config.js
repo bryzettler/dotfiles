@@ -77,7 +77,7 @@ module.exports = {
     'flux',
     'gpg-suite',
     //'ireadfast',
-    'iterm2',
+    //'iterm2',
     'hyper',
     'little-snitch',
     'macbreakz',

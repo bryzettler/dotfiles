@@ -290,7 +290,7 @@ else
   ok "skipped. Install by running :PluginInstall within vim"
 fi
 
-read -r -p "Add asdf to oh-my-zsh? [Y|n] " response
+read -r -p "Add asdf to oh-my-zsh? [y|N] " response
 if [[ $response =~ (y|yes|Y) ]];then
     bot "adding asdf to oh-my-zsh"
     echo -e "\n. $(brew --prefix asdf)/asdf.sh" >> ~/.zshrc
@@ -357,7 +357,7 @@ ok
 bot "OS Configuration"
 read -r -p "Do you want to update the system configurations? [y|N] " response
 if [[ -z $response || $response =~ ^(n|N) ]]; then
-  open /Applications/iTerm.app
+  open /Applications/Hyper.app
   bot "All done"
   exit
 fi
@@ -1030,7 +1030,7 @@ sudo mdutil -i on / > /dev/null;ok
 #sudo mdutil -E / > /dev/null;ok
 
 ###############################################################################
-bot "Terminal & iTerm2"
+#bot "Terminal & iTerm2"
 ###############################################################################
 
 # running "Only use UTF-8 in Terminal.app"
@@ -1048,37 +1048,37 @@ bot "Terminal & iTerm2"
 
 #running "Enable “focus follows mouse” for Terminal.app and all X11 apps"
 # i.e. hover over a window and start `typing in it without clicking first
-defaults write com.apple.terminal FocusFollowsMouse -bool true
+#defaults write com.apple.terminal FocusFollowsMouse -bool true
 #defaults write org.x.X11 wm_ffm -bool true;ok
 
-running "Installing the Solarized Light theme for iTerm (opening file)"
-open "./configs/Solarized Light.itermcolors";ok
-running "Installing the Patched Solarized Dark theme for iTerm (opening file)"
-open "./configs/Solarized Dark Patch.itermcolors";ok
+#running "Installing the Solarized Light theme for iTerm (opening file)"
+#open "./configs/Solarized Light.itermcolors";ok
+#running "Installing the Patched Solarized Dark theme for iTerm (opening file)"
+#open "./configs/Solarized Dark Patch.itermcolors";ok
 
-running "Don’t display the annoying prompt when quitting iTerm"
-defaults write com.googlecode.iterm2 PromptOnQuit -bool false;ok
-running "hide tab title bars"
-defaults write com.googlecode.iterm2 HideTab -bool true;ok
-running "set system-wide hotkey to show/hide iterm with ^\`"
-defaults write com.googlecode.iterm2 Hotkey -bool true;ok
-running "hide pane titles in split panes"
-defaults write com.googlecode.iterm2 ShowPaneTitles -bool false;ok
-running "animate split-terminal dimming"
-defaults write com.googlecode.iterm2 AnimateDimming -bool true;ok
-defaults write com.googlecode.iterm2 HotkeyChar -int 96;
-defaults write com.googlecode.iterm2 HotkeyCode -int 50;
-defaults write com.googlecode.iterm2 FocusFollowsMouse -int 1;
-defaults write com.googlecode.iterm2 HotkeyModifiers -int 262401;
-running "Make iTerm2 load new tabs in the same directory"
-/usr/libexec/PlistBuddy -c "set \"New Bookmarks\":0:\"Custom Directory\" Recycle" ~/Library/Preferences/com.googlecode.iterm2.plist
-running "setting fonts"
-defaults write com.googlecode.iterm2 "Normal Font" -string "Hack-Regular 12";
-defaults write com.googlecode.iterm2 "Non Ascii Font" -string "RobotoMonoForPowerline-Regular 12";
-ok
-running "reading iterm settings"
-defaults read -app iTerm > /dev/null 2>&1;
-ok
+#running "Don’t display the annoying prompt when quitting iTerm"
+#defaults write com.googlecode.iterm2 PromptOnQuit -bool false;ok
+#running "hide tab title bars"
+#defaults write com.googlecode.iterm2 HideTab -bool true;ok
+#running "set system-wide hotkey to show/hide iterm with ^\`"
+#defaults write com.googlecode.iterm2 Hotkey -bool true;ok
+#running "hide pane titles in split panes"
+#defaults write com.googlecode.iterm2 ShowPaneTitles -bool false;ok
+#running "animate split-terminal dimming"
+#defaults write com.googlecode.iterm2 AnimateDimming -bool true;ok
+#defaults write com.googlecode.iterm2 HotkeyChar -int 96;
+#defaults write com.googlecode.iterm2 HotkeyCode -int 50;
+#defaults write com.googlecode.iterm2 FocusFollowsMouse -int 1;
+#defaults write com.googlecode.iterm2 HotkeyModifiers -int 262401;
+#running "Make iTerm2 load new tabs in the same directory"
+#/usr/libexec/PlistBuddy -c "set \"New Bookmarks\":0:\"Custom Directory\" Recycle" ~/Library/Preferences/com.googlecode.iterm2.plist
+#running "setting fonts"
+#defaults write com.googlecode.iterm2 "Normal Font" -string "Hack-Regular 12";
+#defaults write com.googlecode.iterm2 "Non Ascii Font" -string "RobotoMonoForPowerline-Regular 12";
+#ok
+#running "reading iterm settings"
+#defaults read -app iTerm > /dev/null 2>&1;
+#ok
 
 ###############################################################################
 bot "Time Machine"
@@ -1198,7 +1198,7 @@ running "Disable continuous spell checking"
 defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "continuousSpellCheckingEnabled" -bool false;ok
 
 ###############################################################################
-bot "SizeUp.app"
+#bot "SizeUp.app"
 ###############################################################################
 
 running "Start SizeUp at login"
@@ -1209,7 +1209,7 @@ defaults write com.irradiatedsoftware.SizeUp ShowPrefsOnNextStart -bool false;ok
 
 killall cfprefsd
 
-open /Applications/iTerm.app
+open /Applications/Hyper.app
 
 ###############################################################################
 # Kill affected applications                                                  #
