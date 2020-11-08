@@ -1,9 +1,9 @@
 [user]
-  name = GITHUBFULLNAME
-  email = GITHUBEMAIL
+  name = Bryan Zettler
+  email = bryanzettler@gmail.com
 [github]
   # https://github.com/blog/180-local-github-config
-  user = GITHUBUSER
+  user = bryzettler
 [color]
 # ui = true is a superset of all the more specific color options
 #  as documented at http://book.git-scm.com/5_customizing_git.html
@@ -36,6 +36,9 @@
 [gui]
   fontdiff = -family Monaco -size 10 -weight normal -slant roman -underline 0 -overstrike 0
 
+[pager]
+  branch = false
+
 [core]
   excludesfile = ~/.gitignore
   quotepath = false
@@ -47,7 +50,7 @@
   safecrlf = warn
   # prevent crlf (then you will have to deal with the problem -- dos2unix, etc)
   #safecrlf = true
-  editor = vim
+  editor = emacs -nw
   #editor = subl -w
 
 [alias]
@@ -161,7 +164,7 @@
   prompt = false
 
 [diff]
-  tool = vimdiff
+  tool = ediff
 
 [init]
   templatedir = ~/.dotfiles/.git_template
@@ -171,7 +174,7 @@
   keepBackup = false
 
 [merge]
-  tool = vimdiff
+  tool = ediff
   # Always show a diffstat at the end of a merge
   stat = true
   conflictstyle = diff3

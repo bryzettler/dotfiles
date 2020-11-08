@@ -5,12 +5,12 @@ bindkey -v
 #########################################################################
 # Temporary aliases useful for demos, other current projects
 #########################################################################
-export MYTEMP=~/Documents/Temp
-export MYCODE=~/Documents/Code
-export MYSCRATCH=~/Documents/Temp/Scratch
-export MYDOWNLOADS=~/Downloads
-export MYDOCUMENTS=~/Documents
-export MYDEVAPPS=/Applications/Dev
+#export MYTEMP=~/Documents/Temp
+#export MYCODE=~/Documents/Code
+#export MYSCRATCH=~/Documents/Temp/Scratch
+#export MYDOWNLOADS=~/Downloads
+#export MYDOCUMENTS=~/Documents
+#export MYDEVAPPS=/Applications/Dev
 
 #########################################################################
 # Tool paths

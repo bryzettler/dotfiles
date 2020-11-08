@@ -6,6 +6,24 @@ alias g=git
 
 #############################
 # Utilities
+alias ta='tmux attach -t'
+alias ts='tmux new-session -s'
+alias tl='tmux list-sessions'
+alias tksv='tmux kill-server'
+alias tkss='tmux kill-session -t'
+alias emacs="emacs -nw"
+alias zshconfig="emacs ~/.zshrc"
+alias ohmyzsh="emacs ~/.oh-my-zsh"
+alias zshreset="source ~/.zshrc"
+alias yarnclean="rm -rf node_modules/ && yarn install"
+alias npmclean="rm -rf node_modules/ && npm install"
+alias ls="colorls --dark --sort-dirs --report"
+alias lsl="ls -la"
+alias lc="colorls --tree --dark"
+alias top="vtop --theme brew"
+alias cdw="mkdir -p ~/Documents/Work && cd ~/Documents/Work/"
+alias cdp="mkdir -P ~/Documents/Personal && cd ~/Documents/Personal/"
+alias cdd="cd ~/Dropbox/"
 
 # Lock the screen (when going AFK)
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"

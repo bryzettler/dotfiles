@@ -3,6 +3,7 @@ module.exports = {
     // http://conqueringthecommandline.com/book/ack_ag
     'ack',
     'ag',
+    'asdf',
     // https://github.com/wting/autojump
     'autojump',
     // alternative to `cat`: https://github.com/sharkdp/bat
@@ -10,6 +11,13 @@ module.exports = {
     // Install GNU core utilities (those that come with macOS are outdated)
     // Don’t forget to add `$(brew --prefix coreutils)/libexec/gnubin` to `$PATH`.
     'coreutils',
+    'automake',
+    'autoconf',
+    'openssl',
+    'libyaml',
+    'libxslt',
+    'libtool',
+    'unixodbc',
     'dos2unix',
     // Install GNU `find`, `locate`, `updatedb`, and `xargs`, `g`-prefixed
     'findutils',
@@ -44,13 +52,18 @@ module.exports = {
     'todo-txt',
     'tree',
     'ttyrec',
-    // better, more recent vim
-    'vim --with-client-server --with-override-system-vi',
     'watch',
+    'redis',
+    'postgresql',
+    'postgis',
+    'gcc',
     // Install wget with IRI support
     'wget --enable-iri'
   ],
   cask: [
+    'java8',
+    // better, more recent emacs
+    'emacs --no-quarantine',	
     //'adium',
     //'amazon-cloud-drive',
     //'atom',
@@ -58,40 +71,64 @@ module.exports = {
     //'comicbooklover',
     //'diffmerge',
     'docker', // docker for mac
-    //'dropbox',
+    'dropbox',
+    'graphql-playground',
     //'evernote',
     'flux',
     'gpg-suite',
     //'ireadfast',
     'iterm2',
+    'hyper',
     'little-snitch',
     'macbreakz',
     'micro-snitch',
     'signal',
     //'macvim',
-    'sizeup',
+    'spectacle',
     //'sketchup',
-    'slack',
+    //'slack',
+    'ferdi',
+    'alfred',
+    'spotify',
     'the-unarchiver',
     //'torbrowser',
     //'transmission',
     'visual-studio-code',
     //'vlc',
-    'xquartz'
+    'xquartz',
+    'brave-browser',
+    'transmission',
+    '1password',
+    'tableplus',
+    'numi'
   ],
   gem: [
+    'pry',
+    'pry-doc',
+    'colorls'
   ],
   npm: [
     'antic',
     'buzzphrase',
     'eslint',
+    'eslint-config-airbnb',
+    'eslint-plugin-flowtype',
+    'eslint-plugin-import',
+    'eslint-plugin-jsx-ally',
+    'eslint-plugin-react',
+    'eslint_d',
+    'typescript',
+    'tslint',      
     'instant-markdown-d',
     // 'generator-dockerize',
     // 'gulp',
     'npm-check-updates',
     'prettyjson',
     'trash',
-    'vtop'
+    'vtop',
+    'yarn',
+    'tern',
+    'prettier',
     // ,'yo'
   ],
   mas: [

@@ -231,7 +231,19 @@ if [[ "$CURRENTSHELL" != "/usr/local/bin/zsh" ]]; then
   ok
 fi
 
+if [[ ! -d "./oh-my-zsh/custom/plugins/zsh-completions" ]]; then
+    bot "cloning zsh-completions"    
+    git clone -b next https://github.com/zsh-users/zsh-completions oh-my-zsh/custom/plugins/zsh-completions
+    git clone https://github.com/zsh-users/zsh-completions oh-my-zsh/custom/plugins/zsh-completions
+fi
+
+if [[ ! -d "./oh-my-zsh/custom/themes/powerlevel10k"]]; then
+  bot "cloaning powerlevel10k"
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git oh-my-zsh/custom/themes/powerlevel10k
+fi
+
 if [[ ! -d "./oh-my-zsh/custom/themes/powerlevel9k" ]]; then
+  bot "cloaning powerlevel9k"
   git clone https://github.com/bhilburn/powerlevel9k.git oh-my-zsh/custom/themes/powerlevel9k
 fi
 
@@ -275,6 +287,13 @@ else
   ok "skipped. Install by running :PluginInstall within vim"
 fi
 
+read -r -p "Add asdf to oh-my-zsh? [Y|n] " response
+if [[ $response =~ (y|yes|Y) ]];then
+    bot "adding asdf to oh-my-zsh"
+    echo -e "\n. $(brew --prefix asdf)/asdf.sh" >> ~/.zshrc
+    echo -e "\n. $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash" >> ~/.zshrc
+    ok
+fi
 
 read -r -p "Install fonts? [y|N] " response
 if [[ $response =~ (y|yes|Y) ]];then
@@ -292,6 +311,7 @@ if [[ $response =~ (y|yes|Y) ]];then
   require_cask font-roboto-mono
   require_cask font-roboto-mono-for-powerline
   require_cask font-source-code-pro
+  require_cask font-hack-nerd-font
   ok
 fi
 
@@ -513,8 +533,8 @@ sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.serve
 # # See https://github.com/mathiasbynens/dotfiles/issues/237
 # echo "0x08000100:0" > ~/.CFUserTextEncoding;ok
 
-# running "Stop iTunes from responding to the keyboard media keys"
-# launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist 2> /dev/null;ok
+running "Stop iTunes from responding to the keyboard media keys"
+launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist 2> /dev/null;ok
 
 # running "Show icons for hard drives, servers, and removable media on the desktop"
 # defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
@@ -529,10 +549,10 @@ sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.serve
 # file=/Applications/Dropbox.app/Contents/Resources/emblem-dropbox-uptodate.icns
 # [ -e "${file}" ] && mv -f "${file}" "${file}.bak";ok
 
-# running "Wipe all (default) app icons from the Dock"
-# # This is only really useful when setting up a new Mac, or if you don’t use
-# # the Dock to launch apps.
-# defaults write com.apple.dock persistent-apps -array "";ok
+running "Wipe all (default) app icons from the Dock"
+# This is only really useful when setting up a new Mac, or if you don’t use
+# the Dock to launch apps.
+defaults write com.apple.dock persistent-apps -array "";ok
 
 #running "Enable the 2D Dock"
 #defaults write com.apple.dock no-glass -bool true;ok
@@ -549,8 +569,8 @@ sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.serve
 ################################################
 bot "Standard System Changes"
 ################################################
-running "always boot in verbose mode (not MacOS GUI mode)"
-sudo nvram boot-args="-v";ok
+#running "always boot in verbose mode (not MacOS GUI mode)"
+#sudo nvram boot-args="-v";ok
 
 running "allow 'locate' command"
 sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist > /dev/null 2>&1;ok
@@ -663,7 +683,7 @@ defaults -currentHost write NSGlobalDomain com.apple.trackpad.trackpadCornerClic
 defaults -currentHost write NSGlobalDomain com.apple.trackpad.enableSecondaryClick -bool true;ok
 
 running "Disable 'natural' (Lion-style) scrolling"
-defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false;ok
+defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true;ok
 
 running "Increase sound quality for Bluetooth headphones/headsets"
 defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40;ok
@@ -680,9 +700,9 @@ defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool true;ok
 running "Disable press-and-hold for keys in favor of key repeat"
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false;ok
 
-running "Set a blazingly fast keyboard repeat rate"
-defaults write NSGlobalDomain KeyRepeat -int 2
-defaults write NSGlobalDomain InitialKeyRepeat -int 10;ok
+#running "Set a blazingly fast keyboard repeat rate"
+#defaults write NSGlobalDomain KeyRepeat -int 2
+#defaults write NSGlobalDomain InitialKeyRepeat -int 10;ok
 
 running "Set language and text formats (english/US)"
 defaults write NSGlobalDomain AppleLanguages -array "en"
@@ -889,13 +909,13 @@ bot "Configuring Hot Corners"
 # 12: Notification Center
 
 running "Top left screen corner → Mission Control"
-defaults write com.apple.dock wvous-tl-corner -int 2
+defaults write com.apple.dock wvous-tl-corner -int 0
 defaults write com.apple.dock wvous-tl-modifier -int 0;ok
 running "Top right screen corner → Desktop"
-defaults write com.apple.dock wvous-tr-corner -int 4
+defaults write com.apple.dock wvous-tr-corner -int 0
 defaults write com.apple.dock wvous-tr-modifier -int 0;ok
 running "Bottom right screen corner → Start screen saver"
-defaults write com.apple.dock wvous-br-corner -int 5
+defaults write com.apple.dock wvous-br-corner -int 0
 defaults write com.apple.dock wvous-br-modifier -int 0;ok
 
 ###############################################################################
