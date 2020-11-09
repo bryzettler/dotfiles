@@ -1,5 +1,6 @@
 module.exports = {
   config: {
+    modifierKeys: { altIsMeta: true },
     opacity: 0.9,
     updateChannel: "canary",
     fontSize: 14,
@@ -42,7 +43,7 @@ module.exports = {
     env: {},
     bell: "SOUND",
     copyOnSelect: false,
-    defaultSSHApp: true
+    defaultSSHApp: true,
   },
   plugins: ["hyper-material-theme", "hyper-opacity"],
   localPlugins: [],

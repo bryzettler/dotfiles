@@ -5,7 +5,7 @@
 (defvar elpa-dir (concat emacs-home "elpa"))
 (setq package-user-dir elpa-dir)
 (setq user-full-name "Bry Zettler"
-       user-mail-address "bryanzettler@gmail.com")
+  user-mail-address "bryanzettler@gmail.com")
 (require 'init-package)
 (require 'init-editor-config)
 (require 'cl)

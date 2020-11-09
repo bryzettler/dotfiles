@@ -24,6 +24,7 @@ alias top="vtop --theme brew"
 alias cdw="mkdir -p ~/Documents/Work && cd ~/Documents/Work/"
 alias cdp="mkdir -P ~/Documents/Personal && cd ~/Documents/Personal/"
 alias cdd="cd ~/Dropbox/"
+alias sshnuc="ssh zyrb@zyrb-NUC10i5FNH"
 
 # Lock the screen (when going AFK)
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"

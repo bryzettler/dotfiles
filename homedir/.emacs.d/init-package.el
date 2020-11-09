@@ -1,10 +1,8 @@
 (require 'package)
 (setq package-enable-at-startup nil)
 (setq package-archives '(("melpa". "http://melpa.org/packages/")
-			 ("gnu" . "http://elpa.gnu.org/packages/")
-			 ("org" . "https://orgmode.org/elpa/")
-			 ("marmalade" . "https://marmalade-repo.org/packages/")
-			 ("melpa-stable" . "https://melpa-stable.milkbox.net/packages/")))
+                        ;;("melpa-stable" . "https://melpa-stable.milkbox.net/packages/")
+                        ))
 (package-initialize)
 
 ;; bootstrap 'use-package'
