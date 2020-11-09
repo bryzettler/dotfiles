@@ -34,9 +34,9 @@
   (setq tern-command (append tern-command '("--no-port-file"))))
 
 ;; Company integration for tern (js)
-(use-package company-tern
-  :init (add-to-list 'company-backends '(company-tern company-web-html :with company-yasnippet))
-  :config (setq company-tern-property-marker nil))
+;; (use-package company-tern
+;;   :init (add-to-list 'company-backends '(company-tern company-web-html :with company-yasnippet))
+;;   :config (setq company-tern-property-marker nil))
 
 ;; pos-tips
 (use-package pos-tip)
