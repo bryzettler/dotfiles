@@ -1,7 +1,7 @@
 (use-package projectile
   :diminish projectile-mode
   :config
-  (projectile-mode)
+  (projectile-mode t)
   (setq projectile-completion-system 'ivy))
 ;; (add-hook 'projectile-after-switch-project-hook (lambda ()
 ;;     (projectile-invalidate-cache nil))))

@@ -1,4 +1,4 @@
-;; cleanup the ui
+;;; cleanup the ui
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
@@ -15,7 +15,8 @@
   :ensure t
   :config
   (setq base16-distinct-fringe-background nil)
-  (load-theme 'base16-default-dark t))
+  (set-face-background 'default "undefined")
+  (load-theme 'base16-gruvbox-dark-medium t))
 ;; (use-package color-theme-sanityinc-tomorrow
 ;;   :config (load-theme 'sanityinc-tomorrow-eighties t))
 
