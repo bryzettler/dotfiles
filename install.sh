@@ -308,6 +308,7 @@ if [[ $response =~ (y|yes|Y) ]];then
   require_cask font-fontawesome
   require_cask font-awesome-terminal-fonts
   require_cask font-hack
+  require_cask font-fira-code
   require_cask font-inconsolata-dz-for-powerline
   require_cask font-inconsolata-g-for-powerline
   require_cask font-inconsolata-for-powerline
