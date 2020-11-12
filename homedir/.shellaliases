@@ -18,13 +18,16 @@ alias zshreset="source ~/.zshrc"
 alias yarnclean="rm -rf node_modules/ && yarn install"
 alias npmclean="rm -rf node_modules/ && npm install"
 alias ls="colorls --dark --sort-dirs --report"
-alias lsl="ls -la"
+alias lsl="colorls -la"
 alias lc="colorls --tree --dark"
 alias top="vtop --theme brew"
 alias cdw="mkdir -p ~/Documents/Work && cd ~/Documents/Work/"
-alias cdp="mkdir -P ~/Documents/Personal && cd ~/Documents/Personal/"
+alias cdp="mkdir -p ~/Documents/Personal && cd ~/Documents/Personal/"
 alias cdd="cd ~/Dropbox/"
-alias sshnuc="ssh zyrb@zyrb-NUC10i5FNH"
+alias sshnuc="ssh zyrb@zyrb.endofinternet.net"
+scpnuc() {
+  scp zyrb@zyrb.endofinternet.net:$1 $2
+}
 
 # Lock the screen (when going AFK)
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
@@ -72,15 +75,6 @@ alias network.connections='lsof -l -i +L -R -V'
 alias network.established='lsof -l -i +L -R -V | grep ESTABLISHED'
 alias network.externalip='curl -s http://checkip.dyndns.org/ | sed "s/[a-zA-Z<>/ :]//g"'
 alias network.internalip="ifconfig en0 | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'"
-
-# Directory listings
-# LS_COLORS='no=01;37:fi=01;37:di=07;96:ln=01;36:pi=01;32:so=01;35:do=01;35:bd=01;33:cd=01;33:ex=01;31:mi=00;05;37:or=00;05;37:'
-# -G Add colors to ls
-# -l Long format
-# -h Short size suffixes (B, K, M, G, P)
-# -p Postpend slash to folders
-alias ls='ls -G -h -p '
-alias ll='ls -l -G -h -p '
 
 # Print each PATH entry on a separate line
 alias path='echo -e ${PATH//:/\\n}'

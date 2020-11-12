@@ -11,12 +11,7 @@
         :background "red1"
         :weight 'bold)
 
-(use-package base16-theme
-  :ensure t
-  :config
-  (setq base16-distinct-fringe-background nil)
-  (set-face-background 'default "undefined")
-  (load-theme 'base16-gruvbox-dark-medium t))
+(use-package color-theme-sanityinc-tomorrow)
 ;; (use-package color-theme-sanityinc-tomorrow
 ;;   :config (load-theme 'sanityinc-tomorrow-eighties t))
 

@@ -63,7 +63,7 @@ module.exports = {
   cask: [
     'java8',
     // better, more recent emacs
-    'emacs --no-quarantine',	
+    'emacs --no-quarantine',
     //'adium',
     //'amazon-cloud-drive',
     //'atom',
@@ -77,8 +77,8 @@ module.exports = {
     'flux',
     'gpg-suite',
     //'ireadfast',
-    //'iterm2',
-    'hyper',
+    'iterm2',
+    //'hyper',
     'little-snitch',
     'macbreakz',
     'micro-snitch',
@@ -100,7 +100,8 @@ module.exports = {
     'transmission',
     '1password',
     'tableplus',
-    'numi'
+    'numi',
+    'beardedspice'
   ],
   gem: [
     'pry',
@@ -118,7 +119,7 @@ module.exports = {
     'eslint-plugin-react',
     'eslint_d',
     'typescript',
-    'tslint',      
+    'tslint',
     'instant-markdown-d',
     // 'generator-dockerize',
     // 'gulp',

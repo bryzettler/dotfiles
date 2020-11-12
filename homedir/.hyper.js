@@ -20,6 +20,7 @@ module.exports = {
     showHamburgerMenu: "",
     showWindowControls: "left",
     padding: "12px 14px",
+    scrollback: 100000000,
     colors: {
       black: "#000000",
       red: "#C51E14",
