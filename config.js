@@ -101,7 +101,8 @@ module.exports = {
     '1password',
     'tableplus',
     'numi',
-    'beardedspice'
+    'beardedspice',
+    'ripgrep'
   ],
   gem: [
     'pry',

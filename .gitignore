@@ -19,7 +19,7 @@ homedir/.vim/bundle/*
 !homedir/.vim/bundle/Vundle.vim
 homedir/.emacs.d/session.*
 homedir/.emacs.d/ac-comphist.dat
-homedir/.emacs.d/packages
+homedir/.emacs.d/packages/*
 homedir/.emacs.d/auto-save-list
 homedir/.emacs.d/ido.last
 homedir/.emacs.d/.tern-port
