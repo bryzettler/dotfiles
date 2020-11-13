@@ -207,4 +207,6 @@
 (use-package evil-magit
   :after magit)
 
+(use-package forge)
+
 (provide 'init)
