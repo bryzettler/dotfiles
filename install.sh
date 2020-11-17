@@ -309,6 +309,7 @@ if [[ $response =~ (y|yes|Y) ]];then
   require_cask font-awesome-terminal-fonts
   require_cask font-hack
   require_cask font-fira-code
+  require_cask font-fira-mono
   require_cask font-inconsolata-dz-for-powerline
   require_cask font-inconsolata-g-for-powerline
   require_cask font-inconsolata-for-powerline
@@ -316,6 +317,7 @@ if [[ $response =~ (y|yes|Y) ]];then
   require_cask font-roboto-mono-for-powerline
   require_cask font-source-code-pro
   require_cask font-hack-nerd-font
+  require_cask font-cantarell
   ok
 fi
 

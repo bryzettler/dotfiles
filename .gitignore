@@ -34,3 +34,6 @@ homedir/.emacs.d/projectile-bookmarks.eld
 homedir/.emacs.d/session.*
 homedir/.emacs.d/custom.el
 homedir/.emacs.d/forge-database.sqlite
+homedir/.emacs.d/transient
+homedir/.emacs.d/.lsp-session-v1
+homedir/.emacs.d/.cache

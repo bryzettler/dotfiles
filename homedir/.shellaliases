@@ -22,7 +22,7 @@ alias lc="colorls --tree --dark"
 alias top="vtop --theme brew"
 alias cdw="mkdir -p ~/Documents/Work && cd ~/Documents/Work/"
 alias cdp="mkdir -p ~/Documents/Personal && cd ~/Documents/Personal/"
-alias cdd="cd ~/Dropbox/"
+alias cdd="cd ~/Documents/Dropbox/"
 alias sshnuc="ssh zyrb@zyrb.endofinternet.net"
 scpnuc() {
   scp zyrb@zyrb.endofinternet.net:$1 $2
