@@ -203,6 +203,14 @@ in conjunction with Evil modes.
 
 * General Configuration
 
+** Cousel
+
+#+begin_src emacs-lisp
+
+(use-package counsel)
+
+#+end_src>
+
 ** User Interface
 
 Clean up Emacs' user interface, make it more minimal.
