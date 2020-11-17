@@ -19,6 +19,15 @@
 (setq user-full-name "Bry Zettler"
   user-mail-address "bryanzettler@gmail.com")
 
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+(electric-pair-mode 1)
+(delete-selection-mode 1)
+(show-paren-mode t)
+(setq electric-pair-pairs '(
+  (?\' . ?\')
+  (?\` . ?\`)))
+
 ;; You will most likely need to adjust this font size for your system!
 (defvar zyrb/default-font-size 120)
 (defvar zyrb/default-variable-font-size 120)
