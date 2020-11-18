@@ -158,17 +158,6 @@
 
 (use-package diminish)
 
-(use-package all-the-icons
-  :if (display-graphic-p)
-  :commands all-the-icons-install-fonts
-  :init
-  (unless (find-font (font-spec :name "all-the-icons"))
-    (all-the-icons-install-fonts t)))
-
-(use-package all-the-icons-dired
-  :if (display-graphic-p)
-  :hook (dired-mode . all-the-icons-dired-mode))
-
 (use-package minions
   :hook (doom-modeline-mode . minions-mode)
   :custom
@@ -179,11 +168,11 @@
   :custom
   (doom-modeline-height 15)
   (doom-modeline-bar-width 6)
-  (doom-modeline-lsp nil)
+  (doom-modeline-lsp t)
   (doom-modeline-github nil)
   (doom-modeline-mu4e nil)
   (doom-modeline-irc nil)
-  (doom-modeline-minor-modes nil)
+  (doom-modeline-minor-modes t)
   (doom-modeline-persp-name nil)
   (doom-modeline-buffer-file-name-style 'truncate-except-project)
   (doom-modeline-major-mode-icon nil))
@@ -706,15 +695,19 @@ or the current buffer directory."
   (set-face-foreground 'git-gutter:modified "LightGoldenrod")
   (set-face-foreground 'git-gutter:deleted "LightCoral"))
 
+(defun zyrb/lsp-mode-setup ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode))
+
+
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
+  :hook (lsp-mode . zyrb/lsp-mode-setup)
   :bind (:map lsp-mode-map
          ("TAB" . completion-at-point)))
 
 (zyrb/leader-key-def
   "l"  '(:ignore t :which-key "lsp")
-  "ld" 'xref-find-definitions
-  "lr" 'xref-find-references
   "ln" 'lsp-ui-find-next-reference
   "lp" 'lsp-ui-find-prev-reference
   "ls" 'counsel-imenu
@@ -725,11 +718,9 @@ or the current buffer directory."
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
   :custom
-  (lsp-ui-doc-positon 'bottom)
-  (lsp-ui-sideline-enable t))
-
-(use-package lsp-treemacs
-  :after lsp)
+  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-position 'bottom))
 
 (use-package lsp-ivy)
 
@@ -829,11 +820,11 @@ or the current buffer directory."
   :after lsp-mode
   :hook (lsp-mode . company-mode)
   :bind (:map company-active-map
-         ("TAB" . company-complete-selection)
+         ("<tab>" . company-complete-selection)
          ("C-n" . company-select-next)
          ("C-p" . company-select-previous))
         (:map lsp-mode-map
-         ("TAB" . company-indent-or-complete-common))
+         ("<tab>" . company-indent-or-complete-common))
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.0))
