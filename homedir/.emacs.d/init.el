@@ -21,19 +21,16 @@
 
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-(electric-pair-mode 1)
+;; (electric-pair-mode 1)
 (delete-selection-mode 1)
-(show-paren-mode t)
-(setq electric-pair-pairs '(
-  (?\' . ?\')
-  (?\` . ?\`)))
+;; (show-paren-mode t)
+;; (setq electric-pair-pairs '(
+  ;; (?\' . ?\')
+  ;; (?\` . ?\`)))
 
 ;; You will most likely need to adjust this font size for your system!
 (defvar zyrb/default-font-size 120)
 (defvar zyrb/default-variable-font-size 120)
-
-(global-unset-key [(control z)])
-(global-unset-key [(control x)(control z)])
 
 ;; Use y or n instead of yes or no
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -75,6 +72,14 @@
 ;; Uncomment this to get a reading on packages that get loaded at startup
 ;;(setq use-package-verbose t)
 
+;; mac specific settings
+;; Ensure environment variables inside Emacs look the same as in the user's shell.
+;; only need exec-path-from-shell on OSX
+;; this hopefully sets up path and other vars better
+(use-package exec-path-from-shell)
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
+
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 (use-package which-key
@@ -101,10 +106,13 @@
 ;; Thanks, but no thanks
 (setq inhibit-startup-message t)
 
-(scroll-bar-mode -1)        ; Disable visible scrollbar
-(tool-bar-mode -1)          ; Disable the toolbar
-(tooltip-mode -1)           ; Disable tooltips
-(set-fringe-mode 10)       ; Give some breathing room
+(scroll-bar-mode -1)            ; Disable visible scrollbar
+(tool-bar-mode -1)              ; Disable the toolbar
+(tooltip-mode -1)               ; Disable tooltips
+(set-fringe-mode 4)             ; Give some breathing room
+(set-face-attribute 'fringe nil ; Give fringe same color as theme background
+  :foreground (face-foreground 'default)
+  :background (face-background 'default))
 
 (menu-bar-mode -1)            ; Disable the menu bar
 
@@ -240,24 +248,7 @@
 
 (use-package ivy-rich
   :init
-  (ivy-rich-mode 1)
-  :config
-  (setq ivy-format-function #'ivy-format-function-line))
-  ;; (setq ivy-rich--display-transformers-list
-  ;;       (plist-put ivy-rich--display-transformers-list
-  ;;                  'ivy-switch-buffer
-  ;;                  '(:columns
-  ;;                    ((ivy-rich-candidate (:width 40))
-  ;;                     (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right)); return the buffer indicators
-  ;;                     (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))          ; return the major mode info
-  ;;                     (ivy-rich-switch-buffer-project (:width 15 :face success))             ; return project name using `projectile'
-  ;;                     (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))  ; return file path relative to project root or `default-directory' if project is nil
-  ;;                    :predicate
-  ;;                    (lambda (cand)
-  ;;                      (if-let ((buffer (get-buffer cand)))
-  ;;                          ;; Don't mess with EXWM buffers
-  ;;                          (with-current-buffer buffer
-  ;;                            (not (derived-mode-p 'exwm-mode)))))))))
+  (ivy-rich-mode 1))
 
 (use-package counsel
   :bind (("M-x" . counsel-M-x)
@@ -311,13 +302,19 @@
   "jw"  '(avy-goto-word-0 :which-key "jump to word")
   "jl"  '(avy-goto-line :which-key "jump to line"))
 
+(use-package vterm
+  :commands vterm
+  :config
+  (setq vterm-shell "zsh")
+  (setq vterm-max-scrollback 10000))
+
 (use-package default-text-scale
   :defer 1
   :config
   (default-text-scale-mode))
 
 (use-package ace-window
-  :bind (("M-o" . ace-window))
+  :bind (("C-x o" . ace-window))
   :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
@@ -379,6 +376,8 @@ or the current buffer directory."
 
   (zyrb/leader-key-def
     "fb" '(neotree-project-dir :which-key "neo tree"))
+
+(use-package emamux)
 
 (defun zyrb/org-font-setup ()
   ;; Replace list hyphen with dot
@@ -572,7 +571,10 @@ or the current buffer directory."
 
 (use-package projectile
   :diminish projectile-mode
-  :config (projectile-mode)
+  :config
+  (projectile-mode)
+  (setq projectile-completion-system 'ivy)
+  (setq projectile-enable-caching nil)
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :init
@@ -585,9 +587,11 @@ or the current buffer directory."
 
 (zyrb/leader-key-def
   "pf"  'counsel-projectile-find-file
-  "ps"  'counsel-projectile-switch-project
   "pF"  'counsel-projectile-rg
-  "pp"  'counsel-projectile
+  "pp"  'counsel-projectile-switch-project
+  "pl"  'counsel-projectile
+  "ps"  'counsel-projectile-ag
+  "pg"  'counsel-projectile-grep
   "pc"  'projectile-compile-project
   "pd"  'projectile-dired)
 
@@ -756,6 +760,7 @@ or the current buffer directory."
   (setq js2-indent-switch-body t)
   (setq js2-jsx-mode 2)
   (setq js2-highlight-level 3)
+  (setq web-mode-enable-auto-quoting nil)
   (setq web-mode-content-types-alist
       '(("jsx" . "\\.js[x]?\\'")
         ("jsx" . "\\.tsx?\\'")))

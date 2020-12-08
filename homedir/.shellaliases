@@ -19,13 +19,19 @@ alias npmclean="rm -rf node_modules/ && npm install"
 alias ls="colorls --dark --sort-dirs --report"
 alias lsl="colorls -la"
 alias lc="colorls --tree --dark"
-alias top="vtop --theme brew"
+alias top="htop"
 alias cdw="mkdir -p ~/Documents/Work && cd ~/Documents/Work/"
 alias cdp="mkdir -p ~/Documents/Personal && cd ~/Documents/Personal/"
 alias cdd="cd ~/Documents/Dropbox/"
-alias sshnuc="ssh zyrb@zyrb.endofinternet.net"
-scpnuc() {
+sshnuc() {
+  ssh zyrb@zyrb.endofinternet.net -p $1
+}
+
+scpfromnuc() {
   scp zyrb@zyrb.endofinternet.net:$1 $2
+}
+scptonuc() {
+  scp $1 zyrb@zyrb.endofinternet.net:$2
 }
 
 # Lock the screen (when going AFK)
@@ -103,7 +109,7 @@ alias spoton="sudo mdutil -a -i on"
 # Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
 alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; mas upgrade; npm install npm -g; npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup'
 
-alias vtop="vtop --theme wizard"
+# alias vtop="vtop --theme wizard"
 
 alias jsonfix="pbpaste | jq . | pbcopy"
 

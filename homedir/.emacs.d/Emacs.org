@@ -1,3 +1,4 @@
+
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
 
@@ -11,35 +12,35 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
 
 #+begin_src emacs-lisp
 
-;; NOTE: init.el is now generated from Emacs.org.  Please edit that file
-;;       in Emacs and init.el will be generated automatically!
+  ;; NOTE: init.el is now generated from Emacs.org.  Please edit that file
+  ;;       in Emacs and init.el will be generated automatically!
 
-(defvar emacs-home "~/.dotfiles/homedir/.emacs.d/")
-(add-to-list 'load-path emacs-home)
+  (defvar emacs-home "~/.dotfiles/homedir/.emacs.d/")
+  (add-to-list 'load-path emacs-home)
 
-(setq custom-file (concat emacs-home "custom.el"))
-(load custom-file)
+  (setq custom-file (concat emacs-home "custom.el"))
+  (load custom-file)
 
-(setq backup-directory-alist
-  `(("." . ,(concat emacs-home "backups"))))
+  (setq backup-directory-alist
+    `(("." . ,(concat emacs-home "backups"))))
 
-(setq auto-save-file-name-transforms
-  `((".*" ,(concat emacs-home "auto-save-list"))))
+  (setq auto-save-file-name-transforms
+    `((".*" ,(concat emacs-home "auto-save-list"))))
 
-(defvar packages-dir (concat emacs-home "packages"))
-(setq package-user-dir packages-dir)
+  (defvar packages-dir (concat emacs-home "packages"))
+  (setq package-user-dir packages-dir)
 
-(setq user-full-name "Bry Zettler"
-  user-mail-address "bryanzettler@gmail.com")
+  (setq user-full-name "Bry Zettler"
+    user-mail-address "bryanzettler@gmail.com")
 
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+  (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-(electric-pair-mode 1)
-(delete-selection-mode 1)
-(show-paren-mode t)
-(setq electric-pair-pairs '(
-  (?\' . ?\')
-  (?\` . ?\`)))
+  ;; (electric-pair-mode 1)
+  (delete-selection-mode 1)
+  ;; (show-paren-mode t)
+  ;; (setq electric-pair-pairs '(
+    ;; (?\' . ?\')
+    ;; (?\` . ?\`)))
 
 #+end_src
 
@@ -47,18 +48,9 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
 
 #+begin_src emacs-lisp
 
-;; You will most likely need to adjust this font size for your system!
-(defvar zyrb/default-font-size 120)
-(defvar zyrb/default-variable-font-size 120)
-
-#+end_src
-
-** Disable C-z
-
-#+begin_src emacs-lisp
-
-(global-unset-key [(control z)])
-(global-unset-key [(control x)(control z)])
+  ;; You will most likely need to adjust this font size for your system!
+  (defvar zyrb/default-font-size 120)
+  (defvar zyrb/default-variable-font-size 120)
 
 #+end_src
 
@@ -90,17 +82,17 @@ Make startup faster by reducing the frequency of garbage collection and then use
 
 #+begin_src emacs-lisp
 
-;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
+  ;; The default is 800 kilobytes.  Measured in bytes.
+  (setq gc-cons-threshold (* 50 1000 1000))
 
-;; Profile emacs startup
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (message "*** Emacs loaded in %s with %d garbage collections."
-                     (format "%.2f seconds"
-                             (float-time
-                              (time-subtract after-init-time before-init-time)))
-                     gcs-done)))
+  ;; Profile emacs startup
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (message "*** Emacs loaded in %s with %d garbage collections."
+                       (format "%.2f seconds"
+                               (float-time
+                                (time-subtract after-init-time before-init-time)))
+                       gcs-done)))
 
 #+end_src
 
@@ -110,27 +102,41 @@ Set up ELPA, MELPA, and Org package repositories and load =use-package= to manag
 
 #+begin_src emacs-lisp
 
-;; Initialize package sources
-(require 'package)
+  ;; Initialize package sources
+  (require 'package)
 
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("melpa-stable" . "https://stable.melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                           ("melpa-stable" . "https://stable.melpa.org/packages/")
+                           ("org" . "https://orgmode.org/elpa/")
+                           ("elpa" . "https://elpa.gnu.org/packages/")))
 
-(package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
+  (package-initialize)
+  (unless package-archive-contents
+    (package-refresh-contents))
 
-;; Initialize use-package on non-Linux platforms
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
+  ;; Initialize use-package on non-Linux platforms
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
 
-(require 'use-package)
-(setq use-package-always-ensure t)
+  (require 'use-package)
+  (setq use-package-always-ensure t)
 
-;; Uncomment this to get a reading on packages that get loaded at startup
-;;(setq use-package-verbose t)
+  ;; Uncomment this to get a reading on packages that get loaded at startup
+  ;;(setq use-package-verbose t)
+
+#+end_src
+
+* Mac Setup
+
+#+begin_src emacs-lisp
+
+  ;; mac specific settings
+  ;; Ensure environment variables inside Emacs look the same as in the user's shell.
+  ;; only need exec-path-from-shell on OSX
+  ;; this hopefully sets up path and other vars better
+  (use-package exec-path-from-shell)
+  (when (memq window-system '(mac ns))
+    (exec-path-from-shell-initialize))
 
 #+end_src
 
@@ -140,7 +146,7 @@ Set up ELPA, MELPA, and Org package repositories and load =use-package= to manag
 
 #+begin_src emacs-lisp
 
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 #+end_src
 
@@ -166,11 +172,11 @@ in conjunction with Evil modes.
 
 #+begin_src emacs-lisp
 
-(use-package general
-  :config
-  (general-create-definer zyrb/leader-key-def
-    :keymaps 'override
-    :prefix "M-SPC"))
+  (use-package general
+    :config
+    (general-create-definer zyrb/leader-key-def
+      :keymaps 'override
+      :prefix "M-SPC"))
 
 #+end_src
 
@@ -188,7 +194,7 @@ in conjunction with Evil modes.
 
 #+begin_src emacs-lisp
 
-(define-key global-map (kbd "M-g") 'goto-line)
+  (define-key global-map (kbd "M-g") 'goto-line)
 
 #+end_src
 
@@ -196,8 +202,8 @@ in conjunction with Evil modes.
 
 #+begin_src emacs-lisp
 
-(define-key global-map (kbd "M-<right>") 'forward-word)
-(define-key global-map (kbd "M-<left>") 'backward-word)
+  (define-key global-map (kbd "M-<right>") 'forward-word)
+  (define-key global-map (kbd "M-<left>") 'backward-word)
 
 #+end_src
 
@@ -207,7 +213,7 @@ in conjunction with Evil modes.
 
 #+begin_src emacs-lisp
 
-(use-package counsel)
+  (use-package counsel)
 
 #+end_src>
 
@@ -217,18 +223,21 @@ Clean up Emacs' user interface, make it more minimal.
 
 #+begin_src emacs-lisp
 
-;; Thanks, but no thanks
-(setq inhibit-startup-message t)
+  ;; Thanks, but no thanks
+  (setq inhibit-startup-message t)
 
-(scroll-bar-mode -1)        ; Disable visible scrollbar
-(tool-bar-mode -1)          ; Disable the toolbar
-(tooltip-mode -1)           ; Disable tooltips
-(set-fringe-mode 10)       ; Give some breathing room
+  (scroll-bar-mode -1)            ; Disable visible scrollbar
+  (tool-bar-mode -1)              ; Disable the toolbar
+  (tooltip-mode -1)               ; Disable tooltips
+  (set-fringe-mode 4)             ; Give some breathing room
+  (set-face-attribute 'fringe nil ; Give fringe same color as theme background
+    :foreground (face-foreground 'default)
+    :background (face-background 'default))
 
-(menu-bar-mode -1)            ; Disable the menu bar
+  (menu-bar-mode -1)            ; Disable the menu bar
 
-;; Set up the visible bell
-(setq visible-bell t)
+  ;; Set up the visible bell
+  (setq visible-bell t)
 
 #+end_src
 
@@ -236,10 +245,10 @@ Improve scrolling
 
 #+begin_src emacs-lisp
 
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
-(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-(setq scroll-step 1) ;; keyboard scroll one line at a timesetq use-dialog-box nil) ; Disable dialog boxes since they weren't working in Mac OSX
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+  (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+  (setq scroll-step 1) ;; keyboard scroll one line at a timesetq use-dialog-box nil) ; Disable dialog boxes since they weren't working in Mac OSX
 
 #+end_src
 
@@ -247,17 +256,17 @@ Enable line numbers and customize their format.
 
 #+begin_src emacs-lisp
 
-(column-number-mode)
+  (column-number-mode)
 
-;; Enable line numbers for some modes
-(dolist (mode '(text-mode-hook
-               prog-mode-hook
-               conf-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 1))))
+  ;; Enable line numbers for some modes
+  (dolist (mode '(text-mode-hook
+                 prog-mode-hook
+                 conf-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 1))))
 
-;; Override some modes which derive from the about
-(dolist (mode '(org-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+  ;; Override some modes which derive from the about
+  (dolist (mode '(org-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 #+end_src
 
@@ -265,7 +274,7 @@ Don't warn for large files
 
 #+begin_src emacs-lisp
 
-(setq large-file-warning-threshold nil)
+  (setq large-file-warning-threshold nil)
 
 #+end_src
 
@@ -273,7 +282,7 @@ Don't warn for following symlinked files
 
 #+begin_src emacs-lisp
 
-(setq vc-follow-symlinks t)
+  (setq vc-follow-symlinks t)
 
 #+end_src
 
@@ -281,7 +290,7 @@ Don't wan when advice is added for functions
 
 #+begin_src emacs-lisp
 
-(setq ad-redefinition-action 'accept)
+  (setq ad-redefinition-action 'accept)
 
 #+end_src
 
@@ -289,15 +298,15 @@ Don't wan when advice is added for functions
 
 #+begin_src emacs-lisp
 
-(use-package doom-themes
-  :config
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-palenight t)
-  ;;(load-theme 'doom-dracula t)
-  (doom-themes-visual-bell-config)
-  (doom-themes-org-config))
+  (use-package doom-themes
+    :config
+    ;; Global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+    (load-theme 'doom-palenight t)
+    ;;(load-theme 'doom-dracula t)
+    (doom-themes-visual-bell-config)
+    (doom-themes-org-config))
 
 #+end_src
 
@@ -308,14 +317,14 @@ Different platforms need different default font sizes, and Fira Mono is currentl
 
 #+begin_src emacs-lisp
 
-;; Set the font face
-(set-face-attribute 'default nil :font "Fira Mono" :height 110)
+  ;; Set the font face
+  (set-face-attribute 'default nil :font "Fira Mono" :height 110)
 
-;; Set the fixed pitch face
-(set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height 120)
+  ;; Set the fixed pitch face
+  (set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height 120)
 
-;; Set the variable pitch face
-(set-face-attribute 'variable-pitch nil :font "Cantarell" :height 140 :weight 'regular)
+  ;; Set the variable pitch face
+  (set-face-attribute 'variable-pitch nil :font "Cantarell" :height 140 :weight 'regular)
 
 #+end_src
 
@@ -324,8 +333,8 @@ Different platforms need different default font sizes, and Fira Mono is currentl
 
 #+begin_src emacs-lisp
 
-(setq display-time-format "%l:%M %p %b %y"
-      display-time-default-load-average nil)
+  (setq display-time-format "%l:%M %p %b %y"
+        display-time-default-load-average nil)
 
 #+end_src
 
@@ -335,7 +344,7 @@ The [[https://github.com/myrjola/diminish.el][diminish]] package hides pesky min
 
 #+begin_src emacs-lisp
 
-(use-package diminish)
+  (use-package diminish)
 
 #+end_src
 
@@ -343,16 +352,16 @@ The [[https://github.com/myrjola/diminish.el][diminish]] package hides pesky min
 
 #+begin_src emacs-lisp
 
-(use-package all-the-icons
-  :if (display-graphic-p)
-  :commands all-the-icons-install-fonts
-  :init
-  (unless (find-font (font-spec :name "all-the-icons"))
-    (all-the-icons-install-fonts t)))
+  (use-package all-the-icons
+    :if (display-graphic-p)
+    :commands all-the-icons-install-fonts
+    :init
+    (unless (find-font (font-spec :name "all-the-icons"))
+      (all-the-icons-install-fonts t)))
 
-(use-package all-the-icons-dired
-  :if (display-graphic-p)
-  :hook (dired-mode . all-the-icons-dired-mode))
+  (use-package all-the-icons-dired
+    :if (display-graphic-p)
+    :hook (dired-mode . all-the-icons-dired-mode))
 
 #+end_src>
 
@@ -360,24 +369,24 @@ The [[https://github.com/myrjola/diminish.el][diminish]] package hides pesky min
 
 #+begin_src emacs-lisp
 
-(use-package minions
-  :hook (doom-modeline-mode . minions-mode)
-  :custom
-  (minions-mode-line-lighter ""))
+  (use-package minions
+    :hook (doom-modeline-mode . minions-mode)
+    :custom
+    (minions-mode-line-lighter ""))
 
-(use-package doom-modeline
-  :init (doom-modeline-mode 1)
-  :custom
-  (doom-modeline-height 15)
-  (doom-modeline-bar-width 6)
-  (doom-modeline-lsp t)
-  (doom-modeline-github nil)
-  (doom-modeline-mu4e nil)
-  (doom-modeline-irc nil)
-  (doom-modeline-minor-modes t)
-  (doom-modeline-persp-name nil)
-  (doom-modeline-buffer-file-name-style 'truncate-except-project)
-  (doom-modeline-major-mode-icon nil))
+  (use-package doom-modeline
+    :init (doom-modeline-mode 1)
+    :custom
+    (doom-modeline-height 15)
+    (doom-modeline-bar-width 6)
+    (doom-modeline-lsp t)
+    (doom-modeline-github nil)
+    (doom-modeline-mu4e nil)
+    (doom-modeline-irc nil)
+    (doom-modeline-minor-modes t)
+    (doom-modeline-persp-name nil)
+    (doom-modeline-buffer-file-name-style 'truncate-except-project)
+    (doom-modeline-major-mode-icon nil))
 
 #+end_src
 
@@ -385,7 +394,7 @@ The [[https://github.com/myrjola/diminish.el][diminish]] package hides pesky min
 
 #+begin_src emacs-lisp
 
-(global-auto-revert-mode 1)
+  (global-auto-revert-mode 1)
 
 #+end_src
 
@@ -393,10 +402,10 @@ The [[https://github.com/myrjola/diminish.el][diminish]] package hides pesky min
 
 #+begin_src emacs-lisp
 
-(zyrb/leader-key-def
-  "t"  '(:ignore t :which-key "toggles")
-  "tw" 'whitespace-mode
-  "tt" '(counsel-load-theme :which-key "choose theme"))
+  (zyrb/leader-key-def
+    "t"  '(:ignore t :which-key "toggles")
+    "tw" 'whitespace-mode
+    "tt" '(counsel-load-theme :which-key "choose theme"))
 
 #+end_src
 
@@ -404,10 +413,10 @@ The [[https://github.com/myrjola/diminish.el][diminish]] package hides pesky min
 
 #+begin_src emacs-lisp
 
-(use-package paren
-  :config
-  (set-face-attribute 'show-paren-match-expression nil :background "#363e4a")
-  (show-paren-mode 1))
+  (use-package paren
+    :config
+    (set-face-attribute 'show-paren-match-expression nil :background "#363e4a")
+    (show-paren-mode 1))
 
 #+end_src
 
@@ -418,14 +427,14 @@ list of timezones.  Nice for working in a team with remote members.
 
 #+begin_src emacs-lisp
 
-(setq display-time-world-list
-  '(("America/Chicago" "Chicago")
-    ("America/Los_Angeles" "Los Angeles")
-    ("America/New_York" "New York")
-    ("Europe/Athens" "Athens")
-    ("Pacific/Auckland" "Auckland")
-    ("Asia/Shanghai" "Shanghai")))
-    (setq display-time-world-time-format "%a, %d %b %I:%M %p %Z")
+  (setq display-time-world-list
+    '(("America/Chicago" "Chicago")
+      ("America/Los_Angeles" "Los Angeles")
+      ("America/New_York" "New York")
+      ("Europe/Athens" "Athens")
+      ("Pacific/Auckland" "Auckland")
+      ("Asia/Shanghai" "Shanghai")))
+      (setq display-time-world-time-format "%a, %d %b %I:%M %p %Z")
 
 #+end_src
 
@@ -437,8 +446,8 @@ Default to an indentation size of 2 spaces since it's the norm for pretty much e
 
 #+begin_src emacs-lisp
 
-(setq-default tab-width 2)
-(setq-default evil-shift-width tab-width)
+  (setq-default tab-width 2)
+  (setq-default evil-shift-width tab-width)
 
 #+end_src
 
@@ -446,7 +455,7 @@ Default to an indentation size of 2 spaces since it's the norm for pretty much e
 
 #+begin_src emacs-lisp
 
-(setq-default indent-tabs-mode nil)
+  (setq-default indent-tabs-mode nil)
 
 #+end_src
 
@@ -454,8 +463,8 @@ Default to an indentation size of 2 spaces since it's the norm for pretty much e
 
 #+begin_src emacs-lisp
 
-(use-package evil-nerd-commenter
-  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+  (use-package evil-nerd-commenter
+    :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 
 #+end_src
 
@@ -463,9 +472,9 @@ Default to an indentation size of 2 spaces since it's the norm for pretty much e
 
 #+begin_src emacs-lisp
 
-(use-package ws-butler
-  :hook ((text-mode . ws-butler-mode)
-         (prog-mode . ws-butler-mode)))
+  (use-package ws-butler
+    :hook ((text-mode . ws-butler-mode)
+           (prog-mode . ws-butler-mode)))
 
 #+end_src
 
@@ -473,7 +482,7 @@ Default to an indentation size of 2 spaces since it's the norm for pretty much e
 
 #+begin_src emacs-lisp
 
-(use-package hydra :defer 1)
+  (use-package hydra :defer 1)
 
 #+end_src
 
@@ -519,24 +528,7 @@ projects super quickly.  Here are some workflow notes on how to best use Ivy:
 
   (use-package ivy-rich
     :init
-    (ivy-rich-mode 1)
-    :config
-    (setq ivy-format-function #'ivy-format-function-line))
-    ;; (setq ivy-rich--display-transformers-list
-    ;;       (plist-put ivy-rich--display-transformers-list
-    ;;                  'ivy-switch-buffer
-    ;;                  '(:columns
-    ;;                    ((ivy-rich-candidate (:width 40))
-    ;;                     (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right)); return the buffer indicators
-    ;;                     (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))          ; return the major mode info
-    ;;                     (ivy-rich-switch-buffer-project (:width 15 :face success))             ; return project name using `projectile'
-    ;;                     (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))  ; return file path relative to project root or `default-directory' if project is nil
-    ;;                    :predicate
-    ;;                    (lambda (cand)
-    ;;                      (if-let ((buffer (get-buffer cand)))
-    ;;                          ;; Don't mess with EXWM buffers
-    ;;                          (with-current-buffer buffer
-    ;;                            (not (derived-mode-p 'exwm-mode)))))))))
+    (ivy-rich-mode 1))
 
   (use-package counsel
     :bind (("M-x" . counsel-M-x)
@@ -598,6 +590,18 @@ projects super quickly.  Here are some workflow notes on how to best use Ivy:
 
 #+end_src
 
+* Term
+
+#+begin_src emacs-lisp
+
+  (use-package vterm
+    :commands vterm
+    :config
+    (setq vterm-shell "zsh")
+    (setq vterm-max-scrollback 10000))
+
+#+end_src
+
 * Window Management
 
 ** Frame Scaling / Zooming
@@ -618,7 +622,7 @@ The keybindings for this are =C+M+-= and =C+M+==.
 #+begin_src emacs-lisp
 
   (use-package ace-window
-    :bind (("M-o" . ace-window))
+    :bind (("C-x o" . ace-window))
     :config
     (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
@@ -628,14 +632,14 @@ The keybindings for this are =C+M+-= and =C+M+==.
 
 #+begin_src emacs-lisp
 
-(defun zyrb/org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
-        visual-fill-column-center-text t)
-  (visual-fill-column-mode 1))
+  (defun zyrb/org-mode-visual-fill ()
+    (setq visual-fill-column-width 100
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
 
-(use-package visual-fill-column
-  :defer t
-  :hook (org-mode . zyrb/org-mode-visual-fill))
+  (use-package visual-fill-column
+    :defer t
+    :hook (org-mode . zyrb/org-mode-visual-fill))
 
 #+end_src
 
@@ -655,51 +659,59 @@ The keybindings for this are =C+M+-= and =C+M+==.
 
 #+begin_src emacs-lisp
 
-(defun neotree-project-dir ()
-  "Open NeoTree using the project root, using find-file-in-project,
-or the current buffer directory."
-  (interactive)
-  (let ((project-dir
-         (ignore-errors
-           ;;; Pick one: projectile or find-file-in-project
-           (projectile-project-root)
-           ;; (ffip-project-root)
-           ))
-        (file-name (buffer-file-name))
-        (neo-smart-open t))
-    (if (and (fboundp 'neo-global--window-exists-p)
-             (neo-global--window-exists-p))
-        (neotree-hide)
-      (progn
-        (neotree-show)
-        (if project-dir
-            (neotree-dir project-dir))
-        (if file-name
-            (neotree-find file-name))))))
+  (defun neotree-project-dir ()
+    "Open NeoTree using the project root, using find-file-in-project,
+  or the current buffer directory."
+    (interactive)
+    (let ((project-dir
+           (ignore-errors
+             ;;; Pick one: projectile or find-file-in-project
+             (projectile-project-root)
+             ;; (ffip-project-root)
+             ))
+          (file-name (buffer-file-name))
+          (neo-smart-open t))
+      (if (and (fboundp 'neo-global--window-exists-p)
+               (neo-global--window-exists-p))
+          (neotree-hide)
+        (progn
+          (neotree-show)
+          (if project-dir
+              (neotree-dir project-dir))
+          (if file-name
+              (neotree-find file-name))))))
 
-(defun neotree-peek ()
-  "Opens file leaving neotree open"
-  (interactive)
-  (let ((neo-window (neo-global--get-window)))
-    (neotree-enter)
-    (select-window neo-window)))
+  (defun neotree-peek ()
+    "Opens file leaving neotree open"
+    (interactive)
+    (let ((neo-window (neo-global--get-window)))
+      (neotree-enter)
+      (select-window neo-window)))
 
-(use-package neotree
-  :after (all-the-icons)
-  :pin melpa
-  :bind (:map neotree-mode-map
-          ("RET" . neotree-enter-hide)
-          ("TAB" . neotree-peek))
-  :config
-  (add-hook 'neo-after-create-hook (lambda (&rest _) (display-line-numbers-mode -1)))
-  (setq neo-autorefresh t
-        neo-show-hidden-files t
-        neo-force-change-root t
-        neo-create-file-auto-open t
-        neo-theme (if (display-graphic-p) 'icons 'arrow)))
+  (use-package neotree
+    :after (all-the-icons)
+    :pin melpa
+    :bind (:map neotree-mode-map
+            ("RET" . neotree-enter-hide)
+            ("TAB" . neotree-peek))
+    :config
+    (add-hook 'neo-after-create-hook (lambda (&rest _) (display-line-numbers-mode -1)))
+    (setq neo-autorefresh t
+          neo-show-hidden-files t
+          neo-force-change-root t
+          neo-create-file-auto-open t
+          neo-theme (if (display-graphic-p) 'icons 'arrow)))
 
-  (zyrb/leader-key-def
-    "fb" '(neotree-project-dir :which-key "neo tree"))
+    (zyrb/leader-key-def
+      "fb" '(neotree-project-dir :which-key "neo tree"))
+
+#+end_src
+
+* Emamux
+
+#+begin_src emacs-lisp
+
+  (use-package emamux)
 
 #+end_src
 
@@ -966,9 +978,13 @@ Configuration for various programming languages and dev tools that I use.
 
 #+begin_src emacs-lisp
 
+
   (use-package projectile
     :diminish projectile-mode
-    :config (projectile-mode)
+    :config
+    (projectile-mode)
+    (setq projectile-completion-system 'ivy)
+    (setq projectile-enable-caching nil)
     :bind-keymap
     ("C-c p" . projectile-command-map)
     :init
@@ -981,9 +997,11 @@ Configuration for various programming languages and dev tools that I use.
 
   (zyrb/leader-key-def
     "pf"  'counsel-projectile-find-file
-    "ps"  'counsel-projectile-switch-project
     "pF"  'counsel-projectile-rg
-    "pp"  'counsel-projectile
+    "pp"  'counsel-projectile-switch-project
+    "pl"  'counsel-projectile
+    "ps"  'counsel-projectile-ag
+    "pg"  'counsel-projectile-grep
     "pc"  'projectile-compile-project
     "pd"  'projectile-dired)
 
@@ -1173,15 +1191,15 @@ Here are packages that are useful across different Lisp and Scheme implementatio
 
 #+begin_src emacs-lisp
 
-(use-package lispy
-  :hook ((emacs-lisp-mode . lispy-mode)
-         (scheme-mode . lispy-mode)))
+  (use-package lispy
+    :hook ((emacs-lisp-mode . lispy-mode)
+           (scheme-mode . lispy-mode)))
 
-(use-package lispyville
-  :disabled
-  :hook ((lispy-mode . lispyville-mode))
-  :config
-  (lispyville-set-key-theme '(operators c-w additional)))
+  (use-package lispyville
+    :disabled
+    :hook ((lispy-mode . lispyville-mode))
+    :config
+    (lispyville-set-key-theme '(operators c-w additional)))
 
 #+end_src
 
@@ -1219,6 +1237,7 @@ Configure TypeScript and JavaScript language modes
     (setq js2-indent-switch-body t)
     (setq js2-jsx-mode 2)
     (setq js2-highlight-level 3)
+    (setq web-mode-enable-auto-quoting nil)
     (setq web-mode-content-types-alist
         '(("jsx" . "\\.js[x]?\\'")
           ("jsx" . "\\.tsx?\\'")))
@@ -1275,14 +1294,6 @@ Configure TypeScript and JavaScript language modes
 
 #+end_src
 
-*Guix Packages*
-
-#+begin_src scheme :noweb-ref packages :noweb-sep ""
-
-"emacs-markdown-mode"
-
-#+end_src
-
 *** YAML
 
 #+begin_src emacs-lisp
@@ -1298,9 +1309,9 @@ Configure TypeScript and JavaScript language modes
 
 #+begin_src emacs-lisp
 
-(use-package flycheck
-  :defer t
-  :hook (lsp-mode . flycheck-mode))
+  (use-package flycheck
+    :defer t
+    :hook (lsp-mode . flycheck-mode))
 
 #+end_src>
 
@@ -1309,10 +1320,10 @@ Configure TypeScript and JavaScript language modes
 
 #+begin_src emacs-lisp
 
-(use-package multiple-cursors)
+  (use-package multiple-cursors)
 
-(define-key global-map (kbd "M-m") 'mc/mark-next-like-this)
-(define-key global-map (kbd "M-u") 'mc/mark-all-like-this)
+  (define-key global-map (kbd "M-m") 'mc/mark-next-like-this)
+  (define-key global-map (kbd "M-u") 'mc/mark-all-like-this)
 
 #+end_src
 
@@ -1320,15 +1331,15 @@ Configure TypeScript and JavaScript language modes
 
 #+begin_src emacs-lisp
 
-(use-package prettier-js
-  :hook((web-mode . prettier-js-mode))
-  :custom
-  (prettier-js-show-errors nil)
-  (prettier-js-args '(
-    "--trailing-comma" "es5"
-    "--bracket-spacing" "true"
-    "--arrow-parens" "always"
-  )))
+  (use-package prettier-js
+    :hook((web-mode . prettier-js-mode))
+    :custom
+    (prettier-js-show-errors nil)
+    (prettier-js-args '(
+      "--trailing-comma" "es5"
+      "--bracket-spacing" "true"
+      "--arrow-parens" "always"
+    )))
 
 #+end_src
 
@@ -1389,13 +1400,13 @@ Sets the background of HTML color strings in buffers to be the color mentioned.
 
 #+begin_src emacs-lisp
 
-(use-package rainbow-mode
-  :defer t
-  :hook (org-mode
-         emacs-lisp-mode
-         web-mode
-         typescript-mode
-         js2-mode))
+  (use-package rainbow-mode
+    :defer t
+    :hook (org-mode
+           emacs-lisp-mode
+           web-mode
+           typescript-mode
+           js2-mode))
 
 #+end_src
 
