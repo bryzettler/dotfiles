@@ -109,10 +109,7 @@
 (scroll-bar-mode -1)            ; Disable visible scrollbar
 (tool-bar-mode -1)              ; Disable the toolbar
 (tooltip-mode -1)               ; Disable tooltips
-(set-fringe-mode 4)             ; Give some breathing room
-(set-face-attribute 'fringe nil ; Give fringe same color as theme background
-  :foreground (face-foreground 'default)
-  :background (face-background 'default))
+(set-fringe-mode 10)             ; Give some breathing room
 
 (menu-bar-mode -1)            ; Disable the menu bar
 
@@ -151,6 +148,10 @@
   ;;(load-theme 'doom-dracula t)
   (doom-themes-visual-bell-config)
   (doom-themes-org-config))
+
+(set-face-attribute 'fringe nil ; Give fringe same color as theme background
+  :foreground (face-foreground 'default)
+  :background (face-background 'default))
 
 ;; Set the font face
 (set-face-attribute 'default nil :font "Fira Mono" :height 110)
@@ -306,7 +307,8 @@
   :commands vterm
   :config
   (setq vterm-shell "zsh")
-  (setq vterm-max-scrollback 10000))
+  (setq vterm-max-scrollback 10000)
+  (add-to-list 'vterm-eval-cmds '("update-pwd" (lambda (path) (setq default-directory path)))))
 
 (use-package default-text-scale
   :defer 1
@@ -419,9 +421,14 @@ or the current buffer directory."
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
 
-  (setq org-agenda-files
-        '("~/Documents/Dropbox/OrgFiles/Tasks.org"
-          "~/Documents/Dropbox/OrgFiles/Habits.org"))
+  (setq org-directory "~/Documents/Dropbox/OrgFiles")
+
+  (setq org-agenda-files `(,org-directory))
+
+  (defun zyrb/org-path (path)
+    (expand-file-name path org-directory))
+
+  (setq org-default-notes-file (zyrb/org-path "Tasks.org"))
 
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
@@ -431,9 +438,8 @@ or the current buffer directory."
     '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
       (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
 
-  (setq org-refile-targets
-    '(("Archive.org" :maxlevel . 1)
-      ("Tasks.org" :maxlevel . 1)))
+  (setq org-refile-targets '((nil :maxlevel . 1)
+    (org-agenda-files :maxlevel . 1)))
 
   ;; Save Org buffers after refiling!
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
@@ -502,28 +508,28 @@ or the current buffer directory."
 
   (setq org-capture-templates
     `(("t" "Tasks / Projects")
-      ("tt" "Task" entry (file+olp "~/Documents/Dropbox/OrgFiles/Tasks.org" "Inbox")
+      ("tt" "Task" entry (file+olp+datetree ,(zyrb/org-path "Tasks.org") "Inbox")
            "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
 
       ("j" "Journal Entries")
       ("jj" "Journal" entry
-           (file+olp+datetree "~/Documents/Dropbox/OrgFiles/Journal.org")
+           (file+olp+datetree ,(zyrb/org-path "Journal.org"))
            "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
            ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
            :clock-in :clock-resume
            :empty-lines 1)
       ("jm" "Meeting" entry
-           (file+olp+datetree "~/Documents/Dropbox/OrgFiles/Journal.org")
+           (file+olp+datetree ,(zyrb/org-path "Journal.org"))
            "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
            :clock-in :clock-resume
            :empty-lines 1)
 
       ("w" "Workflows")
-      ("we" "Checking Email" entry (file+olp+datetree "~/Documents/Dropbox/OrgFiles/Journal.org")
+      ("we" "Checking Email" entry (file+olp+datetree ,(zyrb/org-path "Journal.org"))
            "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
 
       ("m" "Metrics Capture")
-      ("mw" "Weight" table-line (file+headline "~/Documents/Dropbox/OrgFiles/Metrics.org" "Weight")
+      ("mw" "Weight" table-line (file+headline ,(zyrb/org-path "Metrics.org") "Weight")
        "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
 
   (define-key global-map (kbd "C-c j")
@@ -548,16 +554,27 @@ or the current buffer directory."
 (org-babel-do-load-languages
   'org-babel-load-languages
   '((emacs-lisp . t)
-    (python . t)))
+    (python . t)
+    (js . t)))
 
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
-;; This is needed as of Org 9.2
-(require 'org-tempo)
+;; This is needed as of Org 9.
+  (require 'org-tempo)
 
-(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-(add-to-list 'org-structure-template-alist '("py" . "src python"))
+  (add-to-list 'org-structure-template-alist '("sh" . "src sh"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("sc" . "src scheme"))
+  (add-to-list 'org-structure-template-alist '("ts" . "src typescript"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
+  (add-to-list 'org-structure-template-alist '("yaml" . "src yaml"))
+  (add-to-list 'org-structure-template-alist '("json" . "src json"))
+
+(defun org-babel-execute:typescript (body params)
+  (let ((org-babel-js-cmd "npx ts-node --compiler-options='{\"lib\": [\"es2016\", \"dom\"], \"downlevelIteration\": true}' < "))
+    (org-babel-execute:js body params)))
+
+(defalias 'org-babel-execute:ts 'org-babel-execute:typescript)
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun zyrb/org-babel-tangle-config ()
@@ -568,6 +585,30 @@ or the current buffer directory."
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'zyrb/org-babel-tangle-config)))
+
+(use-package org-pomodoro
+  :after org
+  :config
+  (setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
+  (setq org-pomodoro-short-break-sound "~/.emacs.d/sounds/three_beeps.wav")
+  (setq org-pomodoro-long-break-sound "~/.emacs.d/sounds/three_beeps.wav")
+  (setq org-pomodoro-finished-sound "~/.emacs.d/sounds/meditation_bell.wav")
+
+  (zyrb/leader-key-def
+    "op"  '(org-pomodoro :which-key "pomodoro")))
+
+(zyrb/leader-key-def
+  "o"   '(:ignore t :which-key "org mode")
+  "oi"  '(:ignore t :which-key "insert")
+  "oil" '(org-insert-link :which-key "insert link")
+  "on"  '(org-toggle-narrow-to-subtree :which-key "toggle narrow")
+  "oa"  '(org-agenda :which-key "status")
+  "oc"  '(org-capture t :which-key "capture")
+  "os"  '(org-schedule :which-key "schedule")
+  "ox"  '(org-export-dispatch t :which-key "export"))
+
+(use-package org-make-toc
+  :hook (org-mode . org-make-toc-mode))
 
 (use-package projectile
   :diminish projectile-mode
@@ -703,15 +744,19 @@ or the current buffer directory."
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   (lsp-headerline-breadcrumb-mode))
 
-
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :hook (lsp-mode . zyrb/lsp-mode-setup)
+  :custom
+  (lsp-enable-which-key-integration t)
+  (lsp-enable-file-watchers nil)
   :bind (:map lsp-mode-map
          ("TAB" . completion-at-point)))
 
 (zyrb/leader-key-def
   "l"  '(:ignore t :which-key "lsp")
+  "ld" 'xref-find-definitions
+  "lr" 'xref-find-references
   "ln" 'lsp-ui-find-next-reference
   "lp" 'lsp-ui-find-prev-reference
   "ls" 'counsel-imenu
@@ -722,9 +767,10 @@ or the current buffer directory."
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
   :custom
+  (lsp-ui-sideline-enable t)
   (lsp-ui-sideline-show-hover nil)
-  (lsp-ui-doc-enable t)
-  (lsp-ui-doc-position 'bottom))
+  (lsp-ui-doc-position 'bottom)
+  (lsp-ui-doc-show))
 
 (use-package lsp-ivy)
 
@@ -740,6 +786,9 @@ or the current buffer directory."
 
 (use-package nvm
   :defer t)
+
+;; here for structure templates in org-mode
+(use-package typescript-mode)
 
 (use-package web-mode
   :ensure t
