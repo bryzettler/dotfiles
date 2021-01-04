@@ -3,6 +3,7 @@
 
 
 
+
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
 
@@ -26,6 +27,7 @@
   - [[#goto-line][GoTo Line]]
   - [[#moveby-words][MoveBy Words]]
 - [[#general-configuration][General Configuration]]
+  - [[#keep-folders-clean][Keep Folders Clean]]
   - [[#cousel][Cousel]]
   - [[#user-interface][User Interface]]
   - [[#theme][Theme]]
@@ -114,12 +116,6 @@ This file generates [[file:init.el][init.el]] which can be loaded by Emacs at st
 
   (setq custom-file (concat emacs-home "custom.el"))
   (load custom-file)
-
-  (setq backup-directory-alist
-    `(("." . ,(concat emacs-home "backups"))))
-
-  (setq auto-save-file-name-transforms
-    `((".*" ,(concat emacs-home "auto-save-list"))))
 
   (defvar packages-dir (concat emacs-home "packages"))
   (setq package-user-dir packages-dir)
@@ -302,6 +298,19 @@ in conjunction with Evil modes.
 #+end_src
 
 * General Configuration
+
+** Keep Folders Clean
+
+#+begin_src emacs-lisp
+
+  (use-package no-littering)
+
+  ;; no-littering doesn't set this by default so we must place
+  ;; auto save files in the same path as it uses for sessions
+  (setq auto-save-file-name-transforms
+    `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+
+#+end_src
 
 ** Cousel
 

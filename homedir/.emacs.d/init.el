@@ -7,12 +7,6 @@
 (setq custom-file (concat emacs-home "custom.el"))
 (load custom-file)
 
-(setq backup-directory-alist
-  `(("." . ,(concat emacs-home "backups"))))
-
-(setq auto-save-file-name-transforms
-  `((".*" ,(concat emacs-home "auto-save-list"))))
-
 (defvar packages-dir (concat emacs-home "packages"))
 (setq package-user-dir packages-dir)
 
@@ -102,6 +96,13 @@
 
 (define-key global-map (kbd "M-<right>") 'forward-word)
 (define-key global-map (kbd "M-<left>") 'backward-word)
+
+(use-package no-littering)
+
+;; no-littering doesn't set this by default so we must place
+;; auto save files in the same path as it uses for sessions
+(setq auto-save-file-name-transforms
+  `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
 ;; Thanks, but no thanks
 (setq inhibit-startup-message t)
