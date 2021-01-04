@@ -361,7 +361,7 @@ ok
 bot "OS Configuration"
 read -r -p "Do you want to update the system configurations? [y|N] " response
 if [[ -z $response || $response =~ ^(n|N) ]]; then
-  open /Applications/Hyper.app
+  open /Applications/Terminal.app
   bot "All done"
   exit
 fi
@@ -1213,7 +1213,7 @@ defaults write com.irradiatedsoftware.SizeUp ShowPrefsOnNextStart -bool false;ok
 
 killall cfprefsd
 
-open /Applications/Hyper.app
+open /Applications/Terminal.app
 
 ###############################################################################
 # Kill affected applications                                                  #
