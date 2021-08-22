@@ -1,0 +1,31 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch refactor/wallet-provider
+# Changes to be committed:
+#	modified:   js/.gitignore
+#	modified:   js/packages/common/package.json
+#	modified:   js/packages/common/src/Leaderboard/TokenLeaderboard.tsx
+#	modified:   js/packages/common/src/Pages/Claim.tsx
+#	modified:   js/packages/common/src/Pages/WalletSelect.tsx
+#	new file:   js/packages/common/src/contexts/index.ts
+#	renamed:    js/packages/extension/src/utils/wallet.tsx -> js/packages/common/src/contexts/walletContext.tsx
+#	modified:   js/packages/common/src/index.tsx
+#	modified:   js/packages/common/src/utils/claim.ts
+#	modified:   js/packages/common/src/utils/ftxPay.tsx
+#	modified:   js/packages/common/src/utils/index.ts
+#	modified:   js/packages/common/src/utils/metaplex/hooks.ts
+#	modified:   js/packages/common/src/utils/pricing.tsx
+#	deleted:    js/packages/common/src/utils/wallet.tsx
+#	modified:   js/packages/extension/package.json
+#	modified:   js/packages/extension/src/components/ContextProviders.tsx
+#	modified:   js/packages/extension/src/components/create/ClaimOrCreate.tsx
+#	modified:   js/packages/extension/src/contexts/drawerContext.tsx
+#	modified:   js/packages/site/package.json
+#	modified:   js/packages/site/src/components/App/ContextProviders.tsx
+#	deleted:    js/packages/site/src/utils/wallet.tsx
+#	modified:   js/packages/spl-token-bonding/package.json
+#	modified:   js/packages/spl-wumbo/package.json
+#	modified:   js/yarn.lock
+#
