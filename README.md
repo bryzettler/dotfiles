@@ -12,11 +12,11 @@ lsp
 # fonts
 brew tap homebrew/cask-fonts  
 brew install --cask font-hack-nerd-font  
-cantarell  
-fira code  
-fira mono  
-fira mono for powerline  
-fira sans  
-fira sans  
+font-cantarell-font  
+font-fira-code-font  
+font-fira-mono-font  
+font-fira-mono-for-powerline-font  
+font-fira-sans-font  
+font-fira-sans-font  
 
     
