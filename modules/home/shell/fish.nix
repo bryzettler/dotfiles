@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ pkgs, ... }:
 
 let
   catppuccin = import ../theme/catppuccin.nix;
@@ -96,6 +96,7 @@ in
   # direnv
   programs.direnv = {
     enable = true;
+    enableFishIntegration = true;
     nix-direnv.enable = true;
   };
 }
