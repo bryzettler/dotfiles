@@ -7,7 +7,26 @@ window-padding-y = 8
 macos-titlebar-style = hidden
 cursor-style = block
 cursor-style-blink = false
+shell-integration-features = no-cursor
 mouse-hide-while-typing = true
 scrollback-limit = 50000
 macos-option-as-alt = true
+fullscreen = false
+macos-non-native-fullscreen = true
+
+# Keybindings
+keybind = opt+left=text:\x1bb
+keybind = opt+right=text:\x1bf
+keybind = cmd+left=text:\x01
+keybind = cmd+right=text:\x05
+keybind = opt+backspace=text:\x1b\x7f
+keybind = cmd+backspace=text:\x15
+keybind = cmd+enter=toggle_fullscreen
+keybind = cmd+t=text:\x1bt
+keybind = cmd+d=text:\x1bd
+keybind = cmd+shift+d=text:\x1bD
+keybind = cmd+w=text:\x1bw
+keybind = ctrl+tab=text:\x1b[27;5;9~
+keybind = ctrl+shift+tab=text:\x1b[27;6;9~
+keybind = cmd+comma=text:\x1b,
 keybind = shift+enter=text:\n
