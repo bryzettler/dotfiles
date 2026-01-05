@@ -11,7 +11,7 @@ shell-integration-features = no-cursor
 mouse-hide-while-typing = true
 scrollback-limit = 50000
 macos-option-as-alt = true
-fullscreen = false
+fullscreen = true
 macos-non-native-fullscreen = true
 
 # Keybindings
