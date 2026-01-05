@@ -37,6 +37,12 @@
   networking = {
     hostName = "zyrbbook";
     computerName = "zyrbbook";
+
+    # Steven Black's Unified hosts + fakenews + porn blocklist
+    # Cloned to ~/.hosts-blocklist by bootstrap.sh
+    hostFiles = [
+      /Users/bry/.hosts-blocklist/alternates/fakenews-porn/hosts
+    ];
   };
 
   # user

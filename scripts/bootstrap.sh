@@ -46,7 +46,17 @@ fi
 
 cd "$DOTS_DIR"
 
-# 3. get hostname
+# 3. clone Steven Black hosts blocklist
+HOSTS_DIR="$HOME/.hosts-blocklist"
+if [[ ! -d "$HOSTS_DIR" ]]; then
+    log "Cloning hosts blocklist..."
+    git clone --depth 1 https://github.com/StevenBlack/hosts.git "$HOSTS_DIR"
+    success "Hosts blocklist cloned to $HOSTS_DIR"
+else
+    success "Hosts blocklist already at $HOSTS_DIR"
+fi
+
+# 4. get hostname
 HOSTNAME=$(scutil --get LocalHostName 2>/dev/null || hostname -s)
 log "Detected hostname: $HOSTNAME"
 
@@ -58,7 +68,7 @@ if [[ ! -d "hosts/$HOSTNAME" ]]; then
     error "Please create a host config or use an existing hostname"
 fi
 
-# 4. first-time nix-darwin bootstrap
+# 5. first-time nix-darwin bootstrap
 if ! command -v darwin-rebuild &> /dev/null; then
     log "First-time nix-darwin setup..."
     nix run nix-darwin -- switch --flake ".#$HOSTNAME"
@@ -69,7 +79,7 @@ fi
 
 success "System configured!"
 
-# 5. post-install reminders
+# 6. post-install reminders
 echo ""
 log "Post-install steps:"
 echo "  1. Authenticate with GitHub:    gh auth login"
