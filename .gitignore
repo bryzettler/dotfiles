@@ -1,28 +1,27 @@
-.AppleDouble
+# macOS
 .DS_Store
+.AppleDouble
 .LSOverride
 ._*
-.git_template/hooks/disabled-pc
+
+# Nix
+result
+result-*
+
+# direnv
+.direnv/
+
+# Emacs
+config/emacs/straight/
+config/emacs/data/
+config/emacs/config/
+*.elc
+*~
+\#*\#
+.\#*
+
+# Secrets
+.env
+.env.local
+*.pem
 id_rsa
-# personal swap gitconfigs
-homedir/.gitconfig_*
-homedir/.emacs.d/session.*
-homedir/.emacs.d/ac-comphist.dat
-homedir/.emacs.d/packages/*
-homedir/.emacs.d/auto-save-list
-homedir/.emacs.d/ido.last
-homedir/.emacs.d/.tern-port
-homedir/.emacs.d/backups
-homedir/.emacs.d/bookmarks
-homedir/.emacs.d/org/todo.org
-homedir/.emacs.d/org/refile.org
-homedir/.emacs.d/smex-items
-homedir/.emacs.d/.mc-lists.el
-homedir/.emacs.d/recentf
-homedir/.emacs.d/projectile-bookmarks.eld
-homedir/.emacs.d/session.*
-homedir/.emacs.d/custom.el
-homedir/.emacs.d/forge-database.sqlite
-homedir/.emacs.d/transient
-homedir/.emacs.d/.lsp-session-v1
-homedir/.emacs.d/.cache
