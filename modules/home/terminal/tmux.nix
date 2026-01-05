@@ -21,7 +21,7 @@ in
     mouse = true;
     historyLimit = 50000;
     focusEvents = true;
-    prefix = "C-a";  # More ergonomic than C-b
+    prefix = "C-\\";  # Ergonomic, avoids Ctrl+b repeat lag
 
     plugins = with pkgs.tmuxPlugins; [
       {
@@ -43,9 +43,8 @@ in
       # True color support for Emacs -nw and other apps
       set -ag terminal-overrides ",xterm-256color:RGB"
 
-      # Allow C-a to pass through to Emacs (beginning-of-line)
-      # Press C-a twice to send C-a to the underlying app
-      bind C-a send-prefix
+      # Allow C-\ to pass through (press twice to send literal)
+      bind 'C-\' send-prefix
 
       # pane base index
       setw -g pane-base-index 1
