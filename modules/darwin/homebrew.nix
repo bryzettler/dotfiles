@@ -48,6 +48,8 @@
 
       # languages
       "fnm"
+      "rbenv"
+      "ruby-build"
 
       # databases
       "postgresql@14"

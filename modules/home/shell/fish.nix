@@ -19,6 +19,9 @@
       # fnm (node version manager)
       fnm env --use-on-cd --shell fish | source
 
+      # rbenv (ruby version manager)
+      status --is-interactive; and rbenv init - fish | source
+
       # cargo
       fish_add_path $HOME/.cargo/bin
 
