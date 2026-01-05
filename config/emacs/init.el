@@ -237,6 +237,26 @@
          ("C-x p g" . project-find-regexp)
          ("C-x p d" . project-dired)))
 
+;; Treemacs - file tree sidebar
+(use-package treemacs
+  :bind (("C-M-SPC" . treemacs)
+         ("C-x t t" . treemacs)
+         ("C-x t 1" . treemacs-select-window))
+  :config
+  (setq treemacs-width 35
+        treemacs-is-never-other-window t
+        treemacs-show-hidden-files t
+        treemacs-follow-after-init t)
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (treemacs-git-mode 'deferred))
+
+;; Treemacs nerd icons (terminal support - uses existing nerd-icons)
+(use-package treemacs-nerd-icons
+  :after (treemacs nerd-icons)
+  :config
+  (treemacs-load-theme "nerd-icons"))
+
 ;; =============================================================================
 ;; Git
 ;; =============================================================================
