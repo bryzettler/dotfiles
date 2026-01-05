@@ -9,38 +9,19 @@ Nix-darwin configuration for macOS with home-manager.
 - **Editor**: Emacs (terminal mode)
 - **Theme**: Catppuccin Mocha
 
-## Prerequisites
-
-Install Nix:
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
-```
-
 ## Installation
 
-1. Clone this repo:
+Run the bootstrap script:
 
 ```bash
-git clone https://github.com/bzettler/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
+curl -fsSL https://raw.githubusercontent.com/bryzettler/dotfiles/master/scripts/bootstrap.sh | bash
 ```
 
-2. Build and switch:
-
-```bash
-nix run nix-darwin -- switch --flake .
-```
+This will install Nix, clone the dotfiles, and configure your system.
 
 ## Usage
 
 Rebuild after changes:
-
-```bash
-darwin-rebuild switch --flake ~/.dotfiles
-```
-
-Or use the fish alias:
 
 ```bash
 rebuild
@@ -51,6 +32,8 @@ rebuild
 ```
 .
 ├── flake.nix                 # Nix flake entry point
+├── scripts/
+│   └── bootstrap.sh          # Fresh machine setup
 ├── config/
 │   ├── emacs/init.el         # Emacs configuration
 │   └── ghostty/config        # Ghostty terminal config
