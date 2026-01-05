@@ -64,6 +64,13 @@ in
 
     functions = {
       fish_greeting = "";
+      # Rename tmux window on directory change only (reduces flashing)
+      cd = ''
+        builtin cd $argv
+        if set -q TMUX
+          tmux rename-window (basename $PWD)
+        end
+      '';
     };
   };
 

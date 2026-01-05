@@ -8,5 +8,6 @@ macos-titlebar-style = hidden
 cursor-style = block
 cursor-style-blink = false
 mouse-hide-while-typing = true
+scrollback-limit = 50000
 macos-option-as-alt = true
 keybind = shift+enter=text:\n

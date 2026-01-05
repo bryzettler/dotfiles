@@ -19,7 +19,8 @@ in
     baseIndex = 1;
     escapeTime = 0;
     mouse = true;
-    historyLimit = 1000000;
+    historyLimit = 50000;
+    focusEvents = true;
     prefix = "C-a";  # More ergonomic than C-b
 
     plugins = with pkgs.tmuxPlugins; [
@@ -52,9 +53,9 @@ in
       # renumber windows
       set -g renumber-windows on
 
-      # auto-rename window to current directory
-      set -g automatic-rename on
-      set -g automatic-rename-format '#{b:pane_current_path}'
+      # Window renaming handled by shell chpwd hook (reduces flashing)
+      set -g automatic-rename off
+      set -g allow-rename on
 
       # ============================================
       # Keybindings (simple, iTerm2-like)
