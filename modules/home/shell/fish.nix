@@ -5,8 +5,8 @@
     enable = true;
 
     interactiveShellInit = ''
-      # vi key bindings
-      fish_vi_key_bindings
+      # emacs key bindings (default)
+      fish_default_key_bindings
 
       # homebrew
       eval "$(/opt/homebrew/bin/brew shellenv)"

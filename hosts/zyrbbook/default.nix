@@ -25,7 +25,6 @@
 
   # system packages (prefer homebrew for most things on mac)
   environment.systemPackages = with pkgs; [
-    vim
     git
     curl
     wget

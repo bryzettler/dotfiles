@@ -17,7 +17,6 @@
       character = {
         success_symbol = "[>](purple) ";
         error_symbol = "[>](red) ";
-        vimcmd_symbol = "[<](green) ";
       };
 
       git_branch = {
