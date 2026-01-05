@@ -23,13 +23,6 @@
   # allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # system packages (prefer homebrew for most things on mac)
-  environment.systemPackages = with pkgs; [
-    git
-    curl
-    wget
-  ];
-
   # fish shell
   programs.fish.enable = true;
 
@@ -41,7 +34,7 @@
     # Steven Black's Unified hosts + fakenews + porn blocklist
     # Cloned to ~/.hosts-blocklist by bootstrap.sh
     hostFiles = [
-      /Users/bry/.hosts-blocklist/alternates/fakenews-porn/hosts
+      (/. + "/Users/${username}/.hosts-blocklist/alternates/fakenews-porn/hosts")
     ];
   };
 

@@ -1,5 +1,8 @@
 { config, pkgs, lib, ... }:
 
+let
+  catppuccin = import ../theme/catppuccin.nix;
+in
 {
   programs.fish = {
     enable = true;
@@ -78,7 +81,7 @@
       "--height=40%"
       "--layout=reverse"
       "--border"
-      "--color=bg:#1e1e2e,bg+:#313244,fg:#cdd6f4,fg+:#cdd6f4,hl:#f38ba8,hl+:#f38ba8,pointer:#f5e0dc,prompt:#cba6f7,info:#89b4fa"
+      "--color=bg:${catppuccin.base},bg+:${catppuccin.surface0},fg:${catppuccin.text},fg+:${catppuccin.text},hl:${catppuccin.red},hl+:${catppuccin.red},pointer:${catppuccin.rosewater},prompt:${catppuccin.mauve},info:${catppuccin.blue}"
     ];
   };
 

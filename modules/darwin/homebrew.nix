@@ -23,20 +23,13 @@
       "starship"
       "tmux"
 
-      # editors
-      "emacs"
-
       # git & vcs
       "gh"
       "git-delta"
 
       # search & navigation
-      "fd"
-      "fzf"
       "ripgrep"
       "zoxide"
-      "eza"
-      "bat"
       "yazi"
 
       # dev tools

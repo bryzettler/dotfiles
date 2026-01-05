@@ -1,14 +1,14 @@
 { config, pkgs, lib, ... }:
 
 let
-  # catppuccin mocha colors
+  catppuccin = import ../theme/catppuccin.nix;
   colors = {
-    bg = "#1e1e2e";
-    fg = "#cdd6f4";
-    fg_dim = "#6c7086";
-    accent = "#cba6f7";    # mauve
-    blue = "#89b4fa";
-    green = "#a6e3a1";
+    bg = catppuccin.base;
+    fg = catppuccin.text;
+    fg_dim = catppuccin.overlay0;
+    accent = catppuccin.mauve;
+    blue = catppuccin.blue;
+    green = catppuccin.green;
   };
 in
 {
