@@ -5,6 +5,11 @@
     enable = true;
 
     interactiveShellInit = ''
+      # tmux auto-start: attach to "main" or create it
+      if type -q tmux; and not set -q TMUX
+        tmux attach -t main; or tmux new -s main
+      end
+
       # emacs key bindings (default)
       fish_default_key_bindings
 

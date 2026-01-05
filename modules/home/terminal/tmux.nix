@@ -15,11 +15,12 @@ in
   programs.tmux = {
     enable = true;
     shell = "${pkgs.fish}/bin/fish";
-    terminal = "xterm-256color";
+    terminal = "tmux-256color";  # Better for Emacs -nw color support
     baseIndex = 1;
     escapeTime = 0;
     mouse = true;
     historyLimit = 1000000;
+    prefix = "C-a";  # More ergonomic than C-b
 
     plugins = with pkgs.tmuxPlugins; [
       {
@@ -38,8 +39,12 @@ in
     ];
 
     extraConfig = ''
-      # true color support
-      set -ga terminal-overrides ",xterm-256color:Tc"
+      # True color support for Emacs -nw and other apps
+      set -ag terminal-overrides ",xterm-256color:RGB"
+
+      # Allow C-a to pass through to Emacs (beginning-of-line)
+      # Press C-a twice to send C-a to the underlying app
+      bind C-a send-prefix
 
       # pane base index
       setw -g pane-base-index 1
