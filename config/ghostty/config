@@ -30,3 +30,4 @@ keybind = ctrl+tab=text:\x1b[27;5;9~
 keybind = ctrl+shift+tab=text:\x1b[27;6;9~
 keybind = cmd+comma=text:\x1b,
 keybind = shift+enter=text:\n
+keybind = ctrl+super+space=text:\x1b[32;13~

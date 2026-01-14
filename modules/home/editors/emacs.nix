@@ -6,6 +6,12 @@
     package = pkgs.emacs30;
   };
 
+  home.packages = with pkgs; [
+    enchant2
+    hunspell
+    hunspellDicts.en_US
+  ];
+
   # link emacs config
   home.file.".emacs.d/init.el".source = ../../../config/emacs/init.el;
   home.file.".emacs.d/early-init.el".text = ''

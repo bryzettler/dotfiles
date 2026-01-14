@@ -151,6 +151,11 @@
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
 
+;; Jinx - modern spell checking
+(use-package jinx
+  :hook (text-mode . jinx-mode)
+  :bind ([remap ispell-word] . jinx-correct))
+
 ;; Marginalia - rich annotations
 (use-package marginalia
   :init (marginalia-mode))
@@ -163,6 +168,20 @@
          ("M-g M-g" . consult-goto-line)
          ("M-s r" . consult-ripgrep)
          ("M-s f" . consult-find)))
+
+;; Fuzzy project-wide file search (C-x f)
+(autoload 'consult-fd "consult" nil t)
+(defun my/find-file-fuzzy ()
+  "Find file with fuzzy matching across entire project."
+  (interactive)
+  (let* ((git-root (locate-dominating-file default-directory ".git"))
+         (project (project-current))
+         (root (cond
+                (project (project-root project))
+                (git-root git-root)
+                (t default-directory))))
+    (consult-fd root)))
+(global-set-key (kbd "C-x C-f") #'my/find-file-fuzzy)
 
 ;; Embark - actions on completions
 (use-package embark
@@ -198,6 +217,13 @@
   :bind (("M-g c" . avy-goto-char)
          ("M-g w" . avy-goto-word-1)
          ("M-g l" . avy-goto-line)))
+
+;; Xref - code navigation (integrates with eglot)
+(use-package xref
+  :straight nil
+  :bind (("M-g d" . xref-find-definitions)
+         ("M-g r" . xref-find-references)
+         ("M-," . xref-go-back)))
 
 ;; Expand region
 (use-package expand-region
@@ -243,31 +269,42 @@
 
 ;; Treemacs - project sidebar
 (use-package treemacs
-  :commands (treemacs treemacs-select-window)
+  :commands (treemacs treemacs-select-window treemacs-add-and-display-current-project-exclusively)
+  :init
+  (define-key input-decode-map "\e[32;13~" (kbd "C-s-SPC"))
   :config
   (setq treemacs-width 35
         treemacs-no-png-images t
         treemacs-is-never-other-window t
         treemacs-show-hidden-files t
         treemacs-silent-refresh t
-        treemacs-silent-filewatch t))
+        treemacs-silent-filewatch t)
+
+  (defun my/treemacs-toggle ()
+    "Toggle treemacs, always showing the git root project."
+    (interactive)
+    (pcase (treemacs-current-visibility)
+      ('visible (delete-window (treemacs-get-local-window)))
+      (_
+       (let ((default-directory (or (locate-dominating-file default-directory ".git")
+                                    default-directory)))
+         (treemacs-add-and-display-current-project-exclusively)))))
+
+  :bind (("C-s-SPC" . my/treemacs-toggle)))
+
+;; Auto-open treemacs on startup with git root
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (when (and (not (daemonp))
+                       (file-directory-p default-directory))
+              (let ((default-directory (or (locate-dominating-file default-directory ".git")
+                                           default-directory)))
+                (treemacs-add-and-display-current-project-exclusively)))))
 
 (use-package treemacs-nerd-icons
   :after treemacs
   :config
   (treemacs-load-theme "nerd-icons"))
-
-(defun my/treemacs-toggle ()
-  "Toggle treemacs at project root if in a project."
-  (interactive)
-  (if (and (fboundp 'project-current) (project-current))
-      (let ((project-dir (project-root (project-current))))
-        (if (treemacs-current-visibility)
-            (treemacs)
-          (treemacs-add-and-display-current-project-exclusively)))
-    (treemacs)))
-
-(global-set-key (kbd "C-M-SPC") #'my/treemacs-toggle)
 
 ;; =============================================================================
 ;; Git
@@ -392,11 +429,12 @@
 ;; Productivity
 ;; =============================================================================
 
-;; Flycheck
-(use-package flycheck
-  :init (global-flycheck-mode)
-  :config
-  (setq flycheck-indication-mode 'left-margin))
+;; Flymake (built-in, used with eglot)
+(use-package flymake
+  :straight nil
+  :hook (eglot-managed-mode . flymake-mode)
+  :bind (("M-n" . flymake-goto-next-error)
+         ("M-p" . flymake-goto-prev-error)))
 
 ;; YASnippet
 (use-package yasnippet
@@ -420,8 +458,6 @@
 ;; Custom Keybindings (from legacy config)
 ;; =============================================================================
 
-;; Goto line
-(global-set-key (kbd "M-g") 'goto-line)
 
 ;; Word navigation
 (global-set-key (kbd "M-<right>") 'forward-word)
@@ -429,6 +465,7 @@
 
 ;; ESC to quit
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
 
 ;; =============================================================================
 ;; Reset GC after init
