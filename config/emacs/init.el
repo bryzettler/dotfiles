@@ -275,7 +275,7 @@
   :config
   (setq treemacs-width 35
         treemacs-no-png-images t
-        treemacs-is-never-other-window t
+        treemacs-is-never-other-window nil
         treemacs-show-hidden-files t
         treemacs-silent-refresh t
         treemacs-silent-filewatch t)
@@ -297,9 +297,17 @@
           (lambda ()
             (when (and (not (daemonp))
                        (file-directory-p default-directory))
-              (let ((default-directory (or (locate-dominating-file default-directory ".git")
-                                           default-directory)))
-                (treemacs-add-and-display-current-project-exclusively)))))
+              (let ((project-root (or (locate-dominating-file default-directory ".git")
+                                      default-directory)))
+                (let ((default-directory project-root))
+                  (delete-other-windows)
+                  (treemacs-add-and-display-current-project-exclusively)
+                  ;; Switch to main window with empty buffer (so C-x C-f replaces it)
+                  (other-window 1)
+                  (switch-to-buffer (get-buffer-create "*empty*"))
+                  ;; Set empty buffer's directory to project root
+                  (setq default-directory project-root)
+                  (setq buffer-read-only t))))))
 
 (use-package treemacs-nerd-icons
   :after treemacs
@@ -453,6 +461,83 @@
 
 ;; Diminish minor modes
 (use-package diminish)
+
+;; =============================================================================
+;; Claude Code Integration
+;; =============================================================================
+
+;; Required dependency for environment handling
+(use-package inheritenv
+  :straight (:type git :host github :repo "purcell/inheritenv"))
+
+;; Eat terminal emulator (works in terminal Emacs)
+(use-package eat
+  :straight (:type git :host codeberg :repo "akib/emacs-eat"
+                   :files ("*.el" ("term" "term/*.el") "*.texi"
+                           "*.ti" ("terminfo/e" "terminfo/e/*")
+                           ("terminfo/65" "terminfo/65/*")
+                           ("integration" "integration/*")))
+  :config
+  (setq eat-term-scrollback-size 131072
+        eat-enable-blinking-text nil
+        eat-enable-alternative-display nil
+        eat-enable-mouse nil
+        eat-kill-buffer-on-exit nil)
+
+  (defun my/eat-reset-terminal ()
+    "Reset eat terminal if it goes blank."
+    (interactive)
+    (when (derived-mode-p 'eat-mode)
+      (eat-reset)))
+
+  :bind (:map eat-mode-map
+              ("C-c C-r" . my/eat-reset-terminal)))
+
+;; Claude Code
+(use-package claude-code
+  :straight (:type git :host github :repo "stevemolitor/claude-code.el"
+                   :branch "main" :depth 1)
+  :bind-keymap ("C-c c" . claude-code-command-map)
+  :config
+  (setq claude-code-terminal-backend 'eat
+        ;; Auto-focus Claude buffer when toggling
+        claude-code-toggle-auto-select t
+        ;; Use Shift+Return for newlines (Return sends message)
+        claude-code-newline-keybinding-style 'shift-return-to-send
+        ;; Don't ask before killing instances
+        claude-code-confirm-kill nil)
+
+  ;; Force ALL claude-code buffers to display in right side window
+  ;; (overrides hardcoded display-buffer calls in the package)
+  (add-to-list 'display-buffer-alist
+               '("\\*claude-code\\*"
+                 (display-buffer-in-side-window)
+                 (side . right)
+                 (window-width . 0.4)))
+
+  ;; Start Claude in project root instead of current directory
+  (defun my/claude-code-in-project ()
+    "Start Claude Code in project root."
+    (interactive)
+    (let ((default-directory (or (when-let ((proj (project-current)))
+                                   (project-root proj))
+                                 (locate-dominating-file default-directory ".git")
+                                 default-directory)))
+      (claude-code)))
+
+  ;; Rebind c to use project root
+  (define-key claude-code-command-map (kbd "c") #'my/claude-code-in-project)
+
+  (defun my/claude-code-restart ()
+    "Kill and restart Claude Code session (recovery from blank screen)."
+    (interactive)
+    (when-let ((buf (get-buffer "*claude-code*")))
+      (kill-buffer buf))
+    (my/claude-code-in-project))
+
+  (define-key claude-code-command-map (kbd "R") #'my/claude-code-restart)
+
+  (claude-code-mode))
 
 ;; =============================================================================
 ;; Custom Keybindings (from legacy config)
