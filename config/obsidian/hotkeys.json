@@ -1,0 +1,18 @@
+{
+  "obsidian-timestamper:obsidian-fast-timestamp": [
+    {
+      "modifiers": [
+        "Alt"
+      ],
+      "key": "Z"
+    }
+  ],
+  "insert-template": [
+    {
+      "modifiers": [
+        "Alt"
+      ],
+      "key": "T"
+    }
+  ]
+}

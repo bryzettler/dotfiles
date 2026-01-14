@@ -11,6 +11,8 @@
     ../../modules/home/tools/bat.nix
     ../../modules/home/tools/dev.nix
     ../../modules/home/packages/node.nix
+    ../../modules/home/fonts.nix
+    ../../modules/home/apps/obsidian.nix
   ];
 
   home = {

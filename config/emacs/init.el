@@ -235,7 +235,39 @@
   :bind (("C-x p f" . project-find-file)
          ("C-x p p" . project-switch-project)
          ("C-x p g" . project-find-regexp)
-         ("C-x p d" . project-dired)))
+         ("C-x p d" . project-dired)
+         ("C-x p b" . project-switch-to-buffer)
+         ("C-x p k" . project-kill-buffers))
+  :config
+  (setq project-vc-extra-root-markers '(".project" ".projectile" "package.json" "Cargo.toml")))
+
+;; Treemacs - project sidebar
+(use-package treemacs
+  :commands (treemacs treemacs-select-window)
+  :config
+  (setq treemacs-width 35
+        treemacs-no-png-images t
+        treemacs-is-never-other-window t
+        treemacs-show-hidden-files t
+        treemacs-silent-refresh t
+        treemacs-silent-filewatch t))
+
+(use-package treemacs-nerd-icons
+  :after treemacs
+  :config
+  (treemacs-load-theme "nerd-icons"))
+
+(defun my/treemacs-toggle ()
+  "Toggle treemacs at project root if in a project."
+  (interactive)
+  (if (and (fboundp 'project-current) (project-current))
+      (let ((project-dir (project-root (project-current))))
+        (if (treemacs-current-visibility)
+            (treemacs)
+          (treemacs-add-and-display-current-project-exclusively)))
+    (treemacs)))
+
+(global-set-key (kbd "C-M-SPC") #'my/treemacs-toggle)
 
 ;; =============================================================================
 ;; Git

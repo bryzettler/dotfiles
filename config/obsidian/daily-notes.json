@@ -1,0 +1,6 @@
+{
+  "format": "YYYY-MM-DD",
+  "folder": "02 Logs/Daily",
+  "autorun": true,
+  "template": "06 Utilities/Templates/Daily"
+}

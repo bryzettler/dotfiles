@@ -1,0 +1,15 @@
+{
+  "cssTheme": "Minimal",
+  "accentColor": "#545454",
+  "interfaceFontFamily": "iA Writer Quattro V",
+  "textFontFamily": "iA Writer Quattro V",
+  "baseFontSize": 14,
+  "translucency": true,
+  "showRibbon": false,
+  "enabledCssSnippets": [
+    "MCL Wide Views",
+    "MCL Multi Column",
+    "MCL Gallery Cards",
+    "Callout No Icon"
+  ]
+}
