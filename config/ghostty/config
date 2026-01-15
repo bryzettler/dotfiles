@@ -3,7 +3,7 @@ theme = catppuccin-mocha
 font-family = Hack Nerd Font
 font-size = 16
 window-padding-x = 8
-window-padding-y = 8
+window-padding-y = 32,8
 macos-titlebar-style = hidden
 cursor-style = block
 cursor-style-blink = false
@@ -31,3 +31,6 @@ keybind = ctrl+shift+tab=text:\x1b[27;6;9~
 keybind = cmd+comma=text:\x1b,
 keybind = shift+enter=text:\n
 keybind = ctrl+super+space=text:\x1b[32;13~
+keybind = super+i=text:\x1b[105;13~
+keybind = super+n=text:\x1b[110;13~
+keybind = cmd+c=text:\x1b[99;13~

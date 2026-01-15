@@ -7,6 +7,10 @@
 
 ;;; Code:
 
+;; Performance: increase thresholds during init
+(setq gc-cons-threshold (* 100 1024 1024))
+(setq read-process-output-max (* 4 1024 1024))
+
 ;; =============================================================================
 ;; Package Management
 ;; =============================================================================
@@ -48,7 +52,7 @@
    fill-column 80)
 
   ;; Simplify yes/no prompts
-  (fset 'yes-or-no-p 'y-or-n-p)
+  (setq use-short-answers t)
 
   ;; Disable backup files
   (setq make-backup-files nil
@@ -59,6 +63,23 @@
   (set-charset-priority 'unicode)
   (prefer-coding-system 'utf-8)
   (set-default-coding-systems 'utf-8)
+
+  ;; UI settings (works in GUI, no-op in terminal)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1)
+  (tooltip-mode -1)
+  (menu-bar-mode -1)
+  (set-fringe-mode 10)
+  (setq visible-bell t
+        use-dialog-box nil
+        mouse-wheel-scroll-amount '(3 ((shift) . 1))
+        mouse-wheel-progressive-speed nil
+        mouse-wheel-follow-mouse t
+        scroll-step 1)
+  (column-number-mode)
+
+  ;; Enable mouse in terminal
+  (xterm-mouse-mode 1)
 
   ;; Better scrolling
   (setq scroll-margin 3
@@ -88,8 +109,12 @@
   (setq inhibit-startup-message t
         initial-scratch-message nil)
 
-  ;; Better performance
-  (setq read-process-output-max (* 1024 1024))
+  ;; Shorter prompts
+  (setq confirm-kill-emacs nil)
+  (file-name-shadow-mode 1)
+
+  ;; Abbreviate home directory
+  (setq abbreviated-home-dir "\\`~\\(/\\|\\'\\)")
 
   ;; Enable line numbers in prog modes
   :hook ((prog-mode . display-line-numbers-mode)
@@ -115,12 +140,20 @@
 ;; Doom modeline
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
-  :config
-  (setq doom-modeline-height 25
-        doom-modeline-bar-width 3
-        doom-modeline-icon nil  ; no icons in terminal
-        doom-modeline-buffer-encoding nil
-        doom-modeline-vcs-max-length 20))
+  :custom
+  (doom-modeline-height 15)
+  (doom-modeline-bar-width 6)
+  (doom-modeline-icon nil)
+  (doom-modeline-buffer-encoding nil)
+  (doom-modeline-vcs-max-length 20)
+  (doom-modeline-minor-modes t)
+  (doom-modeline-buffer-file-name-style 'truncate-except-project))
+
+;; Hide minor modes in modeline
+(use-package minions
+  :hook (doom-modeline-mode . minions-mode)
+  :custom
+  (minions-mode-line-lighter ""))
 
 ;; Nerd icons (works in terminal with nerd fonts)
 (use-package nerd-icons)
@@ -167,19 +200,20 @@
          ("M-g g" . consult-goto-line)
          ("M-g M-g" . consult-goto-line)
          ("M-s r" . consult-ripgrep)
-         ("M-s f" . consult-find)))
+         ("M-s f" . consult-find))
+  :config
+  (setq consult-preview-key "M-."))
 
 ;; Fuzzy project-wide file search (C-x f)
 (autoload 'consult-fd "consult" nil t)
 (defun my/find-file-fuzzy ()
-  "Find file with fuzzy matching across entire project."
+  "Find file with fuzzy matching from git root or project root."
   (interactive)
   (let* ((git-root (locate-dominating-file default-directory ".git"))
          (project (project-current))
-         (root (cond
-                (project (project-root project))
-                (git-root git-root)
-                (t default-directory))))
+         (root (or git-root
+                   (when project (project-root project))
+                   default-directory)))
     (consult-fd root)))
 (global-set-key (kbd "C-x C-f") #'my/find-file-fuzzy)
 
@@ -193,20 +227,32 @@
 
 ;; Corfu - in-buffer completion
 (use-package corfu
+  :demand t
   :custom
   (corfu-cycle t)
   (corfu-auto t)
-  (corfu-auto-delay 0.2)
-  (corfu-auto-prefix 2)
-  (corfu-quit-no-match 'separator)
-  :init
-  (global-corfu-mode))
+  (corfu-auto-delay 0.1)
+  (corfu-auto-prefix 1)
+  (corfu-quit-no-match nil)
+  (corfu-preview-current nil)
+  :config
+  (global-corfu-mode 1)
+  (corfu-popupinfo-mode 1))
 
-;; Cape - completion at point extensions
+;; Corfu terminal support (required for emacs -nw)
+(use-package corfu-terminal
+  :straight (:type git :host codeberg :repo "akib/emacs-corfu-terminal")
+  :unless (display-graphic-p)
+  :demand t
+  :after corfu
+  :config
+  (corfu-terminal-mode 1))
+
+;; Cape - completion extensions (appended as fallbacks)
 (use-package cape
   :init
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
+  (add-to-list 'completion-at-point-functions #'cape-file t))
 
 ;; =============================================================================
 ;; Editing
@@ -227,14 +273,14 @@
 
 ;; Expand region
 (use-package expand-region
-  :bind (("C-x :" . er/expand-region)
+  :bind (("C-x ;" . er/expand-region)
          ("C-x '" . er/mark-outside-pairs)))
 
 ;; Multiple cursors
 (use-package multiple-cursors
   :bind (("M-m" . mc/mark-next-like-this)
-         ("M-u" . mc/mark-previous-like-this)
-         ("C-c m a" . mc/mark-all-like-this)))
+         ("M-u" . mc/mark-all-like-this)
+         ("C-S-u" . mc/mark-previous-like-this)))
 
 ;; Smart parens
 (use-package smartparens
@@ -247,6 +293,17 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
+;; Rainbow mode - colorize color strings
+(use-package rainbow-mode
+  :diminish rainbow-mode
+  :hook (prog-mode . rainbow-mode))
+
+;; Whitespace cleanup on save
+(use-package ws-butler
+  :diminish ws-butler-mode
+  :hook ((text-mode . ws-butler-mode)
+         (prog-mode . ws-butler-mode)))
+
 ;; Comment/uncomment
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
@@ -254,6 +311,12 @@
 ;; =============================================================================
 ;; Navigation & Project Management
 ;; =============================================================================
+
+;; Ace-window - quick window switching
+(use-package ace-window
+  :bind ("C-x o" . ace-window)
+  :config
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
 ;; Use built-in project.el
 (use-package project
@@ -272,6 +335,9 @@
   :commands (treemacs treemacs-select-window treemacs-add-and-display-current-project-exclusively)
   :init
   (define-key input-decode-map "\e[32;13~" (kbd "C-s-SPC"))
+  (define-key input-decode-map "\e[105;13~" (kbd "s-i"))
+  (define-key input-decode-map "\e[110;13~" (kbd "s-n"))
+  (define-key input-decode-map "\e[99;13~" (kbd "s-c"))
   :config
   (setq treemacs-width 35
         treemacs-no-png-images t
@@ -348,10 +414,21 @@
          (tsx-ts-mode . eglot-ensure)
          (js-ts-mode . eglot-ensure)
          (rust-ts-mode . eglot-ensure)
+         (rust-mode . eglot-ensure)
          (python-mode . eglot-ensure))
   :config
   (setq eglot-autoshutdown t
-        eglot-sync-connect nil))
+        eglot-sync-connect 1
+        eglot-send-changes-idle-time 0.1)
+
+  ;; Enable semantic token highlighting from LSP (colors variables, fields, etc.)
+  (add-to-list 'eglot-server-programs
+               '((rust-ts-mode rust-mode) .
+                 ("rust-analyzer" :initializationOptions
+                  (:semanticHighlighting (:strings t :punctuation (:enable t))))))
+
+  ;; Use maximum tree-sitter highlighting
+  (setq treesit-font-lock-level 4))
 
 ;; Tree-sitter auto
 (use-package treesit-auto
@@ -378,9 +455,13 @@
         web-mode-css-indent-offset 2
         web-mode-code-indent-offset 2))
 
-;; Rust
+;; Rust (tree-sitter mode preferred, rust-mode as fallback)
 (use-package rust-ts-mode
   :straight nil
+  :mode "\\.rs\\'")
+
+(use-package rust-mode
+  :unless (treesit-ready-p 'rust)
   :mode "\\.rs\\'")
 
 ;; YAML
@@ -481,7 +562,7 @@
   (setq eat-term-scrollback-size 131072
         eat-enable-blinking-text nil
         eat-enable-alternative-display nil
-        eat-enable-mouse nil
+        eat-enable-mouse t
         eat-kill-buffer-on-exit nil)
 
   (defun my/eat-reset-terminal ()
@@ -490,13 +571,26 @@
     (when (derived-mode-p 'eat-mode)
       (eat-reset)))
 
+  (defun my/eat-scroll-up ()
+    "Scroll up in eat buffer."
+    (interactive)
+    (scroll-down-command))
+
+  (defun my/eat-scroll-down ()
+    "Scroll down in eat buffer."
+    (interactive)
+    (scroll-up-command))
+
   :bind (:map eat-mode-map
-              ("C-c C-r" . my/eat-reset-terminal)))
+              ("C-c C-r" . my/eat-reset-terminal)
+              ("C-v" . my/eat-scroll-down)
+              ("M-v" . my/eat-scroll-up)))
 
 ;; Claude Code
 (use-package claude-code
   :straight (:type git :host github :repo "stevemolitor/claude-code.el"
                    :branch "main" :depth 1)
+  :demand t
   :bind-keymap ("C-c c" . claude-code-command-map)
   :config
   (setq claude-code-terminal-backend 'eat
@@ -508,34 +602,91 @@
         claude-code-confirm-kill nil)
 
   ;; Force ALL claude-code buffers to display in right side window
-  ;; (overrides hardcoded display-buffer calls in the package)
   (add-to-list 'display-buffer-alist
-               '("\\*claude-code\\*"
+               '(".*claude.*"
                  (display-buffer-in-side-window)
                  (side . right)
                  (window-width . 0.4)))
 
-  ;; Start Claude in project root instead of current directory
-  (defun my/claude-code-in-project ()
-    "Start Claude Code in project root."
-    (interactive)
-    (let ((default-directory (or (when-let ((proj (project-current)))
-                                   (project-root proj))
-                                 (locate-dominating-file default-directory ".git")
-                                 default-directory)))
-      (claude-code)))
+  (defvar my/claude-pending-text nil
+    "Pending text to send after claude starts.")
 
-  ;; Rebind c to use project root
-  (define-key claude-code-command-map (kbd "c") #'my/claude-code-in-project)
+  (defun my/claude-send-pending-text ()
+    "Send pending text if any, called from claude-code-start-hook."
+    (run-at-time 2.0 nil
+                 (lambda ()
+                   ;; Focus claude buffer
+                   (when-let* ((buf (claude-code--get-or-prompt-for-buffer))
+                               (win (get-buffer-window buf)))
+                     (select-window win))
+                   ;; Send pending text if any
+                   (when my/claude-pending-text
+                     (let ((text my/claude-pending-text))
+                       (setq my/claude-pending-text nil)
+                       (claude-code--do-send-command text))))))
+
+  (add-hook 'claude-code-start-hook #'my/claude-send-pending-text)
+
+  (defun my/claude-code-smart ()
+    "Smart Claude Code command.
+- If region selected: start/show claude and send region
+- If claude not started: start it
+- If claude started: toggle visibility
+Always focuses the claude buffer when showing."
+    (interactive)
+    (let* ((default-directory (or (when-let ((proj (project-current)))
+                                    (project-root proj))
+                                  (locate-dominating-file default-directory ".git")
+                                  default-directory))
+           (has-region (use-region-p))
+           (claude-buf (claude-code--get-or-prompt-for-buffer)))
+      (cond
+       ;; Region selected
+       (has-region
+        (if claude-buf
+            ;; Claude running - ensure visible and send
+            (progn
+              (unless (get-buffer-window claude-buf)
+                (display-buffer claude-buf))
+              (claude-code-send-region)
+              (when-let ((win (get-buffer-window claude-buf)))
+                (select-window win)))
+          ;; Claude not running - save region, start (hook will send)
+          (setq my/claude-pending-text
+                (buffer-substring-no-properties (region-beginning) (region-end)))
+          (claude-code)))
+       ;; No region, claude running - toggle
+       (claude-buf
+        (if (get-buffer-window claude-buf)
+            ;; Visible - hide it
+            (delete-window (get-buffer-window claude-buf))
+          ;; Hidden - show and focus
+          (display-buffer claude-buf)
+          (when-let ((win (get-buffer-window claude-buf)))
+            (select-window win))))
+       ;; No region, claude not running - start
+       (t
+        (claude-code)))))
+
+  (define-key claude-code-command-map (kbd "c") #'my/claude-code-smart)
 
   (defun my/claude-code-restart ()
     "Kill and restart Claude Code session (recovery from blank screen)."
     (interactive)
     (when-let ((buf (get-buffer "*claude-code*")))
       (kill-buffer buf))
-    (my/claude-code-in-project))
+    (my/claude-code-smart))
 
   (define-key claude-code-command-map (kbd "R") #'my/claude-code-restart)
+
+  (defun my/claude-code-kill-all-and-start ()
+    "Kill all Claude Code instances and start fresh."
+    (interactive)
+    (claude-code-kill-all)
+    (run-at-time 0.5 nil #'my/claude-code-smart))
+
+  (global-set-key (kbd "s-i") #'my/claude-code-smart)
+  (global-set-key (kbd "s-n") #'my/claude-code-kill-all-and-start)
 
   (claude-code-mode))
 
@@ -543,6 +694,15 @@
 ;; Custom Keybindings (from legacy config)
 ;; =============================================================================
 
+;; System clipboard integration for terminal Emacs (macOS)
+(setq interprogram-cut-function
+      (lambda (text)
+        (let ((process-connection-type nil))
+          (let ((proc (start-process "pbcopy" nil "pbcopy")))
+            (process-send-string proc text)
+            (process-send-eof proc)))))
+
+(global-set-key (kbd "s-c") #'kill-ring-save)
 
 ;; Word navigation
 (global-set-key (kbd "M-<right>") 'forward-word)
@@ -558,7 +718,10 @@
 
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq gc-cons-threshold (* 16 1024 1024))))
+            (message "Emacs loaded in %.2f seconds with %d GCs."
+                     (float-time (time-subtract after-init-time before-init-time))
+                     gcs-done)
+            (setq gc-cons-threshold (* 32 1024 1024))))
 
 (provide 'init)
 ;;; init.el ends here
