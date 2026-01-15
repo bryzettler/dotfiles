@@ -617,6 +617,12 @@
               ("C-v" . my/eat-scroll-down)
               ("M-v" . my/eat-scroll-up)))
 
+;; Vterm - robust terminal emulator (requires cmake, libtool)
+(use-package vterm
+  :config
+  (setq vterm-max-scrollback 10000
+        vterm-kill-buffer-on-exit nil))
+
 ;; Claude Code
 (use-package claude-code
   :straight (:type git :host github :repo "stevemolitor/claude-code.el"
@@ -624,7 +630,7 @@
   :demand t
   :bind-keymap ("C-c c" . claude-code-command-map)
   :config
-  (setq claude-code-terminal-backend 'eat
+  (setq claude-code-terminal-backend 'vterm
         ;; Auto-focus Claude buffer when toggling
         claude-code-toggle-auto-select t
         ;; Use Shift+Return for newlines (Return sends message)
