@@ -13,6 +13,7 @@ scrollback-limit = 50000
 macos-option-as-alt = true
 fullscreen = true
 macos-non-native-fullscreen = true
+background-opacity = 0.9
 
 # Keybindings
 keybind = opt+left=text:\x1bb
