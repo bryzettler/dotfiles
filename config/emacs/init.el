@@ -543,6 +543,37 @@
 ;; Diminish minor modes
 (use-package diminish)
 
+;; Editable grep results
+(use-package wgrep
+  :config
+  (setq wgrep-auto-save-buffer t))
+
+;; Flash line after jumps
+(use-package pulsar
+  :config
+  (setq pulsar-pulse t
+        pulsar-delay 0.05
+        pulsar-iterations 10
+        pulsar-pulse-functions '(xref-find-definitions
+                                 xref-find-references
+                                 xref-go-back
+                                 xref-go-forward
+                                 avy-goto-char
+                                 avy-goto-word-1
+                                 avy-goto-line
+                                 consult-line
+                                 consult-goto-line
+                                 scroll-up-command
+                                 scroll-down-command
+                                 recenter-top-bottom
+                                 other-window
+                                 ace-window))
+  (pulsar-global-mode 1))
+
+;; Auto-load env vars per-project (direnv)
+(use-package envrc
+  :hook (after-init . envrc-global-mode))
+
 ;; =============================================================================
 ;; Claude Code Integration
 ;; =============================================================================
