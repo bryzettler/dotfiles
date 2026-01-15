@@ -704,6 +704,14 @@ Always focuses the claude buffer when showing."
 
 (global-set-key (kbd "s-c") #'kill-ring-save)
 
+;; Quick kill buffer (no prompt if unmodified)
+(defun my/kill-current-buffer ()
+  "Kill current buffer without prompt if unmodified."
+  (interactive)
+  (kill-buffer (current-buffer)))
+
+(global-set-key (kbd "C-x k") #'my/kill-current-buffer)
+
 ;; Word navigation
 (global-set-key (kbd "M-<right>") 'forward-word)
 (global-set-key (kbd "M-<left>") 'backward-word)
