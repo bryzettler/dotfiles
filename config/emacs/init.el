@@ -743,6 +743,9 @@ Always focuses the claude buffer when showing."
 
 (global-set-key (kbd "C-x k") #'my/kill-current-buffer)
 
+;; Interactive find/replace across project
+(global-set-key (kbd "C-c r") #'project-query-replace-regexp)
+
 ;; Word navigation
 (global-set-key (kbd "M-<right>") 'forward-word)
 (global-set-key (kbd "M-<left>") 'backward-word)
