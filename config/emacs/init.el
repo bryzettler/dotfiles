@@ -3,7 +3,7 @@
 
 ;;; Commentary:
 ;; A clean, modern Emacs configuration optimized for terminal use (emacs -nw)
-;; Uses use-package, vertico/corfu completion, eglot LSP, and VS Code Dark+ theme
+;; Uses use-package, vertico/corfu completion, eglot LSP, and doom-dark+ theme
 
 ;;; Code:
 
@@ -141,7 +141,7 @@
 ;; Theme & UI
 ;; =============================================================================
 
-;; Doom themes (VS Code Dark+ inspired)
+;; Doom themes (Dark+ theme)
 (use-package doom-themes
   :config
   (setq doom-themes-enable-bold t
@@ -149,7 +149,7 @@
   (load-theme 'doom-dark+ t)
   (doom-themes-org-config)
 
-  ;; VS Code Dark+ exact color overrides
+  ;; Dark+ exact color overrides
   ;; Reference: https://github.com/microsoft/vscode/blob/main/extensions/theme-defaults/themes/dark_plus.json
   ;; Purple #c586c0 - control flow (import/export/if/return/await)
   ;; Blue #569cd6 - storage keywords (const/let/function/class/this)
@@ -169,7 +169,7 @@
    '(line-number ((t :foreground "#858585" :background "#1e1e1e")))
    '(line-number-current-line ((t :foreground "#c6c6c6" :background "#1e1e1e")))
 
-   ;; Syntax highlighting - VS Code Dark+ colors
+   ;; Syntax highlighting - Dark+ colors
    '(font-lock-keyword-face ((t :foreground "#569cd6")))
    '(font-lock-builtin-face ((t :foreground "#c586c0")))
    '(font-lock-function-name-face ((t :foreground "#dcdcaa")))
@@ -527,7 +527,7 @@
                  ("rust-analyzer" :initializationOptions
                   (:semanticHighlighting (:strings t :punctuation (:enable t))))))
 
-  ;; Semantic token faces - VS Code Dark+ colors
+  ;; Semantic token faces - Dark+ colors
   (custom-set-faces
    '(eglot-semantic-class ((t :foreground "#4EC9B0" :weight semi-bold)))
    '(eglot-semantic-type ((t :foreground "#4EC9B0")))
@@ -550,44 +550,44 @@
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
-;; TypeScript/TSX/JS - VS Code Dark+ comprehensive highlighting
+;; TypeScript/TSX/JS - comprehensive tree-sitter highlighting
 (use-package typescript-ts-mode
   :straight nil
   :mode (("\\.ts\\'" . typescript-ts-mode)
          ("\\.tsx\\'" . tsx-ts-mode))
   :init
-  ;; VS Code Dark+ faces - define early
-  (defface vscode-control-keyword '((t :foreground "#c586c0")) "Control flow - purple")
-  (defface vscode-storage-keyword '((t :foreground "#569cd6")) "Storage/declaration - blue")
-  (defface vscode-this-keyword '((t :foreground "#569cd6")) "this keyword - blue")
-  (defface vscode-constant '((t :foreground "#4fc1ff")) "Constants - cyan")
+  ;; Custom faces for tree-sitter highlighting
+  (defface ts-control-keyword '((t :foreground "#c586c0")) "Control flow - purple")
+  (defface ts-storage-keyword '((t :foreground "#569cd6")) "Storage/declaration - blue")
+  (defface ts-this-keyword '((t :foreground "#569cd6")) "this keyword - blue")
+  (defface ts-constant '((t :foreground "#4fc1ff")) "Constants - cyan")
 
   :config
-  (defun my/vscode-ts-rules (lang)
-    "Generate VS Code Dark+ tree-sitter rules for LANG."
+  (defun my/ts-treesit-rules (lang)
+    "Generate Dark+ tree-sitter rules for LANG."
     (append
      ;; Control keywords - purple #c586c0
      (treesit-font-lock-rules
-      :language lang :feature 'vscode-control :override t
+      :language lang :feature 'custom-control :override t
       '((["import" "from" "export" "default" "as"
           "if" "else" "return" "for" "while" "do"
           "switch" "case" "break" "continue"
           "try" "catch" "finally" "throw"
           "new" "delete" "typeof" "instanceof"
           "in" "of" "await" "async" "yield"
-          "with" "debugger"] @vscode-control-keyword)))
+          "with" "debugger"] @ts-control-keyword)))
      ;; Storage keywords - blue #569cd6
      (treesit-font-lock-rules
-      :language lang :feature 'vscode-storage :override t
+      :language lang :feature 'custom-storage :override t
       '((["const" "let" "var" "function" "class"
           "interface" "type" "enum" "namespace" "module"
           "declare" "readonly" "public" "private" "protected"
           "static" "abstract" "extends" "implements"
-          "get" "set" "keyof" "infer" "satisfies"] @vscode-storage-keyword)
-        (this) @vscode-this-keyword))
+          "get" "set" "keyof" "infer" "satisfies"] @ts-storage-keyword)
+        (this) @ts-this-keyword))
      ;; Function/method definitions - yellow #dcdcaa
      (treesit-font-lock-rules
-      :language lang :feature 'vscode-function-def :override t
+      :language lang :feature 'custom-function-def :override t
       '((function_declaration name: (identifier) @font-lock-function-name-face)
         (function_expression name: (identifier) @font-lock-function-name-face)
         (method_definition name: (property_identifier) @font-lock-function-name-face)
@@ -596,13 +596,13 @@
         (pair key: (property_identifier) @font-lock-function-name-face value: [(function_expression) (arrow_function)])))
      ;; Function/method calls - yellow #dcdcaa
      (treesit-font-lock-rules
-      :language lang :feature 'vscode-function-call :override t
+      :language lang :feature 'custom-function-call :override t
       '((call_expression function: (identifier) @font-lock-function-call-face)
         (call_expression function: (member_expression property: (property_identifier) @font-lock-function-call-face))
         (new_expression constructor: (identifier) @font-lock-function-call-face)))
      ;; Type annotations - green #4ec9b0
      (treesit-font-lock-rules
-      :language lang :feature 'vscode-type :override t
+      :language lang :feature 'custom-type :override t
       '((type_identifier) @font-lock-type-face
         (predefined_type) @font-lock-type-face
         (type_arguments (type_identifier) @font-lock-type-face)
@@ -615,27 +615,27 @@
         (implements_clause (type_identifier) @font-lock-type-face)))
      ;; Parameters - light blue #9cdcfe
      (treesit-font-lock-rules
-      :language lang :feature 'vscode-parameter :override t
+      :language lang :feature 'custom-parameter :override t
       '((required_parameter pattern: (identifier) @font-lock-variable-name-face)
         (optional_parameter pattern: (identifier) @font-lock-variable-name-face)
         (required_parameter pattern: (object_pattern (shorthand_property_identifier_pattern) @font-lock-variable-name-face))
         (required_parameter pattern: (array_pattern (identifier) @font-lock-variable-name-face))))
      ;; Property access - light blue #9cdcfe
      (treesit-font-lock-rules
-      :language lang :feature 'vscode-property :override nil
+      :language lang :feature 'custom-property :override nil
       '((member_expression property: (property_identifier) @font-lock-property-use-face)
         (pair key: (property_identifier) @font-lock-property-name-face)
         (shorthand_property_identifier) @font-lock-variable-use-face))
      ;; Constants (UPPER_CASE) - cyan #4fc1ff
      (treesit-font-lock-rules
-      :language lang :feature 'vscode-constant :override t
-      '((identifier) @vscode-constant
-        (:match "^[A-Z][A-Z0-9_]+$" @vscode-constant)))))
+      :language lang :feature 'ts-constant :override t
+      '((identifier) @ts-constant
+        (:match "^[A-Z][A-Z0-9_]+$" @ts-constant)))))
 
-  (defun my/vscode-tsx-rules ()
-    "Generate VS Code Dark+ JSX-specific rules."
+  (defun my/tsx-treesit-rules ()
+    "Generate Dark+ JSX-specific rules."
     (treesit-font-lock-rules
-     :language 'tsx :feature 'vscode-jsx :override t
+     :language 'tsx :feature 'custom-jsx :override t
      '((jsx_opening_element name: (identifier) @font-lock-type-face)
        (jsx_closing_element name: (identifier) @font-lock-type-face)
        (jsx_self_closing_element name: (identifier) @font-lock-type-face)
@@ -646,35 +646,35 @@
 
   ;; Advice to inject rules BEFORE mode setup completes
   (defun my/ts-inject-font-lock (orig-fun &rest args)
-    "Inject VS Code rules before typescript-ts-mode setup."
+    "Inject Dark+ rules before typescript-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
-                (append treesit-font-lock-settings (my/vscode-ts-rules 'typescript)))
+                (append treesit-font-lock-settings (my/ts-treesit-rules 'typescript)))
     (treesit-font-lock-recompute-features
-     '(vscode-control vscode-storage vscode-function-def vscode-function-call
-       vscode-type vscode-parameter vscode-property vscode-constant))
+     '(custom-control custom-storage custom-function-def custom-function-call
+       custom-type custom-parameter custom-property custom-constant))
     (treesit-major-mode-setup))
 
   (defun my/tsx-inject-font-lock (orig-fun &rest args)
-    "Inject VS Code rules before tsx-ts-mode setup."
+    "Inject Dark+ rules before tsx-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
                 (append treesit-font-lock-settings
-                        (my/vscode-ts-rules 'tsx)
-                        (my/vscode-tsx-rules)))
+                        (my/ts-treesit-rules 'tsx)
+                        (my/tsx-treesit-rules)))
     (treesit-font-lock-recompute-features
-     '(vscode-control vscode-storage vscode-function-def vscode-function-call
-       vscode-type vscode-parameter vscode-property vscode-constant vscode-jsx))
+     '(custom-control custom-storage custom-function-def custom-function-call
+       custom-type custom-parameter custom-property custom-constant custom-jsx))
     (treesit-major-mode-setup))
 
   (defun my/js-inject-font-lock (orig-fun &rest args)
-    "Inject VS Code rules before js-ts-mode setup."
+    "Inject Dark+ rules before js-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
-                (append treesit-font-lock-settings (my/vscode-ts-rules 'javascript)))
+                (append treesit-font-lock-settings (my/ts-treesit-rules 'javascript)))
     (treesit-font-lock-recompute-features
-     '(vscode-control vscode-storage vscode-function-def vscode-function-call
-       vscode-type vscode-parameter vscode-property vscode-constant))
+     '(custom-control custom-storage custom-function-def custom-function-call
+       custom-type custom-parameter custom-property custom-constant))
     (treesit-major-mode-setup))
 
   (advice-add 'typescript-ts-mode :around #'my/ts-inject-font-lock)
@@ -703,33 +703,33 @@
   :straight nil
   :mode "\\.rs\\'"
   :config
-  (defun my/vscode-rust-rules ()
-    "Generate VS Code Dark+ tree-sitter rules for Rust."
+  (defun my/rust-treesit-rules ()
+    "Generate Dark+ tree-sitter rules for Rust."
     (append
      (treesit-font-lock-rules
-      :language 'rust :feature 'vscode-control :override t
+      :language 'rust :feature 'custom-control :override t
       '((["if" "else" "match" "return" "break" "continue"
           "for" "while" "loop" "in" "yield"
-          "async" "await" "try" "unsafe"] @vscode-control-keyword)))
+          "async" "await" "try" "unsafe"] @ts-control-keyword)))
      (treesit-font-lock-rules
-      :language 'rust :feature 'vscode-storage :override t
+      :language 'rust :feature 'custom-storage :override t
       '((["let" "const" "static" "fn" "struct" "enum"
           "trait" "impl" "type" "mod" "use" "pub" "crate"
-          "mut" "ref" "move" "dyn" "where" "as" "extern"] @vscode-storage-keyword)
-        (self) @vscode-this-keyword))
+          "mut" "ref" "move" "dyn" "where" "as" "extern"] @ts-storage-keyword)
+        (self) @ts-this-keyword))
      (treesit-font-lock-rules
-      :language 'rust :feature 'vscode-function-def :override t
+      :language 'rust :feature 'custom-function-def :override t
       '((function_item name: (identifier) @font-lock-function-name-face)
         (function_signature_item name: (identifier) @font-lock-function-name-face)))
      (treesit-font-lock-rules
-      :language 'rust :feature 'vscode-function-call :override t
+      :language 'rust :feature 'custom-function-call :override t
       '((call_expression function: (identifier) @font-lock-function-call-face)
         (call_expression function: (field_expression field: (field_identifier) @font-lock-function-call-face))
         (call_expression function: (scoped_identifier name: (identifier) @font-lock-function-call-face))
         (macro_invocation macro: (identifier) @font-lock-function-call-face)
         (macro_invocation macro: (scoped_identifier name: (identifier) @font-lock-function-call-face))))
      (treesit-font-lock-rules
-      :language 'rust :feature 'vscode-type :override t
+      :language 'rust :feature 'custom-type :override t
       '((type_identifier) @font-lock-type-face
         (primitive_type) @font-lock-type-face
         (struct_item name: (type_identifier) @font-lock-type-face)
@@ -740,23 +740,23 @@
         (generic_type type: (type_identifier) @font-lock-type-face)
         (scoped_type_identifier name: (type_identifier) @font-lock-type-face)))
      (treesit-font-lock-rules
-      :language 'rust :feature 'vscode-property :override nil
+      :language 'rust :feature 'custom-property :override nil
       '((field_expression field: (field_identifier) @font-lock-property-use-face)
         (field_identifier) @font-lock-property-name-face
         (shorthand_field_initializer (identifier) @font-lock-property-name-face)))
      (treesit-font-lock-rules
-      :language 'rust :feature 'vscode-lifetime :override t
-      '((lifetime) @vscode-control-keyword
+      :language 'rust :feature 'custom-lifetime :override t
+      '((lifetime) @ts-control-keyword
         (attribute_item) @font-lock-preprocessor-face))))
 
   (defun my/rust-inject-font-lock (orig-fun &rest args)
-    "Inject VS Code rules before rust-ts-mode setup."
+    "Inject Dark+ rules before rust-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
-                (append treesit-font-lock-settings (my/vscode-rust-rules)))
+                (append treesit-font-lock-settings (my/rust-treesit-rules)))
     (treesit-font-lock-recompute-features
-     '(vscode-control vscode-storage vscode-function-def vscode-function-call
-       vscode-type vscode-property vscode-lifetime))
+     '(custom-control custom-storage custom-function-def custom-function-call
+       custom-type custom-property custom-lifetime))
     (treesit-major-mode-setup))
 
   (advice-add 'rust-ts-mode :around #'my/rust-inject-font-lock))
@@ -770,39 +770,39 @@
   :straight nil
   :mode (("\\.py\\'" . python-ts-mode))
   :config
-  (defun my/vscode-python-rules ()
-    "Generate VS Code Dark+ tree-sitter rules for Python."
+  (defun my/python-treesit-rules ()
+    "Generate Dark+ tree-sitter rules for Python."
     (append
      (treesit-font-lock-rules
-      :language 'python :feature 'vscode-control :override t
+      :language 'python :feature 'custom-control :override t
       '((["if" "elif" "else" "for" "while" "return" "yield"
           "try" "except" "finally" "raise" "with" "as"
           "break" "continue" "pass" "assert"
           "import" "from" "async" "await"
-          "and" "or" "not" "in" "is"] @vscode-control-keyword)))
+          "and" "or" "not" "in" "is"] @ts-control-keyword)))
      (treesit-font-lock-rules
-      :language 'python :feature 'vscode-storage :override t
-      '((["def" "class" "lambda" "global" "nonlocal"] @vscode-storage-keyword)
-        (self) @vscode-this-keyword))
+      :language 'python :feature 'custom-storage :override t
+      '((["def" "class" "lambda" "global" "nonlocal"] @ts-storage-keyword)
+        (self) @ts-this-keyword))
      (treesit-font-lock-rules
-      :language 'python :feature 'vscode-function-def :override t
+      :language 'python :feature 'custom-function-def :override t
       '((function_definition name: (identifier) @font-lock-function-name-face)))
      (treesit-font-lock-rules
-      :language 'python :feature 'vscode-function-call :override t
+      :language 'python :feature 'custom-function-call :override t
       '((call function: (identifier) @font-lock-function-call-face)
         (call function: (attribute attribute: (identifier) @font-lock-function-call-face))
         (decorator (identifier) @font-lock-function-call-face)
         (decorator (attribute attribute: (identifier) @font-lock-function-call-face))))
      (treesit-font-lock-rules
-      :language 'python :feature 'vscode-type :override t
+      :language 'python :feature 'custom-type :override t
       '((class_definition name: (identifier) @font-lock-type-face)
         (type (identifier) @font-lock-type-face)
         (type (subscript value: (identifier) @font-lock-type-face))))
      (treesit-font-lock-rules
-      :language 'python :feature 'vscode-property :override nil
+      :language 'python :feature 'custom-property :override nil
       '((attribute attribute: (identifier) @font-lock-property-use-face)))
      (treesit-font-lock-rules
-      :language 'python :feature 'vscode-parameter :override t
+      :language 'python :feature 'custom-parameter :override t
       '((parameters (identifier) @font-lock-variable-name-face)
         (default_parameter name: (identifier) @font-lock-variable-name-face)
         (typed_parameter (identifier) @font-lock-variable-name-face)
@@ -811,13 +811,13 @@
         (dictionary_splat_pattern (identifier) @font-lock-variable-name-face)))))
 
   (defun my/python-inject-font-lock (orig-fun &rest args)
-    "Inject VS Code rules before python-ts-mode setup."
+    "Inject Dark+ rules before python-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
-                (append treesit-font-lock-settings (my/vscode-python-rules)))
+                (append treesit-font-lock-settings (my/python-treesit-rules)))
     (treesit-font-lock-recompute-features
-     '(vscode-control vscode-storage vscode-function-def vscode-function-call
-       vscode-type vscode-property vscode-parameter))
+     '(custom-control custom-storage custom-function-def custom-function-call
+       custom-type custom-property custom-parameter))
     (treesit-major-mode-setup))
 
   (advice-add 'python-ts-mode :around #'my/python-inject-font-lock))
