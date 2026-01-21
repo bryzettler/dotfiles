@@ -465,12 +465,7 @@
                 (let ((default-directory project-root))
                   (delete-other-windows)
                   (treemacs-add-and-display-current-project-exclusively)
-                  ;; Switch to main window with empty buffer (so C-x C-f replaces it)
-                  (other-window 1)
-                  (switch-to-buffer (get-buffer-create "*empty*"))
-                  ;; Set empty buffer's directory to project root
-                  (setq default-directory project-root)
-                  (setq buffer-read-only t))))))
+                  (other-window 1))))))
 
 (use-package treemacs-nerd-icons
   :after treemacs
