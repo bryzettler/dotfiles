@@ -3,7 +3,7 @@
 
 ;;; Commentary:
 ;; A clean, modern Emacs configuration optimized for terminal use (emacs -nw)
-;; Uses use-package, vertico/corfu completion, eglot LSP, and catppuccin theme
+;; Uses use-package, vertico/corfu completion, eglot LSP, and VS Code Dark+ theme
 
 ;;; Code:
 
@@ -33,6 +33,16 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 (setq use-package-always-ensure t)
+
+;; =============================================================================
+;; Terminal True Color (24-bit) Support
+;; =============================================================================
+
+;; Enable 24-bit color in terminal when COLORTERM=truecolor is set
+(add-to-list 'term-file-aliases '("xterm-256color" . "xterm-direct"))
+(add-to-list 'term-file-aliases '("tmux-256color" . "xterm-direct"))
+(add-to-list 'term-file-aliases '("screen-256color" . "xterm-direct"))
+(add-to-list 'term-file-aliases '("xterm-ghostty" . "xterm-direct"))
 
 ;; =============================================================================
 ;; Basic Settings
@@ -131,11 +141,100 @@
 ;; Theme & UI
 ;; =============================================================================
 
-;; Catppuccin theme
-(use-package catppuccin-theme
+;; Doom themes (VS Code Dark+ inspired)
+(use-package doom-themes
   :config
-  (setq catppuccin-flavor 'mocha)
-  (load-theme 'catppuccin t))
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  (load-theme 'doom-dark+ t)
+  (doom-themes-org-config)
+
+  ;; VS Code Dark+ exact color overrides
+  ;; Reference: https://github.com/microsoft/vscode/blob/main/extensions/theme-defaults/themes/dark_plus.json
+  ;; Purple #c586c0 - control flow (import/export/if/return/await)
+  ;; Blue #569cd6 - storage keywords (const/let/function/class/this)
+  ;; Yellow #dcdcaa - functions (definitions and calls)
+  ;; Green #4ec9b0 - types (classes, interfaces, type annotations)
+  ;; Light Blue #9cdcfe - variables, parameters, properties
+  ;; Cyan #4fc1ff - constants (UPPER_CASE), enum members
+  ;; Orange #ce9178 - strings
+  ;; Light Green #b5cea8 - numbers
+  ;; Green #6a9955 - comments
+  (custom-set-faces
+   ;; Base colors
+   '(default ((t :background "#1e1e1e" :foreground "#d4d4d4")))
+   '(cursor ((t :background "#aeafad")))
+   '(region ((t :background "#264f78")))
+   '(fringe ((t :background "#1e1e1e")))
+   '(line-number ((t :foreground "#858585" :background "#1e1e1e")))
+   '(line-number-current-line ((t :foreground "#c6c6c6" :background "#1e1e1e")))
+
+   ;; Syntax highlighting - VS Code Dark+ colors
+   '(font-lock-keyword-face ((t :foreground "#569cd6")))
+   '(font-lock-builtin-face ((t :foreground "#c586c0")))
+   '(font-lock-function-name-face ((t :foreground "#dcdcaa")))
+   '(font-lock-function-call-face ((t :foreground "#dcdcaa")))
+   '(font-lock-variable-name-face ((t :foreground "#9cdcfe")))
+   '(font-lock-variable-use-face ((t :foreground "#9cdcfe")))
+   '(font-lock-type-face ((t :foreground "#4ec9b0")))
+   '(font-lock-constant-face ((t :foreground "#4fc1ff")))
+   '(font-lock-string-face ((t :foreground "#ce9178")))
+   '(font-lock-comment-face ((t :foreground "#6a9955")))
+   '(font-lock-comment-delimiter-face ((t :foreground "#6a9955")))
+   '(font-lock-doc-face ((t :foreground "#6a9955")))
+   '(font-lock-number-face ((t :foreground "#b5cea8")))
+   '(font-lock-operator-face ((t :foreground "#d4d4d4")))
+   '(font-lock-property-name-face ((t :foreground "#9cdcfe")))
+   '(font-lock-property-use-face ((t :foreground "#9cdcfe")))
+   '(font-lock-punctuation-face ((t :foreground "#d4d4d4")))
+   '(font-lock-bracket-face ((t :foreground "#ffd700")))
+   '(font-lock-preprocessor-face ((t :foreground "#c586c0")))
+   '(font-lock-warning-face ((t :foreground "#f14c4c" :weight bold)))
+   '(font-lock-escape-face ((t :foreground "#d7ba7d")))
+   '(font-lock-regexp-grouping-backslash ((t :foreground "#d7ba7d")))
+   '(font-lock-regexp-grouping-construct ((t :foreground "#d7ba7d")))
+
+   ;; Tree-sitter builtin faces
+   '(tree-sitter-hl-face:function ((t :foreground "#dcdcaa")))
+   '(tree-sitter-hl-face:function.call ((t :foreground "#dcdcaa")))
+   '(tree-sitter-hl-face:function.method ((t :foreground "#dcdcaa")))
+   '(tree-sitter-hl-face:function.macro ((t :foreground "#dcdcaa")))
+   '(tree-sitter-hl-face:function.special ((t :foreground "#dcdcaa")))
+   '(tree-sitter-hl-face:function.builtin ((t :foreground "#dcdcaa")))
+   '(tree-sitter-hl-face:method ((t :foreground "#dcdcaa")))
+   '(tree-sitter-hl-face:method.call ((t :foreground "#dcdcaa")))
+   '(tree-sitter-hl-face:type ((t :foreground "#4ec9b0")))
+   '(tree-sitter-hl-face:type.builtin ((t :foreground "#4ec9b0")))
+   '(tree-sitter-hl-face:type.parameter ((t :foreground "#4ec9b0")))
+   '(tree-sitter-hl-face:type.argument ((t :foreground "#4ec9b0")))
+   '(tree-sitter-hl-face:constructor ((t :foreground "#4ec9b0")))
+   '(tree-sitter-hl-face:variable ((t :foreground "#9cdcfe")))
+   '(tree-sitter-hl-face:variable.builtin ((t :foreground "#569cd6")))
+   '(tree-sitter-hl-face:variable.parameter ((t :foreground "#9cdcfe")))
+   '(tree-sitter-hl-face:variable.special ((t :foreground "#9cdcfe")))
+   '(tree-sitter-hl-face:property ((t :foreground "#9cdcfe")))
+   '(tree-sitter-hl-face:property.definition ((t :foreground "#9cdcfe")))
+   '(tree-sitter-hl-face:keyword ((t :foreground "#569cd6")))
+   '(tree-sitter-hl-face:keyword.control ((t :foreground "#c586c0")))
+   '(tree-sitter-hl-face:keyword.operator ((t :foreground "#c586c0")))
+   '(tree-sitter-hl-face:keyword.function ((t :foreground "#569cd6")))
+   '(tree-sitter-hl-face:keyword.return ((t :foreground "#c586c0")))
+   '(tree-sitter-hl-face:string ((t :foreground "#ce9178")))
+   '(tree-sitter-hl-face:string.special ((t :foreground "#d7ba7d")))
+   '(tree-sitter-hl-face:escape ((t :foreground "#d7ba7d")))
+   '(tree-sitter-hl-face:number ((t :foreground "#b5cea8")))
+   '(tree-sitter-hl-face:constant ((t :foreground "#4fc1ff")))
+   '(tree-sitter-hl-face:constant.builtin ((t :foreground "#569cd6")))
+   '(tree-sitter-hl-face:comment ((t :foreground "#6a9955")))
+   '(tree-sitter-hl-face:doc ((t :foreground "#6a9955")))
+   '(tree-sitter-hl-face:operator ((t :foreground "#d4d4d4")))
+   '(tree-sitter-hl-face:punctuation ((t :foreground "#d4d4d4")))
+   '(tree-sitter-hl-face:punctuation.bracket ((t :foreground "#ffd700")))
+   '(tree-sitter-hl-face:punctuation.delimiter ((t :foreground "#d4d4d4")))
+   '(tree-sitter-hl-face:label ((t :foreground "#c586c0")))
+   '(tree-sitter-hl-face:attribute ((t :foreground "#9cdcfe")))
+   '(tree-sitter-hl-face:tag ((t :foreground "#569cd6")))
+   '(tree-sitter-hl-face:embedded ((t :foreground "#d4d4d4")))))
 
 ;; Doom modeline
 (use-package doom-modeline
@@ -195,12 +294,10 @@
 
 ;; Consult - search/navigation commands
 (use-package consult
-  :bind (("C-s" . consult-line)
-         ("C-x b" . consult-buffer)
+  :bind (("C-x b" . consult-buffer)
          ("M-g g" . consult-goto-line)
          ("M-g M-g" . consult-goto-line)
-         ("M-s r" . consult-ripgrep)
-         ("M-s f" . consult-find))
+         ("M-s" . consult-ripgrep))
   :config
   (setq consult-preview-key "M-."))
 
@@ -415,34 +512,180 @@
          (js-ts-mode . eglot-ensure)
          (rust-ts-mode . eglot-ensure)
          (rust-mode . eglot-ensure)
-         (python-mode . eglot-ensure))
+         (python-ts-mode . eglot-ensure)
+         (python-mode . eglot-ensure)
+         (eglot-managed-mode . (lambda () (font-lock-flush))))
   :config
   (setq eglot-autoshutdown t
         eglot-sync-connect 1
-        eglot-send-changes-idle-time 0.1)
+        eglot-send-changes-idle-time 0.1
+        treesit-font-lock-level 4
+        eglot-ignored-server-capabilities '())
 
-  ;; Enable semantic token highlighting from LSP (colors variables, fields, etc.)
   (add-to-list 'eglot-server-programs
                '((rust-ts-mode rust-mode) .
                  ("rust-analyzer" :initializationOptions
                   (:semanticHighlighting (:strings t :punctuation (:enable t))))))
 
-  ;; Use maximum tree-sitter highlighting
-  (setq treesit-font-lock-level 4))
+  ;; Semantic token faces - VS Code Dark+ colors
+  (custom-set-faces
+   '(eglot-semantic-class ((t :foreground "#4EC9B0" :weight semi-bold)))
+   '(eglot-semantic-type ((t :foreground "#4EC9B0")))
+   '(eglot-semantic-interface ((t :foreground "#4EC9B0" :slant italic)))
+   '(eglot-semantic-enum ((t :foreground "#4EC9B0")))
+   '(eglot-semantic-variable ((t :foreground "#9CDCFE")))
+   '(eglot-semantic-parameter ((t :foreground "#9CDCFE" :slant italic)))
+   '(eglot-semantic-property ((t :foreground "#9CDCFE")))
+   '(eglot-semantic-function ((t :foreground "#DCDCAA")))
+   '(eglot-semantic-method ((t :foreground "#DCDCAA")))
+   '(eglot-semantic-namespace ((t :foreground "#4EC9B0" :weight semi-bold)))
+   '(eglot-semantic-enumMember ((t :foreground "#4FC1FF")))
+   '(eglot-semantic-readonly ((t :foreground "#4FC1FF")))))
 
 ;; Tree-sitter auto
 (use-package treesit-auto
   :custom
-  (treesit-auto-install 'prompt)
+  (treesit-auto-install t)
   :config
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
-;; TypeScript
+;; TypeScript/TSX/JS - VS Code Dark+ comprehensive highlighting
 (use-package typescript-ts-mode
   :straight nil
   :mode (("\\.ts\\'" . typescript-ts-mode)
-         ("\\.tsx\\'" . tsx-ts-mode)))
+         ("\\.tsx\\'" . tsx-ts-mode))
+  :init
+  ;; VS Code Dark+ faces - define early
+  (defface vscode-control-keyword '((t :foreground "#c586c0")) "Control flow - purple")
+  (defface vscode-storage-keyword '((t :foreground "#569cd6")) "Storage/declaration - blue")
+  (defface vscode-this-keyword '((t :foreground "#569cd6")) "this keyword - blue")
+  (defface vscode-constant '((t :foreground "#4fc1ff")) "Constants - cyan")
+
+  :config
+  (defun my/vscode-ts-rules (lang)
+    "Generate VS Code Dark+ tree-sitter rules for LANG."
+    (append
+     ;; Control keywords - purple #c586c0
+     (treesit-font-lock-rules
+      :language lang :feature 'vscode-control :override t
+      '((["import" "from" "export" "default" "as"
+          "if" "else" "return" "for" "while" "do"
+          "switch" "case" "break" "continue"
+          "try" "catch" "finally" "throw"
+          "new" "delete" "typeof" "instanceof"
+          "in" "of" "await" "async" "yield"
+          "with" "debugger"] @vscode-control-keyword)))
+     ;; Storage keywords - blue #569cd6
+     (treesit-font-lock-rules
+      :language lang :feature 'vscode-storage :override t
+      '((["const" "let" "var" "function" "class"
+          "interface" "type" "enum" "namespace" "module"
+          "declare" "readonly" "public" "private" "protected"
+          "static" "abstract" "extends" "implements"
+          "get" "set" "keyof" "infer" "satisfies"] @vscode-storage-keyword)
+        (this) @vscode-this-keyword))
+     ;; Function/method definitions - yellow #dcdcaa
+     (treesit-font-lock-rules
+      :language lang :feature 'vscode-function-def :override t
+      '((function_declaration name: (identifier) @font-lock-function-name-face)
+        (function_expression name: (identifier) @font-lock-function-name-face)
+        (method_definition name: (property_identifier) @font-lock-function-name-face)
+        (method_signature name: (property_identifier) @font-lock-function-name-face)
+        (variable_declarator name: (identifier) @font-lock-function-name-face value: (arrow_function))
+        (pair key: (property_identifier) @font-lock-function-name-face value: [(function_expression) (arrow_function)])))
+     ;; Function/method calls - yellow #dcdcaa
+     (treesit-font-lock-rules
+      :language lang :feature 'vscode-function-call :override t
+      '((call_expression function: (identifier) @font-lock-function-call-face)
+        (call_expression function: (member_expression property: (property_identifier) @font-lock-function-call-face))
+        (new_expression constructor: (identifier) @font-lock-function-call-face)))
+     ;; Type annotations - green #4ec9b0
+     (treesit-font-lock-rules
+      :language lang :feature 'vscode-type :override t
+      '((type_identifier) @font-lock-type-face
+        (predefined_type) @font-lock-type-face
+        (type_arguments (type_identifier) @font-lock-type-face)
+        (type_parameter name: (type_identifier) @font-lock-type-face)
+        (class_declaration name: (type_identifier) @font-lock-type-face)
+        (interface_declaration name: (type_identifier) @font-lock-type-face)
+        (type_alias_declaration name: (type_identifier) @font-lock-type-face)
+        (enum_declaration name: (identifier) @font-lock-type-face)
+        (extends_clause value: (identifier) @font-lock-type-face)
+        (implements_clause (type_identifier) @font-lock-type-face)))
+     ;; Parameters - light blue #9cdcfe
+     (treesit-font-lock-rules
+      :language lang :feature 'vscode-parameter :override t
+      '((required_parameter pattern: (identifier) @font-lock-variable-name-face)
+        (optional_parameter pattern: (identifier) @font-lock-variable-name-face)
+        (required_parameter pattern: (object_pattern (shorthand_property_identifier_pattern) @font-lock-variable-name-face))
+        (required_parameter pattern: (array_pattern (identifier) @font-lock-variable-name-face))))
+     ;; Property access - light blue #9cdcfe
+     (treesit-font-lock-rules
+      :language lang :feature 'vscode-property :override nil
+      '((member_expression property: (property_identifier) @font-lock-property-use-face)
+        (pair key: (property_identifier) @font-lock-property-name-face)
+        (shorthand_property_identifier) @font-lock-variable-use-face))
+     ;; Constants (UPPER_CASE) - cyan #4fc1ff
+     (treesit-font-lock-rules
+      :language lang :feature 'vscode-constant :override t
+      '((identifier) @vscode-constant
+        (:match "^[A-Z][A-Z0-9_]+$" @vscode-constant)))))
+
+  (defun my/vscode-tsx-rules ()
+    "Generate VS Code Dark+ JSX-specific rules."
+    (treesit-font-lock-rules
+     :language 'tsx :feature 'vscode-jsx :override t
+     '((jsx_opening_element name: (identifier) @font-lock-type-face)
+       (jsx_closing_element name: (identifier) @font-lock-type-face)
+       (jsx_self_closing_element name: (identifier) @font-lock-type-face)
+       (jsx_opening_element name: (member_expression) @font-lock-type-face)
+       (jsx_closing_element name: (member_expression) @font-lock-type-face)
+       (jsx_self_closing_element name: (member_expression) @font-lock-type-face)
+       (jsx_attribute (property_identifier) @font-lock-property-name-face))))
+
+  ;; Advice to inject rules BEFORE mode setup completes
+  (defun my/ts-inject-font-lock (orig-fun &rest args)
+    "Inject VS Code rules before typescript-ts-mode setup."
+    (apply orig-fun args)
+    (setq-local treesit-font-lock-settings
+                (append treesit-font-lock-settings (my/vscode-ts-rules 'typescript)))
+    (treesit-font-lock-recompute-features
+     '(vscode-control vscode-storage vscode-function-def vscode-function-call
+       vscode-type vscode-parameter vscode-property vscode-constant))
+    (treesit-major-mode-setup))
+
+  (defun my/tsx-inject-font-lock (orig-fun &rest args)
+    "Inject VS Code rules before tsx-ts-mode setup."
+    (apply orig-fun args)
+    (setq-local treesit-font-lock-settings
+                (append treesit-font-lock-settings
+                        (my/vscode-ts-rules 'tsx)
+                        (my/vscode-tsx-rules)))
+    (treesit-font-lock-recompute-features
+     '(vscode-control vscode-storage vscode-function-def vscode-function-call
+       vscode-type vscode-parameter vscode-property vscode-constant vscode-jsx))
+    (treesit-major-mode-setup))
+
+  (defun my/js-inject-font-lock (orig-fun &rest args)
+    "Inject VS Code rules before js-ts-mode setup."
+    (apply orig-fun args)
+    (setq-local treesit-font-lock-settings
+                (append treesit-font-lock-settings (my/vscode-ts-rules 'javascript)))
+    (treesit-font-lock-recompute-features
+     '(vscode-control vscode-storage vscode-function-def vscode-function-call
+       vscode-type vscode-parameter vscode-property vscode-constant))
+    (treesit-major-mode-setup))
+
+  (advice-add 'typescript-ts-mode :around #'my/ts-inject-font-lock)
+  (advice-add 'tsx-ts-mode :around #'my/tsx-inject-font-lock)
+  (advice-add 'js-ts-mode :around #'my/js-inject-font-lock))
+
+;; JavaScript (tree-sitter)
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.mjs\\'" . js-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.cjs\\'" . js-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx\\'" . tsx-ts-mode))
 
 ;; Web mode (for templates, HTML, etc.)
 (use-package web-mode
@@ -458,11 +701,126 @@
 ;; Rust (tree-sitter mode preferred, rust-mode as fallback)
 (use-package rust-ts-mode
   :straight nil
-  :mode "\\.rs\\'")
+  :mode "\\.rs\\'"
+  :config
+  (defun my/vscode-rust-rules ()
+    "Generate VS Code Dark+ tree-sitter rules for Rust."
+    (append
+     (treesit-font-lock-rules
+      :language 'rust :feature 'vscode-control :override t
+      '((["if" "else" "match" "return" "break" "continue"
+          "for" "while" "loop" "in" "yield"
+          "async" "await" "try" "unsafe"] @vscode-control-keyword)))
+     (treesit-font-lock-rules
+      :language 'rust :feature 'vscode-storage :override t
+      '((["let" "const" "static" "fn" "struct" "enum"
+          "trait" "impl" "type" "mod" "use" "pub" "crate"
+          "mut" "ref" "move" "dyn" "where" "as" "extern"] @vscode-storage-keyword)
+        (self) @vscode-this-keyword))
+     (treesit-font-lock-rules
+      :language 'rust :feature 'vscode-function-def :override t
+      '((function_item name: (identifier) @font-lock-function-name-face)
+        (function_signature_item name: (identifier) @font-lock-function-name-face)))
+     (treesit-font-lock-rules
+      :language 'rust :feature 'vscode-function-call :override t
+      '((call_expression function: (identifier) @font-lock-function-call-face)
+        (call_expression function: (field_expression field: (field_identifier) @font-lock-function-call-face))
+        (call_expression function: (scoped_identifier name: (identifier) @font-lock-function-call-face))
+        (macro_invocation macro: (identifier) @font-lock-function-call-face)
+        (macro_invocation macro: (scoped_identifier name: (identifier) @font-lock-function-call-face))))
+     (treesit-font-lock-rules
+      :language 'rust :feature 'vscode-type :override t
+      '((type_identifier) @font-lock-type-face
+        (primitive_type) @font-lock-type-face
+        (struct_item name: (type_identifier) @font-lock-type-face)
+        (enum_item name: (type_identifier) @font-lock-type-face)
+        (trait_item name: (type_identifier) @font-lock-type-face)
+        (impl_item trait: (type_identifier) @font-lock-type-face)
+        (type_alias_item name: (type_identifier) @font-lock-type-face)
+        (generic_type type: (type_identifier) @font-lock-type-face)
+        (scoped_type_identifier name: (type_identifier) @font-lock-type-face)))
+     (treesit-font-lock-rules
+      :language 'rust :feature 'vscode-property :override nil
+      '((field_expression field: (field_identifier) @font-lock-property-use-face)
+        (field_identifier) @font-lock-property-name-face
+        (shorthand_field_initializer (identifier) @font-lock-property-name-face)))
+     (treesit-font-lock-rules
+      :language 'rust :feature 'vscode-lifetime :override t
+      '((lifetime) @vscode-control-keyword
+        (attribute_item) @font-lock-preprocessor-face))))
+
+  (defun my/rust-inject-font-lock (orig-fun &rest args)
+    "Inject VS Code rules before rust-ts-mode setup."
+    (apply orig-fun args)
+    (setq-local treesit-font-lock-settings
+                (append treesit-font-lock-settings (my/vscode-rust-rules)))
+    (treesit-font-lock-recompute-features
+     '(vscode-control vscode-storage vscode-function-def vscode-function-call
+       vscode-type vscode-property vscode-lifetime))
+    (treesit-major-mode-setup))
+
+  (advice-add 'rust-ts-mode :around #'my/rust-inject-font-lock))
 
 (use-package rust-mode
   :unless (treesit-ready-p 'rust)
   :mode "\\.rs\\'")
+
+;; Python (tree-sitter)
+(use-package python
+  :straight nil
+  :mode (("\\.py\\'" . python-ts-mode))
+  :config
+  (defun my/vscode-python-rules ()
+    "Generate VS Code Dark+ tree-sitter rules for Python."
+    (append
+     (treesit-font-lock-rules
+      :language 'python :feature 'vscode-control :override t
+      '((["if" "elif" "else" "for" "while" "return" "yield"
+          "try" "except" "finally" "raise" "with" "as"
+          "break" "continue" "pass" "assert"
+          "import" "from" "async" "await"
+          "and" "or" "not" "in" "is"] @vscode-control-keyword)))
+     (treesit-font-lock-rules
+      :language 'python :feature 'vscode-storage :override t
+      '((["def" "class" "lambda" "global" "nonlocal"] @vscode-storage-keyword)
+        (self) @vscode-this-keyword))
+     (treesit-font-lock-rules
+      :language 'python :feature 'vscode-function-def :override t
+      '((function_definition name: (identifier) @font-lock-function-name-face)))
+     (treesit-font-lock-rules
+      :language 'python :feature 'vscode-function-call :override t
+      '((call function: (identifier) @font-lock-function-call-face)
+        (call function: (attribute attribute: (identifier) @font-lock-function-call-face))
+        (decorator (identifier) @font-lock-function-call-face)
+        (decorator (attribute attribute: (identifier) @font-lock-function-call-face))))
+     (treesit-font-lock-rules
+      :language 'python :feature 'vscode-type :override t
+      '((class_definition name: (identifier) @font-lock-type-face)
+        (type (identifier) @font-lock-type-face)
+        (type (subscript value: (identifier) @font-lock-type-face))))
+     (treesit-font-lock-rules
+      :language 'python :feature 'vscode-property :override nil
+      '((attribute attribute: (identifier) @font-lock-property-use-face)))
+     (treesit-font-lock-rules
+      :language 'python :feature 'vscode-parameter :override t
+      '((parameters (identifier) @font-lock-variable-name-face)
+        (default_parameter name: (identifier) @font-lock-variable-name-face)
+        (typed_parameter (identifier) @font-lock-variable-name-face)
+        (typed_default_parameter name: (identifier) @font-lock-variable-name-face)
+        (list_splat_pattern (identifier) @font-lock-variable-name-face)
+        (dictionary_splat_pattern (identifier) @font-lock-variable-name-face)))))
+
+  (defun my/python-inject-font-lock (orig-fun &rest args)
+    "Inject VS Code rules before python-ts-mode setup."
+    (apply orig-fun args)
+    (setq-local treesit-font-lock-settings
+                (append treesit-font-lock-settings (my/vscode-python-rules)))
+    (treesit-font-lock-recompute-features
+     '(vscode-control vscode-storage vscode-function-def vscode-function-call
+       vscode-type vscode-property vscode-parameter))
+    (treesit-major-mode-setup))
+
+  (advice-add 'python-ts-mode :around #'my/python-inject-font-lock))
 
 ;; YAML
 (use-package yaml-mode
