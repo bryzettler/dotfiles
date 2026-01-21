@@ -1,14 +1,14 @@
 { pkgs, ... }:
 
 let
-  catppuccin = import ../theme/catppuccin.nix;
+  # VS Code Dark+ colors
   colors = {
-    bg = catppuccin.base;
-    fg = catppuccin.text;
-    fg_dim = catppuccin.overlay0;
-    accent = catppuccin.mauve;
-    blue = catppuccin.blue;
-    green = catppuccin.green;
+    bg = "#1e1e1e";
+    fg = "#d4d4d4";
+    fg_dim = "#666666";
+    accent = "#569cd6";
+    blue = "#3b8eea";
+    green = "#4ec9b0";
   };
 in
 {
@@ -40,8 +40,11 @@ in
     ];
 
     extraConfig = ''
-      # True color support for Emacs -nw and other apps
-      set -ag terminal-overrides ",xterm-256color:RGB"
+      # True color (24-bit) support for Emacs -nw and other apps
+      set -ag terminal-overrides ",xterm-256color:Tc"
+      set -ag terminal-overrides ",tmux-256color:Tc"
+      set -ag terminal-overrides ",xterm-ghostty:Tc"
+      set -g default-terminal "tmux-256color"
 
       # Allow C-\ to pass through (press twice to send literal)
       bind 'C-\' send-prefix
@@ -91,7 +94,7 @@ in
       bind r source-file ~/.config/tmux/tmux.conf \; display "Config reloaded!"
 
       # ============================================
-      # Status Bar - Catppuccin Mocha
+      # Status Bar - VS Code Dark+
       # ============================================
       set -g status on
       set -g status-position bottom

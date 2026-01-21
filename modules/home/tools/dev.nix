@@ -1,6 +1,9 @@
 { config, pkgs, ... }:
 
 {
+  # ripgrep (better grep)
+  programs.ripgrep.enable = true;
+
   # fd (better find)
   programs.fd = {
     enable = true;
