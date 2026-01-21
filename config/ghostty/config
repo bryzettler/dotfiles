@@ -28,7 +28,9 @@ palette = 12=#3b8eea
 palette = 13=#d670d6
 palette = 14=#29b8db
 palette = 15=#ffffff
-font-size = 16
+font-size = 12
+window-padding-x = 12
+window-padding-y = 12
 macos-titlebar-style = hidden
 cursor-style = block
 cursor-style-blink = false
