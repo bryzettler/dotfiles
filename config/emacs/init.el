@@ -425,7 +425,7 @@
          ("C-x p b" . project-switch-to-buffer)
          ("C-x p k" . project-kill-buffers))
   :config
-  (setq project-vc-extra-root-markers '(".project" ".projectile" "package.json" "Cargo.toml")))
+  (setq project-vc-extra-root-markers '(".project" ".projectile")))
 
 ;; Treemacs - project sidebar
 (use-package treemacs
@@ -1083,6 +1083,10 @@ Always focuses the claude buffer when showing."
 ;; =============================================================================
 ;; Custom Keybindings (from legacy config)
 ;; =============================================================================
+
+;; Swap split bindings (C-x 2 = side-by-side, C-x 3 = stacked)
+(global-set-key (kbd "C-x 2") #'split-window-right)
+(global-set-key (kbd "C-x 3") #'split-window-below)
 
 ;; System clipboard integration for terminal Emacs (macOS)
 (setq interprogram-cut-function
