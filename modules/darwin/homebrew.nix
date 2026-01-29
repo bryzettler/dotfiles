@@ -62,8 +62,6 @@
 
       # terminals & editors
       "ghostty"
-      "cursor"
-      "visual-studio-code"
 
       # dev tools
       "docker"
