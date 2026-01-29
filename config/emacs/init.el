@@ -44,6 +44,9 @@
 (add-to-list 'term-file-aliases '("screen-256color" . "xterm-direct"))
 (add-to-list 'term-file-aliases '("xterm-ghostty" . "xterm-direct"))
 
+;; Terminal key translations
+(define-key input-decode-map "\e[Z" (kbd "<backtab>"))
+
 ;; =============================================================================
 ;; Basic Settings
 ;; =============================================================================
@@ -310,7 +313,8 @@
          (project (project-current))
          (root (or git-root
                    (when project (project-root project))
-                   default-directory)))
+                   default-directory))
+         (display-buffer-overriding-action '(display-buffer-same-window)))
     (consult-fd root)))
 (global-set-key (kbd "C-x C-f") #'my/find-file-fuzzy)
 
@@ -413,7 +417,14 @@
 (use-package ace-window
   :bind ("C-x o" . ace-window)
   :config
-  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
+        aw-scope 'frame)
+  (defun my/aw-include-treemacs (orig-fn window)
+    "Include treemacs windows in ace-window selection."
+    (if (eq (buffer-local-value 'major-mode (window-buffer window)) 'treemacs-mode)
+        nil
+      (funcall orig-fn window)))
+  (advice-add 'aw-ignored-p :around #'my/aw-include-treemacs))
 
 ;; Use built-in project.el
 (use-package project
@@ -453,6 +464,22 @@
                                     default-directory)))
          (treemacs-add-and-display-current-project-exclusively)))))
 
+  (defun my/treemacs-toggle-or-visit ()
+    "Toggle node if directory, visit if file."
+    (interactive)
+    (pcase (treemacs-current-button)
+      ('nil nil)
+      (btn (pcase (treemacs-button-get btn :state)
+             ((or 'dir-node-open 'dir-node-closed) (treemacs-toggle-node))
+             (_ (treemacs-visit-node-no-split))))))
+
+  (defvar my/treemacs-override-map (make-sparse-keymap))
+  (define-key my/treemacs-override-map (kbd "C-@") #'my/treemacs-toggle-or-visit)
+  (add-hook 'treemacs-mode-hook
+            (lambda ()
+              (setq-local emulation-mode-map-alists
+                          (cons `((t . ,my/treemacs-override-map))
+                                emulation-mode-map-alists))))
   :bind (("C-s-SPC" . my/treemacs-toggle)))
 
 ;; Auto-open treemacs on startup with git root
@@ -542,6 +569,7 @@
   :custom
   (treesit-auto-install t)
   :config
+  (setq treesit-auto-langs (remove 'yaml treesit-auto-langs))
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
@@ -647,7 +675,7 @@
                 (append treesit-font-lock-settings (my/ts-treesit-rules 'typescript)))
     (treesit-font-lock-recompute-features
      '(custom-control custom-storage custom-function-def custom-function-call
-       custom-type custom-parameter custom-property custom-constant))
+                      custom-type custom-parameter custom-property custom-constant))
     (treesit-major-mode-setup))
 
   (defun my/tsx-inject-font-lock (orig-fun &rest args)
@@ -659,7 +687,7 @@
                         (my/tsx-treesit-rules)))
     (treesit-font-lock-recompute-features
      '(custom-control custom-storage custom-function-def custom-function-call
-       custom-type custom-parameter custom-property custom-constant custom-jsx))
+                      custom-type custom-parameter custom-property custom-constant custom-jsx))
     (treesit-major-mode-setup))
 
   (defun my/js-inject-font-lock (orig-fun &rest args)
@@ -669,7 +697,7 @@
                 (append treesit-font-lock-settings (my/ts-treesit-rules 'javascript)))
     (treesit-font-lock-recompute-features
      '(custom-control custom-storage custom-function-def custom-function-call
-       custom-type custom-parameter custom-property custom-constant))
+                      custom-type custom-parameter custom-property custom-constant))
     (treesit-major-mode-setup))
 
   (advice-add 'typescript-ts-mode :around #'my/ts-inject-font-lock)
@@ -751,7 +779,7 @@
                 (append treesit-font-lock-settings (my/rust-treesit-rules)))
     (treesit-font-lock-recompute-features
      '(custom-control custom-storage custom-function-def custom-function-call
-       custom-type custom-property custom-lifetime))
+                      custom-type custom-property custom-lifetime))
     (treesit-major-mode-setup))
 
   (advice-add 'rust-ts-mode :around #'my/rust-inject-font-lock))
@@ -812,14 +840,24 @@
                 (append treesit-font-lock-settings (my/python-treesit-rules)))
     (treesit-font-lock-recompute-features
      '(custom-control custom-storage custom-function-def custom-function-call
-       custom-type custom-property custom-parameter))
+                      custom-type custom-property custom-parameter))
     (treesit-major-mode-setup))
 
   (advice-add 'python-ts-mode :around #'my/python-inject-font-lock))
 
-;; YAML
+;; YAML (yaml-mode provides proper indent cycling, unlike yaml-ts-mode)
 (use-package yaml-mode
-  :mode "\\.ya?ml\\'")
+  :demand t
+  :mode "\\.ya?ml\\'"
+  :custom
+  (yaml-indent-offset 2)
+  :config
+  (defun my/yaml-outdent ()
+    "Outdent current line by yaml-indent-offset spaces."
+    (interactive)
+    (indent-rigidly (line-beginning-position) (line-end-position) (- yaml-indent-offset)))
+  (define-key yaml-mode-map (kbd "RET") #'newline-and-indent)
+  (define-key yaml-mode-map (kbd "<backtab>") #'my/yaml-outdent))
 
 ;; Markdown
 (use-package markdown-mode

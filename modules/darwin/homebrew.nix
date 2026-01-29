@@ -51,6 +51,8 @@
       # build deps
       "openssl@3"
       "readline"
+      "enchant"
+      "pkg-config"
     ];
 
     casks = [
