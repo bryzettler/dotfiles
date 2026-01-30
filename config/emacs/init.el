@@ -2,8 +2,8 @@
 ;;; init.el --- Modern Emacs Configuration -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;; A clean, modern Emacs configuration optimized for terminal use (emacs -nw)
-;; Uses use-package, vertico/corfu completion, eglot LSP, and doom-dark+ theme
+;; GUI Emacs configuration with miasma theme, posframe completions, dashboard,
+;; and vterm+tab-bar replacing tmux. Uses use-package, vertico/corfu, eglot LSP.
 
 ;;; Code:
 
@@ -34,18 +34,6 @@
 (setq straight-use-package-by-default t)
 (setq use-package-always-ensure t)
 
-;; =============================================================================
-;; Terminal True Color (24-bit) Support
-;; =============================================================================
-
-;; Enable 24-bit color in terminal when COLORTERM=truecolor is set
-(add-to-list 'term-file-aliases '("xterm-256color" . "xterm-direct"))
-(add-to-list 'term-file-aliases '("tmux-256color" . "xterm-direct"))
-(add-to-list 'term-file-aliases '("screen-256color" . "xterm-direct"))
-(add-to-list 'term-file-aliases '("xterm-ghostty" . "xterm-direct"))
-
-;; Terminal key translations
-(define-key input-decode-map "\e[Z" (kbd "<backtab>"))
 
 ;; =============================================================================
 ;; Basic Settings
@@ -90,9 +78,6 @@
         mouse-wheel-follow-mouse t
         scroll-step 1)
   (column-number-mode)
-
-  ;; Enable mouse in terminal
-  (xterm-mouse-mode 1)
 
   ;; Better scrolling
   (setq scroll-margin 3
@@ -144,100 +129,100 @@
 ;; Theme & UI
 ;; =============================================================================
 
-;; Doom themes (Dark+ theme)
-(use-package doom-themes
-  :config
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t)
-  (load-theme 'doom-dark+ t)
-  (doom-themes-org-config)
+;; GUI-specific settings
+(set-face-attribute 'default nil :family "Hack Nerd Font" :height 120)
+(pixel-scroll-precision-mode 1)
 
-  ;; Dark+ exact color overrides
-  ;; Reference: https://github.com/microsoft/vscode/blob/main/extensions/theme-defaults/themes/dark_plus.json
-  ;; Purple #c586c0 - control flow (import/export/if/return/await)
-  ;; Blue #569cd6 - storage keywords (const/let/function/class/this)
-  ;; Yellow #dcdcaa - functions (definitions and calls)
-  ;; Green #4ec9b0 - types (classes, interfaces, type annotations)
-  ;; Light Blue #9cdcfe - variables, parameters, properties
-  ;; Cyan #4fc1ff - constants (UPPER_CASE), enum members
-  ;; Orange #ce9178 - strings
-  ;; Light Green #b5cea8 - numbers
-  ;; Green #6a9955 - comments
+;; Miasma theme with adapted syntax colors
+;; Palette reference:
+;; bg #222222, fg #c2c2b0, comment #5f875f, string #b36d43
+;; keyword #78834b, control #c9a554, function #d7c483, type #5f875f
+;; constant #87CEEB, number #fbec9f, property #bb7744, escape #fd9720, error #c86448
+(use-package miasma-theme
+  :config
+  (load-theme 'miasma t)
+
+  ;; Custom faces for miasma color mapping
+  (defface miasma-control '((t :foreground "#c9a554")) "Control flow - gold")
+  (defface miasma-storage '((t :foreground "#78834b")) "Storage/declaration - olive")
+  (defface miasma-this '((t :foreground "#78834b")) "this/self keyword - olive")
+  (defface miasma-constant '((t :foreground "#87CEEB")) "Constants - light blue")
+
   (custom-set-faces
    ;; Base colors
-   '(default ((t :background "#1e1e1e" :foreground "#d4d4d4")))
-   '(cursor ((t :background "#aeafad")))
-   '(region ((t :background "#264f78")))
-   '(fringe ((t :background "#1e1e1e")))
-   '(line-number ((t :foreground "#858585" :background "#1e1e1e")))
-   '(line-number-current-line ((t :foreground "#c6c6c6" :background "#1e1e1e")))
+   '(default ((t :background "#222222" :foreground "#c2c2b0")))
+   '(cursor ((t :background "#c2c2b0")))
+   '(region ((t :background "#3a3a3a")))
+   '(fringe ((t :background "#222222")))
+   '(line-number ((t :foreground "#5f5f5f" :background "#222222")))
+   '(line-number-current-line ((t :foreground "#c2c2b0" :background "#222222")))
 
-   ;; Syntax highlighting - Dark+ colors
-   '(font-lock-keyword-face ((t :foreground "#569cd6")))
-   '(font-lock-builtin-face ((t :foreground "#c586c0")))
-   '(font-lock-function-name-face ((t :foreground "#dcdcaa")))
-   '(font-lock-function-call-face ((t :foreground "#dcdcaa")))
-   '(font-lock-variable-name-face ((t :foreground "#9cdcfe")))
-   '(font-lock-variable-use-face ((t :foreground "#9cdcfe")))
-   '(font-lock-type-face ((t :foreground "#4ec9b0")))
-   '(font-lock-constant-face ((t :foreground "#4fc1ff")))
-   '(font-lock-string-face ((t :foreground "#ce9178")))
-   '(font-lock-comment-face ((t :foreground "#6a9955")))
-   '(font-lock-comment-delimiter-face ((t :foreground "#6a9955")))
-   '(font-lock-doc-face ((t :foreground "#6a9955")))
-   '(font-lock-number-face ((t :foreground "#b5cea8")))
-   '(font-lock-operator-face ((t :foreground "#d4d4d4")))
-   '(font-lock-property-name-face ((t :foreground "#9cdcfe")))
-   '(font-lock-property-use-face ((t :foreground "#9cdcfe")))
-   '(font-lock-punctuation-face ((t :foreground "#d4d4d4")))
-   '(font-lock-bracket-face ((t :foreground "#ffd700")))
-   '(font-lock-preprocessor-face ((t :foreground "#c586c0")))
-   '(font-lock-warning-face ((t :foreground "#f14c4c" :weight bold)))
-   '(font-lock-escape-face ((t :foreground "#d7ba7d")))
-   '(font-lock-regexp-grouping-backslash ((t :foreground "#d7ba7d")))
-   '(font-lock-regexp-grouping-construct ((t :foreground "#d7ba7d")))
+   ;; Syntax highlighting - Miasma colors
+   '(font-lock-keyword-face ((t :foreground "#78834b")))
+   '(font-lock-builtin-face ((t :foreground "#c9a554")))
+   '(font-lock-function-name-face ((t :foreground "#d7c483")))
+   '(font-lock-function-call-face ((t :foreground "#d7c483")))
+   '(font-lock-variable-name-face ((t :foreground "#c2c2b0")))
+   '(font-lock-variable-use-face ((t :foreground "#c2c2b0")))
+   '(font-lock-type-face ((t :foreground "#5f875f")))
+   '(font-lock-constant-face ((t :foreground "#87CEEB")))
+   '(font-lock-string-face ((t :foreground "#b36d43")))
+   '(font-lock-comment-face ((t :foreground "#5f875f")))
+   '(font-lock-comment-delimiter-face ((t :foreground "#5f875f")))
+   '(font-lock-doc-face ((t :foreground "#5f875f")))
+   '(font-lock-number-face ((t :foreground "#fbec9f")))
+   '(font-lock-operator-face ((t :foreground "#c2c2b0")))
+   '(font-lock-property-name-face ((t :foreground "#bb7744")))
+   '(font-lock-property-use-face ((t :foreground "#bb7744")))
+   '(font-lock-punctuation-face ((t :foreground "#c2c2b0")))
+   '(font-lock-bracket-face ((t :foreground "#c9a554")))
+   '(font-lock-preprocessor-face ((t :foreground "#c9a554")))
+   '(font-lock-warning-face ((t :foreground "#c86448" :weight bold)))
+   '(font-lock-escape-face ((t :foreground "#fd9720")))
+   '(font-lock-regexp-grouping-backslash ((t :foreground "#fd9720")))
+   '(font-lock-regexp-grouping-construct ((t :foreground "#fd9720")))
 
    ;; Tree-sitter builtin faces
-   '(tree-sitter-hl-face:function ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:function.call ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:function.method ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:function.macro ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:function.special ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:function.builtin ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:method ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:method.call ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:type ((t :foreground "#4ec9b0")))
-   '(tree-sitter-hl-face:type.builtin ((t :foreground "#4ec9b0")))
-   '(tree-sitter-hl-face:type.parameter ((t :foreground "#4ec9b0")))
-   '(tree-sitter-hl-face:type.argument ((t :foreground "#4ec9b0")))
-   '(tree-sitter-hl-face:constructor ((t :foreground "#4ec9b0")))
-   '(tree-sitter-hl-face:variable ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:variable.builtin ((t :foreground "#569cd6")))
-   '(tree-sitter-hl-face:variable.parameter ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:variable.special ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:property ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:property.definition ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:keyword ((t :foreground "#569cd6")))
-   '(tree-sitter-hl-face:keyword.control ((t :foreground "#c586c0")))
-   '(tree-sitter-hl-face:keyword.operator ((t :foreground "#c586c0")))
-   '(tree-sitter-hl-face:keyword.function ((t :foreground "#569cd6")))
-   '(tree-sitter-hl-face:keyword.return ((t :foreground "#c586c0")))
-   '(tree-sitter-hl-face:string ((t :foreground "#ce9178")))
-   '(tree-sitter-hl-face:string.special ((t :foreground "#d7ba7d")))
-   '(tree-sitter-hl-face:escape ((t :foreground "#d7ba7d")))
-   '(tree-sitter-hl-face:number ((t :foreground "#b5cea8")))
-   '(tree-sitter-hl-face:constant ((t :foreground "#4fc1ff")))
-   '(tree-sitter-hl-face:constant.builtin ((t :foreground "#569cd6")))
-   '(tree-sitter-hl-face:comment ((t :foreground "#6a9955")))
-   '(tree-sitter-hl-face:doc ((t :foreground "#6a9955")))
-   '(tree-sitter-hl-face:operator ((t :foreground "#d4d4d4")))
-   '(tree-sitter-hl-face:punctuation ((t :foreground "#d4d4d4")))
-   '(tree-sitter-hl-face:punctuation.bracket ((t :foreground "#ffd700")))
-   '(tree-sitter-hl-face:punctuation.delimiter ((t :foreground "#d4d4d4")))
-   '(tree-sitter-hl-face:label ((t :foreground "#c586c0")))
-   '(tree-sitter-hl-face:attribute ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:tag ((t :foreground "#569cd6")))
-   '(tree-sitter-hl-face:embedded ((t :foreground "#d4d4d4")))))
+   '(tree-sitter-hl-face:function ((t :foreground "#d7c483")))
+   '(tree-sitter-hl-face:function.call ((t :foreground "#d7c483")))
+   '(tree-sitter-hl-face:function.method ((t :foreground "#d7c483")))
+   '(tree-sitter-hl-face:function.macro ((t :foreground "#d7c483")))
+   '(tree-sitter-hl-face:function.special ((t :foreground "#d7c483")))
+   '(tree-sitter-hl-face:function.builtin ((t :foreground "#d7c483")))
+   '(tree-sitter-hl-face:method ((t :foreground "#d7c483")))
+   '(tree-sitter-hl-face:method.call ((t :foreground "#d7c483")))
+   '(tree-sitter-hl-face:type ((t :foreground "#5f875f")))
+   '(tree-sitter-hl-face:type.builtin ((t :foreground "#5f875f")))
+   '(tree-sitter-hl-face:type.parameter ((t :foreground "#5f875f")))
+   '(tree-sitter-hl-face:type.argument ((t :foreground "#5f875f")))
+   '(tree-sitter-hl-face:constructor ((t :foreground "#5f875f")))
+   '(tree-sitter-hl-face:variable ((t :foreground "#c2c2b0")))
+   '(tree-sitter-hl-face:variable.builtin ((t :foreground "#78834b")))
+   '(tree-sitter-hl-face:variable.parameter ((t :foreground "#c2c2b0")))
+   '(tree-sitter-hl-face:variable.special ((t :foreground "#c2c2b0")))
+   '(tree-sitter-hl-face:property ((t :foreground "#bb7744")))
+   '(tree-sitter-hl-face:property.definition ((t :foreground "#bb7744")))
+   '(tree-sitter-hl-face:keyword ((t :foreground "#78834b")))
+   '(tree-sitter-hl-face:keyword.control ((t :foreground "#c9a554")))
+   '(tree-sitter-hl-face:keyword.operator ((t :foreground "#c9a554")))
+   '(tree-sitter-hl-face:keyword.function ((t :foreground "#78834b")))
+   '(tree-sitter-hl-face:keyword.return ((t :foreground "#c9a554")))
+   '(tree-sitter-hl-face:string ((t :foreground "#b36d43")))
+   '(tree-sitter-hl-face:string.special ((t :foreground "#fd9720")))
+   '(tree-sitter-hl-face:escape ((t :foreground "#fd9720")))
+   '(tree-sitter-hl-face:number ((t :foreground "#fbec9f")))
+   '(tree-sitter-hl-face:constant ((t :foreground "#87CEEB")))
+   '(tree-sitter-hl-face:constant.builtin ((t :foreground "#78834b")))
+   '(tree-sitter-hl-face:comment ((t :foreground "#5f875f")))
+   '(tree-sitter-hl-face:doc ((t :foreground "#5f875f")))
+   '(tree-sitter-hl-face:operator ((t :foreground "#c2c2b0")))
+   '(tree-sitter-hl-face:punctuation ((t :foreground "#c2c2b0")))
+   '(tree-sitter-hl-face:punctuation.bracket ((t :foreground "#c9a554")))
+   '(tree-sitter-hl-face:punctuation.delimiter ((t :foreground "#c2c2b0")))
+   '(tree-sitter-hl-face:label ((t :foreground "#c9a554")))
+   '(tree-sitter-hl-face:attribute ((t :foreground "#bb7744")))
+   '(tree-sitter-hl-face:tag ((t :foreground "#78834b")))
+   '(tree-sitter-hl-face:embedded ((t :foreground "#c2c2b0")))))
 
 ;; Doom modeline
 (use-package doom-modeline
@@ -245,7 +230,7 @@
   :custom
   (doom-modeline-height 15)
   (doom-modeline-bar-width 6)
-  (doom-modeline-icon nil)
+  (doom-modeline-icon t)
   (doom-modeline-buffer-encoding nil)
   (doom-modeline-vcs-max-length 20)
   (doom-modeline-minor-modes t)
@@ -257,7 +242,7 @@
   :custom
   (minions-mode-line-lighter ""))
 
-;; Nerd icons (works in terminal with nerd fonts)
+;; Nerd icons for GUI
 (use-package nerd-icons)
 
 ;; Which-key for discoverability
@@ -269,6 +254,13 @@
         which-key-prefix-prefix "+"
         which-key-sort-order 'which-key-key-order-alpha))
 
+;; Which-key in centered posframe
+(use-package which-key-posframe
+  :after which-key
+  :config
+  (setq which-key-posframe-poshandler #'posframe-poshandler-frame-center)
+  (which-key-posframe-mode 1))
+
 ;; =============================================================================
 ;; Completion (Vertico + Corfu stack)
 ;; =============================================================================
@@ -279,6 +271,16 @@
   :config
   (setq vertico-cycle t
         vertico-count 15))
+
+;; Vertico in centered posframe
+(use-package vertico-posframe
+  :after vertico
+  :config
+  (setq vertico-posframe-poshandler #'posframe-poshandler-frame-center
+        vertico-posframe-width 100
+        vertico-posframe-height 20
+        vertico-posframe-border-width 2)
+  (vertico-posframe-mode 1))
 
 ;; Orderless - flexible matching
 (use-package orderless
@@ -339,15 +341,6 @@
   :config
   (global-corfu-mode 1)
   (corfu-popupinfo-mode 1))
-
-;; Corfu terminal support (required for emacs -nw)
-(use-package corfu-terminal
-  :straight (:type git :host codeberg :repo "akib/emacs-corfu-terminal")
-  :unless (display-graphic-p)
-  :demand t
-  :after corfu
-  :config
-  (corfu-terminal-mode 1))
 
 ;; Cape - completion extensions (appended as fallbacks)
 (use-package cape
@@ -415,10 +408,13 @@
 
 ;; Ace-window - quick window switching
 (use-package ace-window
-  :bind ("C-x o" . ace-window)
+  :bind (("C-x o" . ace-window)
+         ("s-[" . (lambda () (interactive) (other-window -1)))
+         ("s-]" . other-window))
   :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
-        aw-scope 'frame)
+        aw-scope 'frame
+        aw-dispatch-always t)
   (defun my/aw-include-treemacs (orig-fn window)
     "Include treemacs windows in ace-window selection."
     (if (eq (buffer-local-value 'major-mode (window-buffer window)) 'treemacs-mode)
@@ -438,17 +434,33 @@
   :config
   (setq project-vc-extra-root-markers '(".project" ".projectile")))
 
+;; Projectile for dashboard backend
+(use-package projectile
+  :diminish projectile-mode
+  :config
+  (projectile-mode +1)
+  (setq projectile-project-search-path '("~/Documents/Personal" "~/Documents/Work")))
+
+;; Dashboard startup screen
+(use-package dashboard
+  :after projectile
+  :config
+  (setq dashboard-center-content t
+        dashboard-vertically-center-content t
+        dashboard-projects-backend 'projectile
+        dashboard-items '((projects . 5) (recents . 5) (bookmarks . 5) (agenda . 5))
+        dashboard-item-shortcuts '((recents . "r") (bookmarks . "m") (projects . "p") (agenda . "a"))
+        dashboard-startup-banner 'logo
+        dashboard-set-heading-icons t
+        dashboard-set-file-icons t)
+  (dashboard-setup-startup-hook))
+
 ;; Treemacs - project sidebar
 (use-package treemacs
   :commands (treemacs treemacs-select-window treemacs-add-and-display-current-project-exclusively)
-  :init
-  (define-key input-decode-map "\e[32;13~" (kbd "C-s-SPC"))
-  (define-key input-decode-map "\e[105;13~" (kbd "s-i"))
-  (define-key input-decode-map "\e[110;13~" (kbd "s-n"))
-  (define-key input-decode-map "\e[99;13~" (kbd "s-c"))
   :config
   (setq treemacs-width 35
-        treemacs-no-png-images t
+        treemacs-no-png-images nil
         treemacs-is-never-other-window nil
         treemacs-show-hidden-files t
         treemacs-silent-refresh t
@@ -482,18 +494,6 @@
                                 emulation-mode-map-alists))))
   :bind (("C-s-SPC" . my/treemacs-toggle)))
 
-;; Auto-open treemacs on startup with git root
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (when (and (not (daemonp))
-                       (file-directory-p default-directory))
-              (let ((project-root (or (locate-dominating-file default-directory ".git")
-                                      default-directory)))
-                (let ((default-directory project-root))
-                  (delete-other-windows)
-                  (treemacs-add-and-display-current-project-exclusively)
-                  (other-window 1))))))
-
 (use-package treemacs-nerd-icons
   :after treemacs
   :config
@@ -522,6 +522,13 @@
 (use-package git-link
   :bind ("C-c g l" . git-link))
 
+;; Blamer - inline git blame
+(use-package blamer
+  :bind ("s-b" . blamer-show-commit-info)
+  :custom
+  (blamer-idle-time 0.3)
+  (blamer-min-offset 70))
+
 ;; =============================================================================
 ;; LSP & Languages (Eglot)
 ;; =============================================================================
@@ -549,20 +556,20 @@
                  ("rust-analyzer" :initializationOptions
                   (:semanticHighlighting (:strings t :punctuation (:enable t))))))
 
-  ;; Semantic token faces - Dark+ colors
+  ;; Semantic token faces - Miasma colors
   (custom-set-faces
-   '(eglot-semantic-class ((t :foreground "#4EC9B0" :weight semi-bold)))
-   '(eglot-semantic-type ((t :foreground "#4EC9B0")))
-   '(eglot-semantic-interface ((t :foreground "#4EC9B0" :slant italic)))
-   '(eglot-semantic-enum ((t :foreground "#4EC9B0")))
-   '(eglot-semantic-variable ((t :foreground "#9CDCFE")))
-   '(eglot-semantic-parameter ((t :foreground "#9CDCFE" :slant italic)))
-   '(eglot-semantic-property ((t :foreground "#9CDCFE")))
-   '(eglot-semantic-function ((t :foreground "#DCDCAA")))
-   '(eglot-semantic-method ((t :foreground "#DCDCAA")))
-   '(eglot-semantic-namespace ((t :foreground "#4EC9B0" :weight semi-bold)))
-   '(eglot-semantic-enumMember ((t :foreground "#4FC1FF")))
-   '(eglot-semantic-readonly ((t :foreground "#4FC1FF")))))
+   '(eglot-semantic-class ((t :foreground "#5f875f" :weight semi-bold)))
+   '(eglot-semantic-type ((t :foreground "#5f875f")))
+   '(eglot-semantic-interface ((t :foreground "#5f875f" :slant italic)))
+   '(eglot-semantic-enum ((t :foreground "#5f875f")))
+   '(eglot-semantic-variable ((t :foreground "#c2c2b0")))
+   '(eglot-semantic-parameter ((t :foreground "#c2c2b0" :slant italic)))
+   '(eglot-semantic-property ((t :foreground "#bb7744")))
+   '(eglot-semantic-function ((t :foreground "#d7c483")))
+   '(eglot-semantic-method ((t :foreground "#d7c483")))
+   '(eglot-semantic-namespace ((t :foreground "#5f875f" :weight semi-bold)))
+   '(eglot-semantic-enumMember ((t :foreground "#87CEEB")))
+   '(eglot-semantic-readonly ((t :foreground "#87CEEB")))))
 
 ;; Tree-sitter auto
 (use-package treesit-auto
@@ -579,17 +586,17 @@
   :mode (("\\.ts\\'" . typescript-ts-mode)
          ("\\.tsx\\'" . tsx-ts-mode))
   :init
-  ;; Custom faces for tree-sitter highlighting
-  (defface ts-control-keyword '((t :foreground "#c586c0")) "Control flow - purple")
-  (defface ts-storage-keyword '((t :foreground "#569cd6")) "Storage/declaration - blue")
-  (defface ts-this-keyword '((t :foreground "#569cd6")) "this keyword - blue")
-  (defface ts-constant '((t :foreground "#4fc1ff")) "Constants - cyan")
+  ;; Custom faces for tree-sitter highlighting (miasma palette)
+  (defface ts-control-keyword '((t :foreground "#c9a554")) "Control flow - gold")
+  (defface ts-storage-keyword '((t :foreground "#78834b")) "Storage/declaration - olive")
+  (defface ts-this-keyword '((t :foreground "#78834b")) "this keyword - olive")
+  (defface ts-constant '((t :foreground "#87CEEB")) "Constants - light blue")
 
   :config
   (defun my/ts-treesit-rules (lang)
-    "Generate Dark+ tree-sitter rules for LANG."
+    "Generate miasma tree-sitter rules for LANG."
     (append
-     ;; Control keywords - purple #c586c0
+     ;; Control keywords - gold #c9a554
      (treesit-font-lock-rules
       :language lang :feature 'custom-control :override t
       '((["import" "from" "export" "default" "as"
@@ -599,7 +606,7 @@
           "new" "delete" "typeof" "instanceof"
           "in" "of" "await" "async" "yield"
           "with" "debugger"] @ts-control-keyword)))
-     ;; Storage keywords - blue #569cd6
+     ;; Storage keywords - olive #78834b
      (treesit-font-lock-rules
       :language lang :feature 'custom-storage :override t
       '((["const" "let" "var" "function" "class"
@@ -608,7 +615,7 @@
           "static" "abstract" "extends" "implements"
           "get" "set" "keyof" "infer" "satisfies"] @ts-storage-keyword)
         (this) @ts-this-keyword))
-     ;; Function/method definitions - yellow #dcdcaa
+     ;; Function/method definitions - cream #d7c483
      (treesit-font-lock-rules
       :language lang :feature 'custom-function-def :override t
       '((function_declaration name: (identifier) @font-lock-function-name-face)
@@ -617,13 +624,13 @@
         (method_signature name: (property_identifier) @font-lock-function-name-face)
         (variable_declarator name: (identifier) @font-lock-function-name-face value: (arrow_function))
         (pair key: (property_identifier) @font-lock-function-name-face value: [(function_expression) (arrow_function)])))
-     ;; Function/method calls - yellow #dcdcaa
+     ;; Function/method calls - cream #d7c483
      (treesit-font-lock-rules
       :language lang :feature 'custom-function-call :override t
       '((call_expression function: (identifier) @font-lock-function-call-face)
         (call_expression function: (member_expression property: (property_identifier) @font-lock-function-call-face))
         (new_expression constructor: (identifier) @font-lock-function-call-face)))
-     ;; Type annotations - green #4ec9b0
+     ;; Type annotations - green #5f875f
      (treesit-font-lock-rules
       :language lang :feature 'custom-type :override t
       '((type_identifier) @font-lock-type-face
@@ -636,14 +643,14 @@
         (enum_declaration name: (identifier) @font-lock-type-face)
         (extends_clause value: (identifier) @font-lock-type-face)
         (implements_clause (type_identifier) @font-lock-type-face)))
-     ;; Parameters - light blue #9cdcfe
+     ;; Parameters - foreground #c2c2b0
      (treesit-font-lock-rules
       :language lang :feature 'custom-parameter :override t
       '((required_parameter pattern: (identifier) @font-lock-variable-name-face)
         (optional_parameter pattern: (identifier) @font-lock-variable-name-face)
         (required_parameter pattern: (object_pattern (shorthand_property_identifier_pattern) @font-lock-variable-name-face))
         (required_parameter pattern: (array_pattern (identifier) @font-lock-variable-name-face))))
-     ;; Property access - light blue #9cdcfe
+     ;; Property access - property #bb7744
      (treesit-font-lock-rules
       :language lang :feature 'custom-property :override nil
       '((member_expression property: (property_identifier) @font-lock-property-use-face)
@@ -669,7 +676,7 @@
 
   ;; Advice to inject rules BEFORE mode setup completes
   (defun my/ts-inject-font-lock (orig-fun &rest args)
-    "Inject Dark+ rules before typescript-ts-mode setup."
+    "Inject miasma rules before typescript-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
                 (append treesit-font-lock-settings (my/ts-treesit-rules 'typescript)))
@@ -679,7 +686,7 @@
     (treesit-major-mode-setup))
 
   (defun my/tsx-inject-font-lock (orig-fun &rest args)
-    "Inject Dark+ rules before tsx-ts-mode setup."
+    "Inject miasma rules before tsx-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
                 (append treesit-font-lock-settings
@@ -691,7 +698,7 @@
     (treesit-major-mode-setup))
 
   (defun my/js-inject-font-lock (orig-fun &rest args)
-    "Inject Dark+ rules before js-ts-mode setup."
+    "Inject miasma rules before js-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
                 (append treesit-font-lock-settings (my/ts-treesit-rules 'javascript)))
@@ -727,7 +734,7 @@
   :mode "\\.rs\\'"
   :config
   (defun my/rust-treesit-rules ()
-    "Generate Dark+ tree-sitter rules for Rust."
+    "Generate miasma tree-sitter rules for Rust."
     (append
      (treesit-font-lock-rules
       :language 'rust :feature 'custom-control :override t
@@ -773,7 +780,7 @@
         (attribute_item) @font-lock-preprocessor-face))))
 
   (defun my/rust-inject-font-lock (orig-fun &rest args)
-    "Inject Dark+ rules before rust-ts-mode setup."
+    "Inject miasma rules before rust-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
                 (append treesit-font-lock-settings (my/rust-treesit-rules)))
@@ -794,7 +801,7 @@
   :mode (("\\.py\\'" . python-ts-mode))
   :config
   (defun my/python-treesit-rules ()
-    "Generate Dark+ tree-sitter rules for Python."
+    "Generate miasma tree-sitter rules for Python."
     (append
      (treesit-font-lock-rules
       :language 'python :feature 'custom-control :override t
@@ -834,7 +841,7 @@
         (dictionary_splat_pattern (identifier) @font-lock-variable-name-face)))))
 
   (defun my/python-inject-font-lock (orig-fun &rest args)
-    "Inject Dark+ rules before python-ts-mode setup."
+    "Inject miasma rules before python-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
                 (append treesit-font-lock-settings (my/python-treesit-rules)))
@@ -1008,11 +1015,40 @@
               ("C-v" . my/eat-scroll-down)
               ("M-v" . my/eat-scroll-up)))
 
+;; Tab-bar mode (tmux replacement)
+(use-package tab-bar
+  :straight nil
+  :config
+  (setq tab-bar-show 1
+        tab-bar-close-button-show nil
+        tab-bar-new-button-show nil
+        tab-bar-tab-hints t)
+  (tab-bar-mode 1))
+
 ;; Vterm - robust terminal emulator (requires cmake, libtool)
 (use-package vterm
+  :init
+  (setq vterm-keymap-exceptions '("M-x" "C-x b" "C-x o" "C-c c" "s-t"))
   :config
-  (setq vterm-max-scrollback 10000
-        vterm-kill-buffer-on-exit nil))
+  (setq vterm-max-scrollback 50000
+        vterm-kill-buffer-on-exit nil
+        vterm-term-environment-variable "xterm-256color")
+
+  (defun my/vterm-escape-to-emacs ()
+    "Exit vterm keybinding passthrough."
+    (interactive)
+    (switch-to-prev-buffer))
+
+  (defun my/vterm-new-tab ()
+    "Create new tab with vterm."
+    (interactive)
+    (tab-bar-new-tab)
+    (vterm (generate-new-buffer-name "vterm")))
+
+  :bind (("C-`" . vterm)
+         :map vterm-mode-map
+         ("s-t" . my/vterm-new-tab)
+         ("C-c C-e" . my/vterm-escape-to-emacs)))
 
 ;; Claude Code
 (use-package claude-code
@@ -1126,15 +1162,6 @@ Always focuses the claude buffer when showing."
 (global-set-key (kbd "C-x 2") #'split-window-right)
 (global-set-key (kbd "C-x 3") #'split-window-below)
 
-;; System clipboard integration for terminal Emacs (macOS)
-(setq interprogram-cut-function
-      (lambda (text)
-        (let ((process-connection-type nil))
-          (let ((proc (start-process "pbcopy" nil "pbcopy")))
-            (process-send-string proc text)
-            (process-send-eof proc)))))
-
-(global-set-key (kbd "s-c") #'kill-ring-save)
 
 ;; Quick kill buffer (no prompt if unmodified)
 (defun my/kill-current-buffer ()

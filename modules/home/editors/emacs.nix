@@ -27,10 +27,13 @@
     (setq native-comp-deferred-compilation nil)
     (setq native-comp-jit-compilation nil)
 
-    ;; Disable UI elements early
+    ;; GUI frame defaults (applied before frame creation)
     (push '(menu-bar-lines . 0) default-frame-alist)
     (push '(tool-bar-lines . 0) default-frame-alist)
     (push '(vertical-scroll-bars) default-frame-alist)
+    (push '(internal-border-width . 12) default-frame-alist)
+    (push '(alpha-background . 90) default-frame-alist)
+    (push '(font . "Hack Nerd Font-12") default-frame-alist)
 
     ;; Faster startup
     (setq frame-inhibit-implied-resize t)
