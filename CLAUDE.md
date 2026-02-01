@@ -19,6 +19,16 @@ After modifying:
 - `config/ghostty/config`: restart terminal
 - Fish config: reload shell (`exec fish`)
 
+## Useful Aliases
+
+| Alias | Command |
+|-------|---------|
+| `e` | `emacs -nw` |
+| `ls/ll/la/lt` | eza variants with icons/git |
+| `g` | `git` |
+| `z <dir>` | zoxide smart cd |
+| `cdw/cdp` | Jump to Work/Personal dirs |
+
 ## Architecture
 
 ```
@@ -60,6 +70,13 @@ home.file.".emacs.d/init.el".source = ../../../config/emacs/init.el;
 - CLI tools: `modules/darwin/homebrew.nix` → `brews` or add to relevant home module
 - Nix packages: add to relevant module's `home.packages`
 
+**Adding a New Host**:
+1. Create `hosts/<hostname>/default.nix` and `home.nix`
+2. Add `darwinConfigurations."<hostname>"` to `flake.nix`
+3. Run `darwin-rebuild switch --flake .#<hostname>`
+
+**Theme System**: Catppuccin Mocha palette defined in `modules/home/theme/catppuccin.nix`, imported by shell/terminal tools for consistency.
+
 ## Key Configurations
 
 - **Shell**: Fish + Starship, auto-starts tmux "main" session
@@ -74,3 +91,4 @@ home.file.".emacs.d/init.el".source = ../../../config/emacs/init.el;
 - Ruby: rbenv
 - Rust: cargo in PATH
 - direnv: `.envrc` support enabled
+- PostgreSQL 14 + Redis: installed via Homebrew (start with `brew services`)
