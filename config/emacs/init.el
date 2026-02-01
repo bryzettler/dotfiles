@@ -1006,6 +1006,9 @@
   (defvar my/claude-pending-text nil
     "Pending text to prefill after claude starts.")
 
+  (defvar my/claude-pending-file-ref nil
+    "Pending file reference for prefill.")
+
   (defun my/claude-prefill-pending-text ()
     "Prefill pending text (don't send), called from claude-code-start-hook."
     (run-at-time 2.0 nil
@@ -1013,29 +1016,66 @@
                    (when-let* ((buf (claude-code--get-or-prompt-for-buffer))
                                (win (get-buffer-window buf)))
                      (select-window win)
-                     (when my/claude-pending-text
-                       (let ((text my/claude-pending-text))
+                     (when (or my/claude-pending-file-ref my/claude-pending-text)
+                       (let ((file-ref my/claude-pending-file-ref)
+                             (text my/claude-pending-text))
+                         (setq my/claude-pending-file-ref nil)
                          (setq my/claude-pending-text nil)
                          (with-current-buffer buf
-                           (claude-code--term-send-string claude-code-terminal-backend text))))))))
+                           (when file-ref
+                             (claude-code--term-send-string claude-code-terminal-backend file-ref))
+                           (run-at-time 0.05 nil
+                                        (lambda ()
+                                          (when (buffer-live-p buf)
+                                            (with-current-buffer buf
+                                              (when file-ref
+                                                (claude-code--term-send-string claude-code-terminal-backend "\n"))
+                                              (when text
+                                                (claude-code--term-send-string claude-code-terminal-backend text))
+                                              (run-at-time 0.05 nil
+                                                           (lambda ()
+                                                             (when (buffer-live-p buf)
+                                                               (with-current-buffer buf
+                                                                 (claude-code--term-send-string claude-code-terminal-backend "\n\n"))))))))))))))))
 
   (add-hook 'claude-code-start-hook #'my/claude-prefill-pending-text)
 
   (defun my/claude-code-prefill-region ()
     "Insert selected region into Claude prompt without sending.
-Opens Claude buffer if needed, inserts region text at prompt,
-positions cursor for user to add context before sending."
+Opens Claude buffer if needed, inserts region text at prompt with
+file source context on separate line, positions cursor for user to add prompt."
     (interactive)
     (when (use-region-p)
-      (let ((text (buffer-substring-no-properties (region-beginning) (region-end)))
-            (claude-buf (claude-code--get-or-prompt-for-buffer)))
+      (let* ((text (buffer-substring-no-properties (region-beginning) (region-end)))
+             (file (buffer-file-name))
+             (start-line (line-number-at-pos (region-beginning)))
+             (end-line (line-number-at-pos (region-end)))
+             (file-ref (when file
+                         (format "%s:%d-%d"
+                                 (file-name-nondirectory file)
+                                 start-line end-line)))
+             (claude-buf (claude-code--get-or-prompt-for-buffer)))
         (if claude-buf
             (progn
               (unless (get-buffer-window claude-buf)
                 (display-buffer claude-buf))
               (select-window (get-buffer-window claude-buf))
               (with-current-buffer claude-buf
-                (claude-code--term-send-string claude-code-terminal-backend text)))
+                (when file-ref
+                  (claude-code--term-send-string claude-code-terminal-backend file-ref))
+                (run-at-time 0.05 nil
+                             (lambda ()
+                               (when (buffer-live-p claude-buf)
+                                 (with-current-buffer claude-buf
+                                   (when file-ref
+                                     (claude-code--term-send-string claude-code-terminal-backend "\n"))
+                                   (claude-code--term-send-string claude-code-terminal-backend text)
+                                   (run-at-time 0.05 nil
+                                                (lambda ()
+                                                  (when (buffer-live-p claude-buf)
+                                                    (with-current-buffer claude-buf
+                                                      (claude-code--term-send-string claude-code-terminal-backend "\n\n")))))))))))
+          (setq my/claude-pending-file-ref file-ref)
           (setq my/claude-pending-text text)
           (claude-code)))))
 
