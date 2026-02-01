@@ -34,6 +34,9 @@
 (setq straight-use-package-by-default t)
 (setq use-package-always-ensure t)
 
+;; Diminish - hide minor modes from modeline (load early for :diminish keyword)
+(use-package diminish)
+
 ;; =============================================================================
 ;; Terminal True Color (24-bit) Support
 ;; =============================================================================
@@ -278,7 +281,9 @@
   :init (vertico-mode)
   :config
   (setq vertico-cycle t
-        vertico-count 15))
+        vertico-count 15
+        vertico-resize t)
+  (setq resize-mini-windows t))
 
 ;; Orderless - flexible matching
 (use-package orderless
@@ -931,9 +936,6 @@
   :diminish apheleia-mode
   :init (apheleia-global-mode +1))
 
-;; Diminish minor modes
-(use-package diminish)
-
 ;; Editable grep results
 (use-package wgrep
   :config
@@ -973,41 +975,6 @@
 (use-package inheritenv
   :straight (:type git :host github :repo "purcell/inheritenv"))
 
-;; Eat terminal emulator (works in terminal Emacs)
-(use-package eat
-  :straight (:type git :host codeberg :repo "akib/emacs-eat"
-                   :files ("*.el" ("term" "term/*.el") "*.texi"
-                           "*.ti" ("terminfo/e" "terminfo/e/*")
-                           ("terminfo/65" "terminfo/65/*")
-                           ("integration" "integration/*")))
-  :config
-  (setq eat-term-scrollback-size 131072
-        eat-enable-blinking-text nil
-        eat-enable-alternative-display nil
-        eat-enable-mouse t
-        eat-kill-buffer-on-exit nil)
-
-  (defun my/eat-reset-terminal ()
-    "Reset eat terminal if it goes blank."
-    (interactive)
-    (when (derived-mode-p 'eat-mode)
-      (eat-reset)))
-
-  (defun my/eat-scroll-up ()
-    "Scroll up in eat buffer."
-    (interactive)
-    (scroll-down-command))
-
-  (defun my/eat-scroll-down ()
-    "Scroll down in eat buffer."
-    (interactive)
-    (scroll-up-command))
-
-  :bind (:map eat-mode-map
-              ("C-c C-r" . my/eat-reset-terminal)
-              ("C-v" . my/eat-scroll-down)
-              ("M-v" . my/eat-scroll-up)))
-
 ;; Vterm - robust terminal emulator (requires cmake, libtool)
 (use-package vterm
   :config
@@ -1037,27 +1004,44 @@
                  (window-width . 0.4)))
 
   (defvar my/claude-pending-text nil
-    "Pending text to send after claude starts.")
+    "Pending text to prefill after claude starts.")
 
-  (defun my/claude-send-pending-text ()
-    "Send pending text if any, called from claude-code-start-hook."
+  (defun my/claude-prefill-pending-text ()
+    "Prefill pending text (don't send), called from claude-code-start-hook."
     (run-at-time 2.0 nil
                  (lambda ()
-                   ;; Focus claude buffer
                    (when-let* ((buf (claude-code--get-or-prompt-for-buffer))
                                (win (get-buffer-window buf)))
-                     (select-window win))
-                   ;; Send pending text if any
-                   (when my/claude-pending-text
-                     (let ((text my/claude-pending-text))
-                       (setq my/claude-pending-text nil)
-                       (claude-code--do-send-command text))))))
+                     (select-window win)
+                     (when my/claude-pending-text
+                       (let ((text my/claude-pending-text))
+                         (setq my/claude-pending-text nil)
+                         (with-current-buffer buf
+                           (claude-code--term-send-string claude-code-terminal-backend text))))))))
 
-  (add-hook 'claude-code-start-hook #'my/claude-send-pending-text)
+  (add-hook 'claude-code-start-hook #'my/claude-prefill-pending-text)
+
+  (defun my/claude-code-prefill-region ()
+    "Insert selected region into Claude prompt without sending.
+Opens Claude buffer if needed, inserts region text at prompt,
+positions cursor for user to add context before sending."
+    (interactive)
+    (when (use-region-p)
+      (let ((text (buffer-substring-no-properties (region-beginning) (region-end)))
+            (claude-buf (claude-code--get-or-prompt-for-buffer)))
+        (if claude-buf
+            (progn
+              (unless (get-buffer-window claude-buf)
+                (display-buffer claude-buf))
+              (select-window (get-buffer-window claude-buf))
+              (with-current-buffer claude-buf
+                (claude-code--term-send-string claude-code-terminal-backend text)))
+          (setq my/claude-pending-text text)
+          (claude-code)))))
 
   (defun my/claude-code-smart ()
     "Smart Claude Code command.
-- If region selected: start/show claude and send region
+- If region selected: start/show claude and prefill region (don't send)
 - If claude not started: start it
 - If claude started: toggle visibility
 Always focuses the claude buffer when showing."
@@ -1069,26 +1053,13 @@ Always focuses the claude buffer when showing."
            (has-region (use-region-p))
            (claude-buf (claude-code--get-or-prompt-for-buffer)))
       (cond
-       ;; Region selected
+       ;; Region selected - prefill without sending
        (has-region
-        (if claude-buf
-            ;; Claude running - ensure visible and send
-            (progn
-              (unless (get-buffer-window claude-buf)
-                (display-buffer claude-buf))
-              (claude-code-send-region)
-              (when-let ((win (get-buffer-window claude-buf)))
-                (select-window win)))
-          ;; Claude not running - save region, start (hook will send)
-          (setq my/claude-pending-text
-                (buffer-substring-no-properties (region-beginning) (region-end)))
-          (claude-code)))
+        (my/claude-code-prefill-region))
        ;; No region, claude running - toggle
        (claude-buf
         (if (get-buffer-window claude-buf)
-            ;; Visible - hide it
             (delete-window (get-buffer-window claude-buf))
-          ;; Hidden - show and focus
           (display-buffer claude-buf)
           (when-let ((win (get-buffer-window claude-buf)))
             (select-window win))))
