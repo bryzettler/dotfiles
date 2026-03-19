@@ -10,6 +10,7 @@ let
     accent_dim = "#264f78";
     blue = "#3b8eea";
     green = "#4ec9b0";
+    purple = "#cba6f7";
   };
 
   pulseLoop = pkgs.writeShellScript "tmux-pulse-loop" ''
@@ -37,11 +38,11 @@ let
 
   pulseStart = pkgs.writeShellScript "tmux-pulse-start" ''
     [ -z "$TMUX" ] && exit 0
-    tmux set-window-option @claude-pulse on
-    tmux set-window-option @pulse-phase 1
-    # spawn loop if not already running
-    if ! pgrep -f "tmux-pulse-loop" >/dev/null 2>&1; then
-      nohup ${pulseLoop} >/dev/null 2>&1 &
+    WIN_ID=$(tmux display-message -p -t "$TMUX_PANE" '#{window_id}')
+    tmux set-window-option -t "$WIN_ID" @claude-pulse on
+    tmux set-window-option -t "$WIN_ID" @pulse-phase 1
+    if ! pgrep -f "pulse-loop.sh" >/dev/null 2>&1; then
+      nohup ~/.config/tmux/pulse-loop.sh >/dev/null 2>&1 &
     fi
   '';
 in
@@ -79,6 +80,9 @@ in
       set -ag terminal-overrides ",tmux-256color:Tc"
       set -ag terminal-overrides ",xterm-ghostty:Tc"
       set -g default-terminal "tmux-256color"
+
+      # Allow applications to pass escape sequences through to Ghostty
+      set -g allow-passthrough on
 
       # Allow C-\ to pass through (press twice to send literal)
       bind 'C-\' send-prefix
@@ -186,15 +190,15 @@ in
       # ============================================
       set -g status on
       set -g status-position bottom
-      set -g status-style "bg=${colors.bg},fg=${colors.fg}"
-      set -g status-left "#[fg=${colors.bg},bg=${colors.blue},bold] #S #[fg=${colors.blue},bg=${colors.bg}] "
+      set -g status-style "bg=default,fg=${colors.fg}"
+      set -g status-left "#[fg=${colors.bg},bg=${colors.blue},bold] #S #[fg=${colors.blue},bg=default] "
       set -g status-left-length 30
       set -g status-right "#[fg=${colors.fg_dim}]%H:%M #[fg=${colors.blue}]│ #[fg=${colors.accent}]%b %d "
       set -g status-right-length 50
 
       # Window status (inactive tabs pulse when Claude needs input)
-      setw -g window-status-format "#{?#{==:#{@claude-pulse},on},#{?#{==:#{@pulse-phase},1},#[bg=${colors.accent}#,fg=${colors.bg}#,bold] #I:#W #[default],#[bg=${colors.accent_dim}#,fg=${colors.fg}] #I:#W #[default]},#[fg=${colors.fg_dim}] #I:#W }"
-      setw -g window-status-current-format "#[fg=${colors.bg},bg=${colors.accent},bold] #I:#W #[fg=${colors.accent},bg=${colors.bg}]"
+      setw -g window-status-format "#{?#{==:#{@claude-pulse},on},#{?#{==:#{@pulse-phase},1},#[bg=${colors.blue}#,fg=${colors.bg}] #I:#W #[default],#[bg=${colors.purple}#,fg=${colors.bg}] #I:#W #[default]},#[fg=${colors.fg_dim}] #I:#W }"
+      setw -g window-status-current-format "#[fg=${colors.bg},bg=${colors.accent},bold] #I:#W #[fg=${colors.accent},bg=default]"
 
       # Pane borders
       set -g pane-border-style "fg=${colors.fg_dim}"
@@ -217,5 +221,9 @@ in
 
   home.file.".config/tmux/pulse-start.sh" = {
     source = pulseStart;
+  };
+
+  home.file.".config/tmux/pulse-loop.sh" = {
+    source = pulseLoop;
   };
 }

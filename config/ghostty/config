@@ -1,6 +1,10 @@
 shell-integration = fish
 font-family = Hack Nerd Font
 term = xterm-256color
+desktop-notifications = true
+unfocused-split-opacity = 0.55
+background-opacity = 0.8
+background-blur = 15
 
 # VS Code Dark+ colors
 background = 1e1e1e
@@ -40,7 +44,6 @@ scrollback-limit = 50000
 macos-option-as-alt = true
 fullscreen = true
 macos-non-native-fullscreen = true
-background-opacity = 0.9
 
 # Keybindings
 keybind = opt+left=text:\x1bb

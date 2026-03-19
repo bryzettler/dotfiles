@@ -168,12 +168,12 @@
   ;; Green #6a9955 - comments
   (custom-set-faces
    ;; Base colors
-   '(default ((t :background "#1e1e1e" :foreground "#d4d4d4")))
+   '(default ((t :foreground "#d4d4d4")))
    '(cursor ((t :background "#aeafad")))
    '(region ((t :background "#264f78")))
-   '(fringe ((t :background "#1e1e1e")))
-   '(line-number ((t :foreground "#858585" :background "#1e1e1e")))
-   '(line-number-current-line ((t :foreground "#c6c6c6" :background "#1e1e1e")))
+   '(fringe ((t :background unspecified)))
+   '(line-number ((t :foreground "#858585")))
+   '(line-number-current-line ((t :foreground "#c6c6c6")))
 
    ;; Syntax highlighting - Dark+ colors
    '(font-lock-keyword-face ((t :foreground "#569cd6")))
@@ -1173,12 +1173,15 @@ Always focuses the claude buffer when showing."
 (defun my/terminal-transparent-bg (&optional frame)
   "Let terminal transparency show through by unsetting solid backgrounds."
   (unless (display-graphic-p (or frame (selected-frame)))
-    (set-face-background 'default "unspecified-bg" (or frame (selected-frame)))
-    (set-face-background 'fringe "unspecified-bg" (or frame (selected-frame)))
-    (set-face-background 'line-number "unspecified-bg" (or frame (selected-frame)))
-    (set-face-background 'line-number-current-line "unspecified-bg" (or frame (selected-frame)))))
+    (dolist (face '(default fringe line-number line-number-current-line
+                    mode-line mode-line-inactive header-line
+                    vertical-border))
+      (set-face-background face "unspecified-bg" (or frame (selected-frame))))))
+
+(add-hook 'window-setup-hook #'my/terminal-transparent-bg)
 (add-hook 'after-make-frame-functions #'my/terminal-transparent-bg)
-(my/terminal-transparent-bg)
+(advice-add 'load-theme :after
+            (lambda (&rest _) (my/terminal-transparent-bg)))
 
 ;; =============================================================================
 ;; Reset GC after init
