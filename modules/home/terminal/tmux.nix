@@ -7,9 +7,43 @@ let
     fg = "#d4d4d4";
     fg_dim = "#666666";
     accent = "#569cd6";
+    accent_dim = "#264f78";
     blue = "#3b8eea";
     green = "#4ec9b0";
   };
+
+  pulseLoop = pkgs.writeShellScript "tmux-pulse-loop" ''
+    while true; do
+      has_pulse=0
+      for wid in $(tmux list-windows -F '#{window_id}'); do
+        val=$(tmux show-window-option -t "$wid" -v @claude-pulse 2>/dev/null)
+        if [ "$val" = "on" ]; then
+          has_pulse=1
+          phase=$(tmux show-window-option -t "$wid" -v @pulse-phase 2>/dev/null)
+          if [ "$phase" = "1" ]; then
+            tmux set-window-option -t "$wid" @pulse-phase 0
+          else
+            tmux set-window-option -t "$wid" @pulse-phase 1
+          fi
+        fi
+      done
+      if [ "$has_pulse" = "0" ]; then
+        exit 0
+      fi
+      tmux refresh-client -S
+      sleep 0.8
+    done
+  '';
+
+  pulseStart = pkgs.writeShellScript "tmux-pulse-start" ''
+    [ -z "$TMUX" ] && exit 0
+    tmux set-window-option @claude-pulse on
+    tmux set-window-option @pulse-phase 1
+    # spawn loop if not already running
+    if ! pgrep -f "tmux-pulse-loop" >/dev/null 2>&1; then
+      nohup ${pulseLoop} >/dev/null 2>&1 &
+    fi
+  '';
 in
 {
   programs.tmux = {
@@ -105,7 +139,7 @@ in
       bind -T cx-keys 2 split-window -h -c "#{pane_current_path}"  # side-by-side (matches your Emacs)
       bind -T cx-keys 3 split-window -v -c "#{pane_current_path}"  # stacked (matches your Emacs)
       bind -T cx-keys 0 kill-pane                                  # C-x 0 = close pane
-      bind -T cx-keys 1 resize-pane -Z                             # C-x 1 = zoom (maximize) pane
+      bind -T cx-keys 1 kill-pane -a                                # C-x 1 = close other panes
       bind -T cx-keys k kill-pane                                  # C-x k = close (Emacs kill-buffer style)
 
       # C-x o = visual pane selection with numbers + letter keys
@@ -158,8 +192,8 @@ in
       set -g status-right "#[fg=${colors.fg_dim}]%H:%M #[fg=${colors.blue}]│ #[fg=${colors.accent}]%b %d "
       set -g status-right-length 50
 
-      # Window status
-      setw -g window-status-format "#[fg=${colors.fg_dim}] #I:#W "
+      # Window status (inactive tabs pulse when Claude needs input)
+      setw -g window-status-format "#{?#{==:#{@claude-pulse},on},#{?#{==:#{@pulse-phase},1},#[bg=${colors.accent}#,fg=${colors.bg}#,bold] #I:#W #[default],#[bg=${colors.accent_dim}#,fg=${colors.fg}] #I:#W #[default]},#[fg=${colors.fg_dim}] #I:#W }"
       setw -g window-status-current-format "#[fg=${colors.bg},bg=${colors.accent},bold] #I:#W #[fg=${colors.accent},bg=${colors.bg}]"
 
       # Pane borders
@@ -169,6 +203,9 @@ in
       # Message style
       set -g message-style "bg=${colors.blue},fg=${colors.bg},bold"
 
+      # Auto-clear pulse when switching to a window
+      set-hook -g pane-focus-in "set-window-option @claude-pulse off ; set-window-option @pulse-phase 0"
+
       # No bells
       set -g visual-activity off
       set -g visual-bell off
@@ -176,5 +213,9 @@ in
       setw -g monitor-activity off
       set -g bell-action none
     '';
+  };
+
+  home.file.".config/tmux/pulse-start.sh" = {
+    source = pulseStart;
   };
 }

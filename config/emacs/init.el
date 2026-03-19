@@ -1167,6 +1167,20 @@ Always focuses the claude buffer when showing."
 
 
 ;; =============================================================================
+;; Terminal Background Transparency
+;; =============================================================================
+
+(defun my/terminal-transparent-bg (&optional frame)
+  "Let terminal transparency show through by unsetting solid backgrounds."
+  (unless (display-graphic-p (or frame (selected-frame)))
+    (set-face-background 'default "unspecified-bg" (or frame (selected-frame)))
+    (set-face-background 'fringe "unspecified-bg" (or frame (selected-frame)))
+    (set-face-background 'line-number "unspecified-bg" (or frame (selected-frame)))
+    (set-face-background 'line-number-current-line "unspecified-bg" (or frame (selected-frame)))))
+(add-hook 'after-make-frame-functions #'my/terminal-transparent-bg)
+(my/terminal-transparent-bg)
+
+;; =============================================================================
 ;; Reset GC after init
 ;; =============================================================================
 
