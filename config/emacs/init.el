@@ -315,11 +315,14 @@
   (corfu-auto t)
   (corfu-auto-delay 0.1)
   (corfu-auto-prefix 2)
-  (corfu-quit-no-match nil)
+  (corfu-quit-no-match 'separator)
   (corfu-preview-current nil)
+  (corfu-popupinfo-delay 0.5)
   :config
   (global-corfu-mode 1)
-  (corfu-popupinfo-mode 1))
+  (corfu-popupinfo-mode 1)
+  (corfu-history-mode 1)
+  (add-to-list 'savehist-additional-variables 'corfu-history))
 
 ;; Corfu terminal support (required for emacs -nw)
 (use-package corfu-terminal
@@ -334,7 +337,8 @@
 (use-package cape
   :init
   (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
-  (add-to-list 'completion-at-point-functions #'cape-file t))
+  (add-to-list 'completion-at-point-functions #'cape-file t)
+  (add-to-list 'completion-at-point-functions #'cape-keyword t))
 
 ;; =============================================================================
 ;; Editing
@@ -528,7 +532,9 @@
          (css-mode . eglot-ensure)
          (html-mode . eglot-ensure)
          (yaml-mode . eglot-ensure)
-         (eglot-managed-mode . (lambda () (font-lock-flush))))
+         (eglot-managed-mode . (lambda ()
+                                 (font-lock-flush)
+                                 (eglot-inlay-hints-mode 1))))
   :config
   (setq eglot-autoshutdown t
         eglot-sync-connect 1
@@ -560,7 +566,8 @@
    '(eglot-semantic-method ((t :foreground "#DCDCAA")))
    '(eglot-semantic-namespace ((t :foreground "#4EC9B0" :weight semi-bold)))
    '(eglot-semantic-enumMember ((t :foreground "#4FC1FF")))
-   '(eglot-semantic-readonly ((t :foreground "#4FC1FF")))))
+   '(eglot-semantic-readonly ((t :foreground "#4FC1FF")))
+   '(eglot-inlay-hint-face ((t :foreground "#858585" :slant italic :height 0.9)))))
 
 ;; Tree-sitter auto
 (use-package treesit-auto
@@ -914,6 +921,20 @@
 ;; =============================================================================
 ;; Productivity
 ;; =============================================================================
+
+;; Eldoc - type info and docs in a dedicated buffer
+(use-package eldoc
+  :straight nil
+  :config
+  (setq eldoc-documentation-strategy 'eldoc-documentation-compose-eagerly
+        eldoc-idle-delay 0.3
+        eldoc-echo-area-use-multiline-p nil)
+  (add-to-list 'display-buffer-alist
+               '("\\*eldoc\\*"
+                 (display-buffer-in-side-window)
+                 (side . bottom)
+                 (window-height . 4)))
+  (setq eldoc-display-functions '(eldoc-display-in-buffer)))
 
 ;; Flymake (built-in, used with eglot)
 (use-package flymake
