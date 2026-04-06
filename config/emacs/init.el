@@ -543,6 +543,20 @@
         eglot-ignored-server-capabilities '())
 
   (add-to-list 'eglot-server-programs
+               '((typescript-ts-mode tsx-ts-mode js-ts-mode) .
+                 ("typescript-language-server" "--stdio"
+                  :initializationOptions
+                  (:preferences
+                   (:includeInlayParameterNameHints "all"
+                    :includeInlayParameterNameHintsWhenArgumentMatchesName t
+                    :includeInlayFunctionParameterTypeHints t
+                    :includeInlayVariableTypeHints t
+                    :includeInlayVariableTypeHintsWhenTypeMatchesName t
+                    :includeInlayPropertyDeclarationTypeHints t
+                    :includeInlayFunctionLikeReturnTypeHints t
+                    :includeInlayEnumMemberValueHints t)))))
+
+  (add-to-list 'eglot-server-programs
                '((rust-ts-mode rust-mode) .
                  ("rust-analyzer" :initializationOptions
                   (:semanticHighlighting (:strings t :punctuation (:enable t))))))
