@@ -534,7 +534,8 @@
          (yaml-mode . eglot-ensure)
          (eglot-managed-mode . (lambda ()
                                  (font-lock-flush)
-                                 (eglot-inlay-hints-mode 1))))
+                                 (eglot-inlay-hints-mode 1)
+                                 (eldoc-doc-buffer t))))
   :config
   (setq eglot-autoshutdown t
         eglot-sync-connect 1
