@@ -10,6 +10,16 @@
     enchant2
     hunspell
     hunspellDicts.en_US
+
+    # LSP servers
+    nodePackages.typescript-language-server
+    vscode-langservers-extracted
+    yaml-language-server
+    bash-language-server
+    nil
+    sqls
+    taplo
+    dockerfile-language-server-nodejs
   ];
 
   # link emacs config

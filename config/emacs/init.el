@@ -331,6 +331,11 @@
 (use-package embark-consult
   :after (embark consult))
 
+;; Consult-eglot - workspace symbol search via vertico
+(use-package consult-eglot
+  :after (consult eglot)
+  :bind ("M-g s" . consult-eglot-symbols))
+
 ;; Corfu - in-buffer completion
 (use-package corfu
   :demand t
@@ -541,6 +546,15 @@
          (rust-mode . eglot-ensure)
          (python-ts-mode . eglot-ensure)
          (python-mode . eglot-ensure)
+         (bash-ts-mode . eglot-ensure)
+         (sh-mode . eglot-ensure)
+         (nix-mode . eglot-ensure)
+         (sql-mode . eglot-ensure)
+         (toml-ts-mode . eglot-ensure)
+         (dockerfile-ts-mode . eglot-ensure)
+         (css-mode . eglot-ensure)
+         (html-mode . eglot-ensure)
+         (yaml-mode . eglot-ensure)
          (eglot-managed-mode . (lambda () (font-lock-flush))))
   :config
   (setq eglot-autoshutdown t
@@ -553,6 +567,12 @@
                '((rust-ts-mode rust-mode) .
                  ("rust-analyzer" :initializationOptions
                   (:semanticHighlighting (:strings t :punctuation (:enable t))))))
+
+  (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+  (add-to-list 'eglot-server-programs '(sql-mode . ("sqls")))
+  (add-to-list 'eglot-server-programs '(toml-ts-mode . ("taplo" "lsp" "stdio")))
+  (add-to-list 'eglot-server-programs '(dockerfile-ts-mode . ("docker-langserver" "--stdio")))
+  (add-to-list 'eglot-server-programs '(yaml-mode . ("yaml-language-server" "--stdio")))
 
   ;; Semantic token faces - Dark+ colors
   (custom-set-faces
@@ -878,6 +898,16 @@
 ;; Nix
 (use-package nix-mode
   :mode "\\.nix\\'")
+
+;; TOML (tree-sitter)
+(use-package toml-ts-mode
+  :straight nil
+  :mode ("\\.toml\\'" "Cargo\\.lock\\'"))
+
+;; Dockerfile (tree-sitter)
+(use-package dockerfile-ts-mode
+  :straight nil
+  :mode ("Dockerfile\\'" "\\.dockerfile\\'"))
 
 ;; =============================================================================
 ;; Org Mode

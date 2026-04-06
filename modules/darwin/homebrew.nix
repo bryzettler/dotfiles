@@ -48,6 +48,10 @@
       "postgresql@14"
       "redis"
 
+      # lsp servers
+      "taplo"
+      "yaml-language-server"
+
       # build deps
       "openssl@3"
       "readline"
