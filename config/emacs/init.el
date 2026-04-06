@@ -32,7 +32,6 @@
 ;; Use straight.el with use-package
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
-(setq use-package-always-ensure t)
 
 ;; Diminish - hide minor modes from modeline (load early for :diminish keyword)
 (use-package diminish)
@@ -208,7 +207,6 @@
   :init (doom-modeline-mode 1)
   :custom
   (doom-modeline-height 15)
-  (doom-modeline-bar-width 6)
   (doom-modeline-icon nil)
   (doom-modeline-buffer-encoding nil)
   (doom-modeline-vcs-max-length 20)
@@ -249,9 +247,7 @@
   :init (vertico-mode)
   :config
   (setq vertico-cycle t
-        vertico-count 15
-        vertico-resize t)
-  (setq resize-mini-windows t))
+        vertico-count 15))
 
 ;; Orderless - flexible matching
 (use-package orderless
@@ -392,9 +388,8 @@
   :hook ((text-mode . ws-butler-mode)
          (prog-mode . ws-butler-mode)))
 
-;; Comment/uncomment
-(use-package evil-nerd-commenter
-  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+;; Comment/uncomment (built-in)
+(global-set-key (kbd "M-/") #'comment-line)
 
 ;; =============================================================================
 ;; Navigation & Project Management
@@ -423,7 +418,7 @@
          ("C-x p b" . project-switch-to-buffer)
          ("C-x p k" . project-kill-buffers))
   :config
-  (setq project-vc-extra-root-markers '(".project" ".projectile")))
+  (setq project-vc-extra-root-markers '(".project")))
 
 ;; Treemacs - project sidebar
 (use-package treemacs
@@ -539,7 +534,6 @@
   (setq eglot-autoshutdown t
         eglot-sync-connect 1
         eglot-send-changes-idle-time 0.1
-        treesit-font-lock-level 4
         eglot-ignored-server-capabilities '())
 
   (add-to-list 'eglot-server-programs
@@ -588,7 +582,8 @@
   :custom
   (treesit-auto-install t)
   :config
-  (setq treesit-auto-langs (remove 'yaml treesit-auto-langs))
+  (setq treesit-font-lock-level 4
+        treesit-auto-langs (remove 'yaml treesit-auto-langs))
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
@@ -864,7 +859,6 @@
 
 ;; YAML (yaml-mode provides proper indent cycling, unlike yaml-ts-mode)
 (use-package yaml-mode
-  :demand t
   :mode "\\.ya?ml\\'"
   :custom
   (yaml-indent-offset 2)
@@ -965,7 +959,7 @@
   :diminish yas-minor-mode
   :hook (prog-mode . yas-minor-mode)
   :config
-  (yas-reload-all))
+  (run-with-idle-timer 2 nil #'yas-reload-all))
 
 (use-package yasnippet-snippets
   :after yasnippet)
@@ -1022,6 +1016,10 @@
             (process-send-string proc text)
             (process-send-eof proc)))))
 
+(setq interprogram-paste-function
+      (lambda ()
+        (shell-command-to-string "pbpaste")))
+
 (global-set-key (kbd "s-c") #'kill-ring-save)
 
 ;; Quick kill buffer (no prompt if unmodified)
@@ -1034,10 +1032,6 @@
 
 ;; Interactive find/replace across project
 (global-set-key (kbd "C-c r") #'project-query-replace-regexp)
-
-;; Word navigation
-(global-set-key (kbd "M-<right>") 'forward-word)
-(global-set-key (kbd "M-<left>") 'backward-word)
 
 ;; ESC to quit
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)

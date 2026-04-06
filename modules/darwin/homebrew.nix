@@ -33,6 +33,7 @@
       "yazi"
 
       # dev tools
+      "pandoc"
       "jq"
       "tree"
       "wget"
