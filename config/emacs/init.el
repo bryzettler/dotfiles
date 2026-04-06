@@ -80,12 +80,8 @@
   (prefer-coding-system 'utf-8)
   (set-default-coding-systems 'utf-8)
 
-  ;; UI settings (works in GUI, no-op in terminal)
-  (scroll-bar-mode -1)
-  (tool-bar-mode -1)
-  (tooltip-mode -1)
+  ;; UI settings
   (menu-bar-mode -1)
-  (set-fringe-mode 10)
   (setq use-dialog-box nil
         mouse-wheel-scroll-amount '(3 ((shift) . 1))
         mouse-wheel-progressive-speed nil
@@ -119,7 +115,8 @@
 
   ;; Track recent files (integrates with consult-buffer)
   (recentf-mode 1)
-  (setq recentf-max-saved-items 50)
+  (setq recentf-max-saved-items 50
+        recentf-exclude '("/nix/store/" "\\.git/" "node_modules/" "/tmp/" "\\.elc$"))
 
   ;; Auto-refresh buffers
   (global-auto-revert-mode 1)
@@ -382,10 +379,12 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
-;; Rainbow mode - colorize color strings
+;; Rainbow mode - colorize color strings in style files
 (use-package rainbow-mode
   :diminish rainbow-mode
-  :hook (prog-mode . rainbow-mode))
+  :hook ((css-mode . rainbow-mode)
+         (html-mode . rainbow-mode)
+         (web-mode . rainbow-mode)))
 
 ;; Whitespace cleanup on save
 (use-package ws-butler
@@ -901,6 +900,9 @@
 (use-package dockerfile-ts-mode
   :straight nil
   :mode ("Dockerfile\\'" "\\.dockerfile\\'"))
+
+;; .env files
+(add-to-list 'auto-mode-alist '("\\.env\\(?:\\.[a-z]+\\)?\\'" . conf-mode))
 
 ;; =============================================================================
 ;; Org Mode
