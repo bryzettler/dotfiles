@@ -86,8 +86,7 @@
   (tooltip-mode -1)
   (menu-bar-mode -1)
   (set-fringe-mode 10)
-  (setq visible-bell t
-        use-dialog-box nil
+  (setq use-dialog-box nil
         mouse-wheel-scroll-amount '(3 ((shift) . 1))
         mouse-wheel-progressive-speed nil
         mouse-wheel-follow-mouse t
@@ -114,6 +113,13 @@
 
   ;; Remember cursor position
   (save-place-mode 1)
+
+  ;; Persist minibuffer history across sessions
+  (savehist-mode 1)
+
+  ;; Track recent files (integrates with consult-buffer)
+  (recentf-mode 1)
+  (setq recentf-max-saved-items 50)
 
   ;; Auto-refresh buffers
   (global-auto-revert-mode 1)
@@ -343,7 +349,7 @@
   (corfu-cycle t)
   (corfu-auto t)
   (corfu-auto-delay 0.1)
-  (corfu-auto-prefix 1)
+  (corfu-auto-prefix 2)
   (corfu-quit-no-match nil)
   (corfu-preview-current nil)
   :config
@@ -380,7 +386,10 @@
   :straight nil
   :bind (("M-g d" . xref-find-definitions)
          ("M-g r" . xref-find-references)
-         ("M-," . xref-go-back)))
+         ("M-," . xref-go-back)
+         ("M-g a" . eglot-code-actions)
+         ("M-g R" . eglot-rename)
+         ("M-g i" . consult-imenu)))
 
 ;; Expand region
 (use-package expand-region
@@ -496,7 +505,8 @@
 (add-hook 'emacs-startup-hook
           (lambda ()
             (when (and (not (daemonp))
-                       (file-directory-p default-directory))
+                       (file-directory-p default-directory)
+                       (<= (length command-line-args) 1))
               (let ((project-root (or (locate-dominating-file default-directory ".git")
                                       default-directory)))
                 (let ((default-directory project-root))
@@ -737,9 +747,7 @@
 
 ;; Web mode (for templates, HTML, etc.)
 (use-package web-mode
-  :mode (("\\.html?\\'" . web-mode)
-         ("\\.css\\'" . web-mode)
-         ("\\.vue\\'" . web-mode)
+  :mode (("\\.vue\\'" . web-mode)
          ("\\.svelte\\'" . web-mode))
   :config
   (setq web-mode-markup-indent-offset 2
