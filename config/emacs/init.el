@@ -204,49 +204,7 @@
    '(font-lock-warning-face ((t :foreground "#f14c4c" :weight bold)))
    '(font-lock-escape-face ((t :foreground "#d7ba7d")))
    '(font-lock-regexp-grouping-backslash ((t :foreground "#d7ba7d")))
-   '(font-lock-regexp-grouping-construct ((t :foreground "#d7ba7d")))
-
-   ;; Tree-sitter builtin faces
-   '(tree-sitter-hl-face:function ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:function.call ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:function.method ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:function.macro ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:function.special ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:function.builtin ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:method ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:method.call ((t :foreground "#dcdcaa")))
-   '(tree-sitter-hl-face:type ((t :foreground "#4ec9b0")))
-   '(tree-sitter-hl-face:type.builtin ((t :foreground "#4ec9b0")))
-   '(tree-sitter-hl-face:type.parameter ((t :foreground "#4ec9b0")))
-   '(tree-sitter-hl-face:type.argument ((t :foreground "#4ec9b0")))
-   '(tree-sitter-hl-face:constructor ((t :foreground "#4ec9b0")))
-   '(tree-sitter-hl-face:variable ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:variable.builtin ((t :foreground "#569cd6")))
-   '(tree-sitter-hl-face:variable.parameter ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:variable.special ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:property ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:property.definition ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:keyword ((t :foreground "#569cd6")))
-   '(tree-sitter-hl-face:keyword.control ((t :foreground "#c586c0")))
-   '(tree-sitter-hl-face:keyword.operator ((t :foreground "#c586c0")))
-   '(tree-sitter-hl-face:keyword.function ((t :foreground "#569cd6")))
-   '(tree-sitter-hl-face:keyword.return ((t :foreground "#c586c0")))
-   '(tree-sitter-hl-face:string ((t :foreground "#ce9178")))
-   '(tree-sitter-hl-face:string.special ((t :foreground "#d7ba7d")))
-   '(tree-sitter-hl-face:escape ((t :foreground "#d7ba7d")))
-   '(tree-sitter-hl-face:number ((t :foreground "#b5cea8")))
-   '(tree-sitter-hl-face:constant ((t :foreground "#4fc1ff")))
-   '(tree-sitter-hl-face:constant.builtin ((t :foreground "#569cd6")))
-   '(tree-sitter-hl-face:comment ((t :foreground "#6a9955")))
-   '(tree-sitter-hl-face:doc ((t :foreground "#6a9955")))
-   '(tree-sitter-hl-face:operator ((t :foreground "#d4d4d4")))
-   '(tree-sitter-hl-face:punctuation ((t :foreground "#d4d4d4")))
-   '(tree-sitter-hl-face:punctuation.bracket ((t :foreground "#ffd700")))
-   '(tree-sitter-hl-face:punctuation.delimiter ((t :foreground "#d4d4d4")))
-   '(tree-sitter-hl-face:label ((t :foreground "#c586c0")))
-   '(tree-sitter-hl-face:attribute ((t :foreground "#9cdcfe")))
-   '(tree-sitter-hl-face:tag ((t :foreground "#569cd6")))
-   '(tree-sitter-hl-face:embedded ((t :foreground "#d4d4d4")))))
+   '(font-lock-regexp-grouping-construct ((t :foreground "#d7ba7d")))))
 
 ;; Doom modeline
 (use-package doom-modeline
@@ -269,14 +227,21 @@
 ;; Nerd icons (works in terminal with nerd fonts)
 (use-package nerd-icons)
 
-;; Which-key for discoverability
+;; Which-key for discoverability (built-in in Emacs 30)
 (use-package which-key
+  :straight nil
   :diminish which-key-mode
   :init (which-key-mode)
   :config
   (setq which-key-idle-delay 0.3
         which-key-prefix-prefix "+"
         which-key-sort-order 'which-key-key-order-alpha))
+
+;; EditorConfig (built-in in Emacs 30)
+(editorconfig-mode 1)
+
+;; Repeat-mode (press o after C-x o to keep switching windows)
+(repeat-mode 1)
 
 ;; =============================================================================
 ;; Completion (Vertico + Corfu stack)
@@ -462,8 +427,6 @@
   :commands (treemacs treemacs-select-window treemacs-add-and-display-current-project-exclusively)
   :init
   (define-key input-decode-map "\e[32;13~" (kbd "C-s-SPC"))
-  (define-key input-decode-map "\e[105;13~" (kbd "s-i"))
-  (define-key input-decode-map "\e[110;13~" (kbd "s-n"))
   (define-key input-decode-map "\e[99;13~" (kbd "s-c"))
   :config
   (setq treemacs-width 35
@@ -1006,169 +969,7 @@
   :hook (after-init . envrc-global-mode))
 
 ;; =============================================================================
-;; Claude Code Integration
-;; =============================================================================
-
-;; Required dependency for environment handling
-(use-package inheritenv
-  :straight (:type git :host github :repo "purcell/inheritenv"))
-
-;; Vterm - robust terminal emulator (requires cmake, libtool)
-(use-package vterm
-  :config
-  (setq vterm-max-scrollback 10000
-        vterm-kill-buffer-on-exit nil))
-
-;; Claude Code
-(use-package claude-code
-  :straight (:type git :host github :repo "stevemolitor/claude-code.el"
-                   :branch "main" :depth 1)
-  :demand t
-  :bind-keymap ("C-c c" . claude-code-command-map)
-  :config
-  (setq claude-code-terminal-backend 'vterm
-        ;; Auto-focus Claude buffer when toggling
-        claude-code-toggle-auto-select t
-        ;; Use Shift+Return for newlines (Return sends message)
-        claude-code-newline-keybinding-style 'shift-return-to-send
-        ;; Don't ask before killing instances
-        claude-code-confirm-kill nil)
-
-  ;; Force ALL claude-code buffers to display in right side window
-  (add-to-list 'display-buffer-alist
-               '(".*claude.*"
-                 (display-buffer-in-side-window)
-                 (side . right)
-                 (window-width . 0.4)))
-
-  (defvar my/claude-pending-text nil
-    "Pending text to prefill after claude starts.")
-
-  (defvar my/claude-pending-file-ref nil
-    "Pending file reference for prefill.")
-
-  (defun my/claude-prefill-pending-text ()
-    "Prefill pending text (don't send), called from claude-code-start-hook."
-    (run-at-time 2.0 nil
-                 (lambda ()
-                   (when-let* ((buf (claude-code--get-or-prompt-for-buffer))
-                               (win (get-buffer-window buf)))
-                     (select-window win)
-                     (when (or my/claude-pending-file-ref my/claude-pending-text)
-                       (let ((file-ref my/claude-pending-file-ref)
-                             (text my/claude-pending-text))
-                         (setq my/claude-pending-file-ref nil)
-                         (setq my/claude-pending-text nil)
-                         (with-current-buffer buf
-                           (when file-ref
-                             (claude-code--term-send-string claude-code-terminal-backend file-ref))
-                           (run-at-time 0.05 nil
-                                        (lambda ()
-                                          (when (buffer-live-p buf)
-                                            (with-current-buffer buf
-                                              (when file-ref
-                                                (claude-code--term-send-string claude-code-terminal-backend "\n"))
-                                              (when text
-                                                (claude-code--term-send-string claude-code-terminal-backend text))
-                                              (run-at-time 0.05 nil
-                                                           (lambda ()
-                                                             (when (buffer-live-p buf)
-                                                               (with-current-buffer buf
-                                                                 (claude-code--term-send-string claude-code-terminal-backend "\n\n"))))))))))))))))
-
-  (add-hook 'claude-code-start-hook #'my/claude-prefill-pending-text)
-
-  (defun my/claude-code-prefill-region ()
-    "Insert selected region into Claude prompt without sending.
-Opens Claude buffer if needed, inserts region text at prompt with
-file source context on separate line, positions cursor for user to add prompt."
-    (interactive)
-    (when (use-region-p)
-      (let* ((text (buffer-substring-no-properties (region-beginning) (region-end)))
-             (file (buffer-file-name))
-             (start-line (line-number-at-pos (region-beginning)))
-             (end-line (line-number-at-pos (region-end)))
-             (file-ref (when file
-                         (format "%s:%d-%d"
-                                 (file-name-nondirectory file)
-                                 start-line end-line)))
-             (claude-buf (claude-code--get-or-prompt-for-buffer)))
-        (if claude-buf
-            (progn
-              (unless (get-buffer-window claude-buf)
-                (display-buffer claude-buf))
-              (select-window (get-buffer-window claude-buf))
-              (with-current-buffer claude-buf
-                (when file-ref
-                  (claude-code--term-send-string claude-code-terminal-backend file-ref))
-                (run-at-time 0.05 nil
-                             (lambda ()
-                               (when (buffer-live-p claude-buf)
-                                 (with-current-buffer claude-buf
-                                   (when file-ref
-                                     (claude-code--term-send-string claude-code-terminal-backend "\n"))
-                                   (claude-code--term-send-string claude-code-terminal-backend text)
-                                   (run-at-time 0.05 nil
-                                                (lambda ()
-                                                  (when (buffer-live-p claude-buf)
-                                                    (with-current-buffer claude-buf
-                                                      (claude-code--term-send-string claude-code-terminal-backend "\n\n")))))))))))
-          (setq my/claude-pending-file-ref file-ref)
-          (setq my/claude-pending-text text)
-          (claude-code)))))
-
-  (defun my/claude-code-smart ()
-    "Smart Claude Code command.
-- If region selected: start/show claude and prefill region (don't send)
-- If claude not started: start it
-- If claude started: toggle visibility
-Always focuses the claude buffer when showing."
-    (interactive)
-    (let* ((default-directory (or (when-let ((proj (project-current)))
-                                    (project-root proj))
-                                  (locate-dominating-file default-directory ".git")
-                                  default-directory))
-           (has-region (use-region-p))
-           (claude-buf (claude-code--get-or-prompt-for-buffer)))
-      (cond
-       ;; Region selected - prefill without sending
-       (has-region
-        (my/claude-code-prefill-region))
-       ;; No region, claude running - toggle
-       (claude-buf
-        (if (get-buffer-window claude-buf)
-            (delete-window (get-buffer-window claude-buf))
-          (display-buffer claude-buf)
-          (when-let ((win (get-buffer-window claude-buf)))
-            (select-window win))))
-       ;; No region, claude not running - start
-       (t
-        (claude-code)))))
-
-  (define-key claude-code-command-map (kbd "c") #'my/claude-code-smart)
-
-  (defun my/claude-code-restart ()
-    "Kill and restart Claude Code session (recovery from blank screen)."
-    (interactive)
-    (when-let ((buf (get-buffer "*claude-code*")))
-      (kill-buffer buf))
-    (my/claude-code-smart))
-
-  (define-key claude-code-command-map (kbd "R") #'my/claude-code-restart)
-
-  (defun my/claude-code-kill-all-and-start ()
-    "Kill all Claude Code instances and start fresh."
-    (interactive)
-    (claude-code-kill-all)
-    (run-at-time 0.5 nil #'my/claude-code-smart))
-
-  (global-set-key (kbd "s-i") #'my/claude-code-smart)
-  (global-set-key (kbd "s-n") #'my/claude-code-kill-all-and-start)
-
-  (claude-code-mode))
-
-;; =============================================================================
-;; Custom Keybindings (from legacy config)
+;; Custom Keybindings
 ;; =============================================================================
 
 ;; Swap split bindings (C-x 2 = side-by-side, C-x 3 = stacked)
@@ -1214,7 +1015,11 @@ Always focuses the claude buffer when showing."
     (dolist (face '(default fringe line-number line-number-current-line
                     mode-line mode-line-inactive header-line
                     vertical-border))
-      (set-face-background face "unspecified-bg" (or frame (selected-frame))))))
+      (set-face-background face "unspecified-bg" (or frame (selected-frame))))
+    (set-face-foreground 'vertical-border "#555555" (or frame (selected-frame)))
+    (set-face-foreground 'window-divider "#555555" (or frame (selected-frame)))
+    (set-face-foreground 'window-divider-first-pixel "#555555" (or frame (selected-frame)))
+    (set-face-foreground 'window-divider-last-pixel "#555555" (or frame (selected-frame)))))
 
 (add-hook 'window-setup-hook #'my/terminal-transparent-bg)
 (add-hook 'after-make-frame-functions #'my/terminal-transparent-bg)
