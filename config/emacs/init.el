@@ -216,7 +216,7 @@
   (doom-modeline-buffer-encoding nil)
   (doom-modeline-vcs-max-length 20)
   (doom-modeline-minor-modes t)
-  (doom-modeline-buffer-file-name-style 'truncate-except-project))
+  (doom-modeline-buffer-file-name-style 'relative-from-project))
 
 ;; Hide minor modes in modeline
 (use-package minions
