@@ -65,3 +65,4 @@ keybind = ctrl+super+space=text:\x1b[32;13~
 keybind = super+i=text:\x1b[105;13~
 keybind = super+n=text:\x1b[110;13~
 keybind = cmd+c=text:\x1b[99;13~
+keybind = cmd+period=text:\x1b[46;13~

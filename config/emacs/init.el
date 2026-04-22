@@ -92,12 +92,17 @@
   (xterm-mouse-mode 1)
 
   ;; Better scrolling
-  (setq scroll-margin 3
+  (setq scroll-margin 1
         scroll-conservatively 101
         scroll-preserve-screen-position t)
 
+  (setq jit-lock-defer-time nil)
+
+  ;; Show match count during isearch
+  (setq isearch-lazy-count t)
+
   ;; Line numbers
-  (setq display-line-numbers-type 'relative)
+  (setq display-line-numbers-type t)
 
   ;; Delete selection on typing
   (delete-selection-mode 1)
@@ -195,7 +200,7 @@
    '(font-lock-property-name-face ((t :foreground "#9cdcfe")))
    '(font-lock-property-use-face ((t :foreground "#9cdcfe")))
    '(font-lock-punctuation-face ((t :foreground "#d4d4d4")))
-   '(font-lock-bracket-face ((t :foreground "#ffd700")))
+   '(font-lock-bracket-face ((t :foreground "#d4d4d4")))
    '(font-lock-preprocessor-face ((t :foreground "#c586c0")))
    '(font-lock-warning-face ((t :foreground "#f14c4c" :weight bold)))
    '(font-lock-escape-face ((t :foreground "#d7ba7d")))
@@ -269,7 +274,8 @@
   :bind (("C-x b" . consult-buffer)
          ("M-g g" . consult-goto-line)
          ("M-g M-g" . consult-goto-line)
-         ("M-s" . consult-ripgrep))
+         ("M-s" . consult-ripgrep)
+         ("M-s l" . consult-line))
   :config
   (setq consult-preview-key "M-."))
 
@@ -306,14 +312,12 @@
   :custom
   (corfu-cycle t)
   (corfu-auto t)
-  (corfu-auto-delay 0.1)
-  (corfu-auto-prefix 2)
+  (corfu-auto-delay 0.3)
+  (corfu-auto-prefix 3)
   (corfu-quit-no-match 'separator)
   (corfu-preview-current nil)
-  (corfu-popupinfo-delay 0.5)
   :config
   (global-corfu-mode 1)
-  (corfu-popupinfo-mode 1)
   (corfu-history-mode 1)
   (add-to-list 'savehist-additional-variables 'corfu-history))
 
@@ -326,12 +330,22 @@
   :config
   (corfu-terminal-mode 1))
 
-;; Cape - completion extensions (appended as fallbacks)
+;; Cape - file path completion as fallback
 (use-package cape
   :init
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
   (add-to-list 'completion-at-point-functions #'cape-file t)
-  (add-to-list 'completion-at-point-functions #'cape-keyword t))
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev t))
+
+;; Copilot - AI code completion
+(use-package copilot
+  :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
+  :diminish copilot-mode
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+         ("TAB" . copilot-accept-completion)
+         ("<tab>" . copilot-accept-completion)
+         ("M-<tab>" . copilot-next-completion)))
+
 
 ;; =============================================================================
 ;; Editing
@@ -340,6 +354,7 @@
 ;; Avy - jump to char/word/line
 (use-package avy
   :bind (("M-g c" . avy-goto-char)
+         ("M-g 2" . avy-goto-char-2)
          ("M-g w" . avy-goto-word-1)
          ("M-g l" . avy-goto-line)))
 
@@ -349,7 +364,6 @@
   :bind (("M-g d" . xref-find-definitions)
          ("M-g r" . xref-find-references)
          ("M-," . xref-go-back)
-         ("M-g a" . eglot-code-actions)
          ("M-g R" . eglot-rename)
          ("M-g i" . consult-imenu)))
 
@@ -364,12 +378,12 @@
          ("M-u" . mc/mark-all-like-this)
          ("C-S-u" . mc/mark-previous-like-this)))
 
-;; Smart parens
-(use-package smartparens
-  :diminish smartparens-mode
-  :hook (prog-mode . smartparens-mode)
-  :config
-  (require 'smartparens-config))
+;; Auto-close pairs (built-in, works reliably with tree-sitter modes)
+(electric-pair-mode 1)
+
+;; CamelCase-aware word movement (M-f/M-b stop at subword boundaries)
+(global-subword-mode 1)
+(diminish 'subword-mode)
 
 ;; Rainbow delimiters
 (use-package rainbow-delimiters
@@ -426,6 +440,7 @@
   :init
   (define-key input-decode-map "\e[32;13~" (kbd "C-s-SPC"))
   (define-key input-decode-map "\e[99;13~" (kbd "s-c"))
+  (define-key input-decode-map "\e[46;13~" (kbd "s-."))
   :config
   (setq treemacs-width 35
         treemacs-no-png-images t
@@ -497,7 +512,11 @@
          (magit-pre-refresh . diff-hl-magit-pre-refresh)
          (magit-post-refresh . diff-hl-magit-post-refresh))
   :config
-  (diff-hl-margin-mode))
+  (diff-hl-margin-mode)
+  (custom-set-faces
+   '(diff-hl-insert ((t :foreground "#3fb950")))
+   '(diff-hl-delete ((t :foreground "#f85149")))
+   '(diff-hl-change ((t :foreground "#d29922")))))
 
 ;; Git link
 (use-package git-link
@@ -527,28 +546,21 @@
          (html-mode . eglot-ensure)
          (yaml-mode . eglot-ensure)
          (eglot-managed-mode . (lambda ()
-                                 (font-lock-flush)
-                                 (eglot-inlay-hints-mode 1)
-                                 (eldoc-doc-buffer t))))
+                                 (eglot-inlay-hints-mode -1))))
   :config
   (setq eglot-autoshutdown t
         eglot-sync-connect 1
         eglot-send-changes-idle-time 0.1
-        eglot-ignored-server-capabilities '())
+        eglot-ignored-server-capabilities '(:inlayHintProvider
+                                          :documentHighlightProvider
+                                          :documentOnTypeFormattingProvider
+                                          :documentFormattingProvider
+                                          :semanticTokensProvider))
+  (setq eglot-code-action-indications nil)
 
   (add-to-list 'eglot-server-programs
                '((typescript-ts-mode tsx-ts-mode js-ts-mode) .
-                 ("typescript-language-server" "--stdio"
-                  :initializationOptions
-                  (:preferences
-                   (:includeInlayParameterNameHints "all"
-                    :includeInlayParameterNameHintsWhenArgumentMatchesName t
-                    :includeInlayFunctionParameterTypeHints t
-                    :includeInlayVariableTypeHints t
-                    :includeInlayVariableTypeHintsWhenTypeMatchesName t
-                    :includeInlayPropertyDeclarationTypeHints t
-                    :includeInlayFunctionLikeReturnTypeHints t
-                    :includeInlayEnumMemberValueHints t)))))
+                 ("typescript-language-server" "--stdio")))
 
   (add-to-list 'eglot-server-programs
                '((rust-ts-mode rust-mode) .
@@ -559,23 +571,7 @@
   (add-to-list 'eglot-server-programs '(sql-mode . ("sqls")))
   (add-to-list 'eglot-server-programs '(toml-ts-mode . ("taplo" "lsp" "stdio")))
   (add-to-list 'eglot-server-programs '(dockerfile-ts-mode . ("docker-langserver" "--stdio")))
-  (add-to-list 'eglot-server-programs '(yaml-mode . ("yaml-language-server" "--stdio")))
-
-  ;; Semantic token faces - Dark+ colors
-  (custom-set-faces
-   '(eglot-semantic-class ((t :foreground "#4EC9B0" :weight semi-bold)))
-   '(eglot-semantic-type ((t :foreground "#4EC9B0")))
-   '(eglot-semantic-interface ((t :foreground "#4EC9B0" :slant italic)))
-   '(eglot-semantic-enum ((t :foreground "#4EC9B0")))
-   '(eglot-semantic-variable ((t :foreground "#9CDCFE")))
-   '(eglot-semantic-parameter ((t :foreground "#9CDCFE" :slant italic)))
-   '(eglot-semantic-property ((t :foreground "#9CDCFE")))
-   '(eglot-semantic-function ((t :foreground "#DCDCAA")))
-   '(eglot-semantic-method ((t :foreground "#DCDCAA")))
-   '(eglot-semantic-namespace ((t :foreground "#4EC9B0" :weight semi-bold)))
-   '(eglot-semantic-enumMember ((t :foreground "#4FC1FF")))
-   '(eglot-semantic-readonly ((t :foreground "#4FC1FF")))
-   '(eglot-inlay-hint-face ((t :foreground "#858585" :slant italic :height 0.9)))))
+  (add-to-list 'eglot-server-programs '(yaml-mode . ("yaml-language-server" "--stdio"))))
 
 ;; Tree-sitter auto
 (use-package treesit-auto
@@ -663,11 +659,15 @@
       '((member_expression property: (property_identifier) @font-lock-property-use-face)
         (pair key: (property_identifier) @font-lock-property-name-face)
         (shorthand_property_identifier) @font-lock-variable-use-face))
+     ;; Variable references - light blue #9cdcfe
+     (treesit-font-lock-rules
+      :language lang :feature 'custom-variable :override nil
+      '((identifier) @font-lock-variable-use-face))
      ;; Constants (UPPER_CASE) - cyan #4fc1ff
      (treesit-font-lock-rules
       :language lang :feature 'ts-constant :override t
-      '((identifier) @ts-constant
-        (:match "^[A-Z][A-Z0-9_]+$" @ts-constant)))))
+      '(((identifier) @ts-constant
+         (:match "^[A-Z][A-Z0-9_]+$" @ts-constant))))))
 
   (defun my/tsx-treesit-rules ()
     "Generate Dark+ JSX-specific rules."
@@ -683,36 +683,36 @@
 
   ;; Advice to inject rules BEFORE mode setup completes
   (defun my/ts-inject-font-lock (orig-fun &rest args)
-    "Inject Dark+ rules before typescript-ts-mode setup."
+    "Inject Dark+ rules after typescript-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
                 (append treesit-font-lock-settings (my/ts-treesit-rules 'typescript)))
+    (treesit-major-mode-setup)
     (treesit-font-lock-recompute-features
      '(custom-control custom-storage custom-function-def custom-function-call
-                      custom-type custom-parameter custom-property custom-constant))
-    (treesit-major-mode-setup))
+                      custom-type custom-parameter custom-property custom-variable ts-constant)))
 
   (defun my/tsx-inject-font-lock (orig-fun &rest args)
-    "Inject Dark+ rules before tsx-ts-mode setup."
+    "Inject Dark+ rules after tsx-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
                 (append treesit-font-lock-settings
                         (my/ts-treesit-rules 'tsx)
                         (my/tsx-treesit-rules)))
+    (treesit-major-mode-setup)
     (treesit-font-lock-recompute-features
      '(custom-control custom-storage custom-function-def custom-function-call
-                      custom-type custom-parameter custom-property custom-constant custom-jsx))
-    (treesit-major-mode-setup))
+                      custom-type custom-parameter custom-property custom-variable ts-constant custom-jsx)))
 
   (defun my/js-inject-font-lock (orig-fun &rest args)
-    "Inject Dark+ rules before js-ts-mode setup."
+    "Inject Dark+ rules after js-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
                 (append treesit-font-lock-settings (my/ts-treesit-rules 'javascript)))
+    (treesit-major-mode-setup)
     (treesit-font-lock-recompute-features
      '(custom-control custom-storage custom-function-def custom-function-call
-                      custom-type custom-parameter custom-property custom-constant))
-    (treesit-major-mode-setup))
+                      custom-type custom-parameter custom-property custom-variable ts-constant)))
 
   (advice-add 'typescript-ts-mode :around #'my/ts-inject-font-lock)
   (advice-add 'tsx-ts-mode :around #'my/tsx-inject-font-lock)
@@ -785,14 +785,14 @@
         (attribute_item) @font-lock-preprocessor-face))))
 
   (defun my/rust-inject-font-lock (orig-fun &rest args)
-    "Inject Dark+ rules before rust-ts-mode setup."
+    "Inject Dark+ rules after rust-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
                 (append treesit-font-lock-settings (my/rust-treesit-rules)))
+    (treesit-major-mode-setup)
     (treesit-font-lock-recompute-features
      '(custom-control custom-storage custom-function-def custom-function-call
-                      custom-type custom-property custom-lifetime))
-    (treesit-major-mode-setup))
+                      custom-type custom-property custom-lifetime)))
 
   (advice-add 'rust-ts-mode :around #'my/rust-inject-font-lock))
 
@@ -846,14 +846,14 @@
         (dictionary_splat_pattern (identifier) @font-lock-variable-name-face)))))
 
   (defun my/python-inject-font-lock (orig-fun &rest args)
-    "Inject Dark+ rules before python-ts-mode setup."
+    "Inject Dark+ rules after python-ts-mode setup."
     (apply orig-fun args)
     (setq-local treesit-font-lock-settings
                 (append treesit-font-lock-settings (my/python-treesit-rules)))
+    (treesit-major-mode-setup)
     (treesit-font-lock-recompute-features
      '(custom-control custom-storage custom-function-def custom-function-call
-                      custom-type custom-property custom-parameter))
-    (treesit-major-mode-setup))
+                      custom-type custom-property custom-parameter)))
 
   (advice-add 'python-ts-mode :around #'my/python-inject-font-lock))
 
@@ -933,32 +933,60 @@
 ;; Productivity
 ;; =============================================================================
 
-;; Eldoc - type info and docs in a dedicated buffer
+;; Eldoc - type info in echo area (buffer on demand via C-h .)
 (use-package eldoc
   :straight nil
   :config
   (setq eldoc-documentation-strategy 'eldoc-documentation-compose-eagerly
-        eldoc-idle-delay 0.3
-        eldoc-echo-area-use-multiline-p nil)
-  (add-to-list 'display-buffer-alist
-               '("\\*eldoc\\*"
-                 (display-buffer-in-side-window)
-                 (side . bottom)
-                 (window-height . 4)))
-  (setq eldoc-display-functions '(eldoc-display-in-buffer)))
+        eldoc-idle-delay 0.75
+        eldoc-echo-area-use-multiline-p 1))
 
 ;; Flymake (built-in, used with eglot)
 (use-package flymake
   :straight nil
-  :hook (eglot-managed-mode . flymake-mode)
+  :hook ((eglot-managed-mode . flymake-mode)
+         (prog-mode . (lambda ()
+                        (setq-local left-margin-width 1)
+                        (set-window-margins (selected-window) 1))))
   :bind (("M-n" . flymake-goto-next-error)
-         ("M-p" . flymake-goto-prev-error)))
+         ("M-p" . flymake-goto-prev-error))
+  :init
+  (setq flymake-indicator-type 'margins
+        flymake-no-changes-timeout 0.3)
+  :config
+  (setq flymake-margin-indicators-string
+        '((error "●" compilation-error)
+          (warning "●" compilation-warning)
+          (note "●" compilation-info)))
+  (dolist (type '(flymake-error flymake-warning flymake-note))
+    (let ((key (cond ((eq type 'flymake-error) 'error)
+                     ((eq type 'flymake-warning) 'warning)
+                     (t 'note))))
+      (put type 'flymake-margin-string
+           (alist-get key flymake-margin-indicators-string))))
+  (custom-set-faces
+   '(flymake-error
+     ((((supports :underline (:style wave)))
+       :underline (:style wave :color "#f14c4c"))
+      (t :underline (:color "#f14c4c"))))
+   '(flymake-warning
+     ((((supports :underline (:style wave)))
+       :underline (:style wave :color "#cca700"))
+      (t :underline (:color "#cca700"))))
+   '(flymake-note
+     ((((supports :underline (:style wave)))
+       :underline (:style wave :color "#569cd6"))
+      (t :underline (:color "#569cd6"))))))
 
-;; YASnippet
+;; YASnippet (snippets offered through corfu, not expanded inline)
 (use-package yasnippet
   :diminish yas-minor-mode
   :hook (prog-mode . yas-minor-mode)
   :config
+  (setq yas-keymap-disable-hook
+        (list (lambda () (and (frame-live-p (selected-frame))
+                              (buffer-live-p (current-buffer))
+                              corfu--frame))))
   (run-with-idle-timer 2 nil #'yas-reload-all))
 
 (use-package yasnippet-snippets
@@ -1001,6 +1029,57 @@
   :hook (after-init . envrc-global-mode))
 
 ;; =============================================================================
+;; Claudemacs - Claude Code integration
+;; =============================================================================
+
+(use-package eat
+  :straight (:type git :host codeberg :repo "akib/emacs-eat")
+  :defer t
+  :config
+  (setq eat-term-scrollback-size 400000))
+
+(use-package claudemacs
+  :straight (:type git :host github :repo "cpoile/claudemacs")
+  :defer t
+  :commands (claudemacs-transient-menu)
+  :init
+  (define-key prog-mode-map (kbd "C-c C-e") #'claudemacs-transient-menu)
+  (define-key text-mode-map (kbd "C-c C-e") #'claudemacs-transient-menu)
+  :config
+  (setq claudemacs-switch-to-buffer-on-create nil
+        claudemacs-switch-to-buffer-on-send-error nil)
+
+  (defun claudemacs--get-flycheck-errors-on-line ()
+    "Get flymake diagnostics on the current line."
+    (when (bound-and-true-p flymake-mode)
+      (seq-filter
+       (lambda (d)
+         (memq (flymake-diagnostic-type d)
+               '(:error :warning eglot-error eglot-warning)))
+       (flymake-diagnostics (line-beginning-position) (line-end-position)))))
+
+  (defun claudemacs--format-flycheck-errors (diags)
+    "Format flymake DIAGS for Claude."
+    (cond
+     ((null diags) "")
+     ((= 1 (length diags))
+      (flymake-diagnostic-text (car diags)))
+     ((<= (length diags) 3)
+      (format "(%d errors: %s)"
+              (length diags)
+              (mapconcat #'flymake-diagnostic-text diags "; ")))
+     (t
+      (format "(%d errors including: %s; ...)"
+              (length diags)
+              (mapconcat #'flymake-diagnostic-text (seq-take diags 2) "; ")))))
+
+  (add-to-list 'display-buffer-alist
+               '("\\*claudemacs:.*\\*"
+                 (display-buffer-in-side-window)
+                 (side . right)
+                 (window-width . 0.40))))
+
+;; =============================================================================
 ;; Custom Keybindings
 ;; =============================================================================
 
@@ -1032,6 +1111,28 @@
 
 ;; Interactive find/replace across project
 (global-set-key (kbd "C-c r") #'project-query-replace-regexp)
+
+(defun my/eglot-filter-actions (actions)
+  (cl-remove-if (lambda (a)
+                  (string-match-p "Move to a new file" (plist-get a :title)))
+                (if (vectorp actions)
+                    (append actions nil)
+                  actions)))
+
+(defun my/eglot-code-actions ()
+  (interactive)
+  (let ((eglot--suggestion-overlay nil))
+    (eglot-code-actions (point) nil nil t)))
+
+(advice-add 'eglot--read-execute-code-action :around
+            (lambda (orig-fn actions &rest args)
+              (let ((filtered (my/eglot-filter-actions actions)))
+                (if filtered
+                    (apply orig-fn filtered args)
+                  (eglot--message "No code actions here")))))
+
+
+(global-set-key (kbd "s-.") #'my/eglot-code-actions)
 
 ;; ESC to quit
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
