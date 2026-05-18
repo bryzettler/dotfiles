@@ -564,8 +564,8 @@
 
   (add-to-list 'eglot-server-programs
                '((rust-ts-mode rust-mode) .
-                 ("rust-analyzer" :initializationOptions
-                  (:semanticHighlighting (:strings t :punctuation (:enable t))))))
+                 ("rustup" "run" "stable" "rust-analyzer" :initializationOptions
+                  (:check (:command "clippy")))))
 
   (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
   (add-to-list 'eglot-server-programs '(sql-mode . ("sqls")))
