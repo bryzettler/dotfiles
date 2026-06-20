@@ -32,12 +32,12 @@ keybind = cmd+right=text:\x05
 keybind = opt+backspace=text:\x1b\x7f
 keybind = cmd+backspace=text:\x15
 keybind = cmd+enter=toggle_fullscreen
-keybind = cmd+t=text:\x1bt
+keybind = cmd+t=text:\x1cc
 keybind = cmd+d=text:\x1bd
 keybind = cmd+shift+d=text:\x1bD
 keybind = cmd+w=text:\x1bw
-keybind = ctrl+tab=text:\x1b[27;5;9~
-keybind = ctrl+shift+tab=text:\x1b[27;6;9~
+keybind = ctrl+tab=text:\x1cn
+keybind = ctrl+shift+tab=text:\x1cp
 keybind = cmd+comma=text:\x1b,
 keybind = shift+enter=text:\n
 keybind = ctrl+super+space=text:\x1b[32;13~
