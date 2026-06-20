@@ -154,58 +154,11 @@
 ;; Theme & UI
 ;; =============================================================================
 
-;; Doom themes (Dark+ theme)
-(use-package doom-themes
+;; Catppuccin Mocha
+(use-package catppuccin-theme
   :config
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t)
-  (load-theme 'doom-dark+ t)
-  (doom-themes-org-config)
-
-  ;; Dark+ exact color overrides
-  ;; Reference: https://github.com/microsoft/vscode/blob/main/extensions/theme-defaults/themes/dark_plus.json
-  ;; Purple #c586c0 - control flow (import/export/if/return/await)
-  ;; Blue #569cd6 - storage keywords (const/let/function/class/this)
-  ;; Yellow #dcdcaa - functions (definitions and calls)
-  ;; Green #4ec9b0 - types (classes, interfaces, type annotations)
-  ;; Light Blue #9cdcfe - variables, parameters, properties
-  ;; Cyan #4fc1ff - constants (UPPER_CASE), enum members
-  ;; Orange #ce9178 - strings
-  ;; Light Green #b5cea8 - numbers
-  ;; Green #6a9955 - comments
-  (custom-set-faces
-   ;; Base colors
-   '(default ((t :foreground "#d4d4d4")))
-   '(cursor ((t :background "#aeafad")))
-   '(region ((t :background "#264f78")))
-   '(fringe ((t :background unspecified)))
-   '(line-number ((t :foreground "#858585")))
-   '(line-number-current-line ((t :foreground "#c6c6c6")))
-
-   ;; Syntax highlighting - Dark+ colors
-   '(font-lock-keyword-face ((t :foreground "#569cd6")))
-   '(font-lock-builtin-face ((t :foreground "#c586c0")))
-   '(font-lock-function-name-face ((t :foreground "#dcdcaa")))
-   '(font-lock-function-call-face ((t :foreground "#dcdcaa")))
-   '(font-lock-variable-name-face ((t :foreground "#9cdcfe")))
-   '(font-lock-variable-use-face ((t :foreground "#9cdcfe")))
-   '(font-lock-type-face ((t :foreground "#4ec9b0")))
-   '(font-lock-constant-face ((t :foreground "#4fc1ff")))
-   '(font-lock-string-face ((t :foreground "#ce9178")))
-   '(font-lock-comment-face ((t :foreground "#6a9955")))
-   '(font-lock-comment-delimiter-face ((t :foreground "#6a9955")))
-   '(font-lock-doc-face ((t :foreground "#6a9955")))
-   '(font-lock-number-face ((t :foreground "#b5cea8")))
-   '(font-lock-operator-face ((t :foreground "#d4d4d4")))
-   '(font-lock-property-name-face ((t :foreground "#9cdcfe")))
-   '(font-lock-property-use-face ((t :foreground "#9cdcfe")))
-   '(font-lock-punctuation-face ((t :foreground "#d4d4d4")))
-   '(font-lock-bracket-face ((t :foreground "#d4d4d4")))
-   '(font-lock-preprocessor-face ((t :foreground "#c586c0")))
-   '(font-lock-warning-face ((t :foreground "#f14c4c" :weight bold)))
-   '(font-lock-escape-face ((t :foreground "#d7ba7d")))
-   '(font-lock-regexp-grouping-backslash ((t :foreground "#d7ba7d")))
-   '(font-lock-regexp-grouping-construct ((t :foreground "#d7ba7d")))))
+  (setq catppuccin-flavor 'mocha)
+  (load-theme 'catppuccin t))
 
 ;; Doom modeline
 (use-package doom-modeline
@@ -514,9 +467,9 @@
   :config
   (diff-hl-margin-mode)
   (custom-set-faces
-   '(diff-hl-insert ((t :foreground "#3fb950")))
-   '(diff-hl-delete ((t :foreground "#f85149")))
-   '(diff-hl-change ((t :foreground "#d29922")))))
+   '(diff-hl-insert ((t :foreground "#a6e3a1")))
+   '(diff-hl-delete ((t :foreground "#f38ba8")))
+   '(diff-hl-change ((t :foreground "#fab387")))))
 
 ;; Git link
 (use-package git-link
@@ -590,16 +543,16 @@
          ("\\.tsx\\'" . tsx-ts-mode))
   :init
   ;; Custom faces for tree-sitter highlighting
-  (defface ts-control-keyword '((t :foreground "#c586c0")) "Control flow - purple")
-  (defface ts-storage-keyword '((t :foreground "#569cd6")) "Storage/declaration - blue")
-  (defface ts-this-keyword '((t :foreground "#569cd6")) "this keyword - blue")
-  (defface ts-constant '((t :foreground "#4fc1ff")) "Constants - cyan")
+  (defface ts-control-keyword '((t :foreground "#cba6f7")) "Control flow - mauve")
+  (defface ts-storage-keyword '((t :foreground "#89b4fa")) "Storage/declaration - blue")
+  (defface ts-this-keyword '((t :foreground "#89b4fa")) "this keyword - blue")
+  (defface ts-constant '((t :foreground "#89dceb")) "Constants - sky")
 
   :config
   (defun my/ts-treesit-rules (lang)
     "Generate Dark+ tree-sitter rules for LANG."
     (append
-     ;; Control keywords - purple #c586c0
+     ;; Control keywords - mauve
      (treesit-font-lock-rules
       :language lang :feature 'custom-control :override t
       '((["import" "from" "export" "default" "as"
@@ -609,7 +562,7 @@
           "new" "delete" "typeof" "instanceof"
           "in" "of" "await" "async" "yield"
           "with" "debugger"] @ts-control-keyword)))
-     ;; Storage keywords - blue #569cd6
+     ;; Storage keywords - blue
      (treesit-font-lock-rules
       :language lang :feature 'custom-storage :override t
       '((["const" "let" "var" "function" "class"
@@ -618,7 +571,7 @@
           "static" "abstract" "extends" "implements"
           "get" "set" "keyof" "infer" "satisfies"] @ts-storage-keyword)
         (this) @ts-this-keyword))
-     ;; Function/method definitions - yellow #dcdcaa
+     ;; Function/method definitions - yellow
      (treesit-font-lock-rules
       :language lang :feature 'custom-function-def :override t
       '((function_declaration name: (identifier) @font-lock-function-name-face)
@@ -627,13 +580,13 @@
         (method_signature name: (property_identifier) @font-lock-function-name-face)
         (variable_declarator name: (identifier) @font-lock-function-name-face value: (arrow_function))
         (pair key: (property_identifier) @font-lock-function-name-face value: [(function_expression) (arrow_function)])))
-     ;; Function/method calls - yellow #dcdcaa
+     ;; Function/method calls - yellow
      (treesit-font-lock-rules
       :language lang :feature 'custom-function-call :override t
       '((call_expression function: (identifier) @font-lock-function-call-face)
         (call_expression function: (member_expression property: (property_identifier) @font-lock-function-call-face))
         (new_expression constructor: (identifier) @font-lock-function-call-face)))
-     ;; Type annotations - green #4ec9b0
+     ;; Type annotations - green
      (treesit-font-lock-rules
       :language lang :feature 'custom-type :override t
       '((type_identifier) @font-lock-type-face
@@ -646,24 +599,24 @@
         (enum_declaration name: (identifier) @font-lock-type-face)
         (extends_clause value: (identifier) @font-lock-type-face)
         (implements_clause (type_identifier) @font-lock-type-face)))
-     ;; Parameters - light blue #9cdcfe
+     ;; Parameters - blue
      (treesit-font-lock-rules
       :language lang :feature 'custom-parameter :override t
       '((required_parameter pattern: (identifier) @font-lock-variable-name-face)
         (optional_parameter pattern: (identifier) @font-lock-variable-name-face)
         (required_parameter pattern: (object_pattern (shorthand_property_identifier_pattern) @font-lock-variable-name-face))
         (required_parameter pattern: (array_pattern (identifier) @font-lock-variable-name-face))))
-     ;; Property access - light blue #9cdcfe
+     ;; Property access - blue
      (treesit-font-lock-rules
       :language lang :feature 'custom-property :override nil
       '((member_expression property: (property_identifier) @font-lock-property-use-face)
         (pair key: (property_identifier) @font-lock-property-name-face)
         (shorthand_property_identifier) @font-lock-variable-use-face))
-     ;; Variable references - light blue #9cdcfe
+     ;; Variable references - blue
      (treesit-font-lock-rules
       :language lang :feature 'custom-variable :override nil
       '((identifier) @font-lock-variable-use-face))
-     ;; Constants (UPPER_CASE) - cyan #4fc1ff
+     ;; Constants (UPPER_CASE) - sky
      (treesit-font-lock-rules
       :language lang :feature 'ts-constant :override t
       '(((identifier) @ts-constant
@@ -967,16 +920,16 @@
   (custom-set-faces
    '(flymake-error
      ((((supports :underline (:style wave)))
-       :underline (:style wave :color "#f14c4c"))
-      (t :underline (:color "#f14c4c"))))
+       :underline (:style wave :color "#f38ba8"))
+      (t :underline (:color "#f38ba8"))))
    '(flymake-warning
      ((((supports :underline (:style wave)))
-       :underline (:style wave :color "#cca700"))
-      (t :underline (:color "#cca700"))))
+       :underline (:style wave :color "#f9e2af"))
+      (t :underline (:color "#f9e2af"))))
    '(flymake-note
      ((((supports :underline (:style wave)))
-       :underline (:style wave :color "#569cd6"))
-      (t :underline (:color "#569cd6"))))))
+       :underline (:style wave :color "#89b4fa"))
+      (t :underline (:color "#89b4fa"))))))
 
 ;; YASnippet (snippets offered through corfu, not expanded inline)
 (use-package yasnippet
@@ -1147,15 +1100,18 @@
   (unless (display-graphic-p (or frame (selected-frame)))
     (dolist (face '(default fringe line-number line-number-current-line
                     mode-line mode-line-inactive header-line
-                    vertical-border))
-      (set-face-background face "unspecified-bg" (or frame (selected-frame))))
-    (set-face-foreground 'vertical-border "#555555" (or frame (selected-frame)))
-    (set-face-foreground 'window-divider "#555555" (or frame (selected-frame)))
-    (set-face-foreground 'window-divider-first-pixel "#555555" (or frame (selected-frame)))
-    (set-face-foreground 'window-divider-last-pixel "#555555" (or frame (selected-frame)))))
+                    vertical-border treemacs-window-background-face))
+      (when (facep face)
+        (set-face-background face "unspecified-bg" (or frame (selected-frame)))))
+    (set-face-foreground 'vertical-border "#6c7086" (or frame (selected-frame)))
+    (set-face-foreground 'window-divider "#6c7086" (or frame (selected-frame)))
+    (set-face-foreground 'window-divider-first-pixel "#6c7086" (or frame (selected-frame)))
+    (set-face-foreground 'window-divider-last-pixel "#6c7086" (or frame (selected-frame)))))
 
 (add-hook 'window-setup-hook #'my/terminal-transparent-bg)
 (add-hook 'after-make-frame-functions #'my/terminal-transparent-bg)
+;; Re-apply once treemacs exists (it loads after window-setup-hook)
+(add-hook 'treemacs-mode-hook #'my/terminal-transparent-bg)
 (advice-add 'load-theme :after
             (lambda (&rest _) (my/terminal-transparent-bg)))
 

@@ -1,16 +1,17 @@
 { pkgs, ... }:
 
 let
-  # VS Code Dark+ colors
+  # Catppuccin Mocha
+  catppuccin = import ../theme/catppuccin.nix;
   colors = {
-    bg = "#1e1e1e";
-    fg = "#d4d4d4";
-    fg_dim = "#666666";
-    accent = "#569cd6";
-    accent_dim = "#264f78";
-    blue = "#3b8eea";
-    green = "#4ec9b0";
-    purple = "#cba6f7";
+    bg = catppuccin.base;
+    fg = catppuccin.text;
+    fg_dim = catppuccin.overlay0;
+    accent = catppuccin.blue;
+    accent_dim = catppuccin.surface1;
+    blue = catppuccin.sapphire;
+    green = catppuccin.green;
+    purple = catppuccin.mauve;
   };
 
   pulseLoop = pkgs.writeShellScript "tmux-pulse-loop" ''

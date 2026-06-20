@@ -7,6 +7,7 @@
     ../../modules/home/git.nix
     ../../modules/home/terminal/tmux.nix
     ../../modules/home/terminal/ghostty.nix
+    ../../modules/home/terminal/herdr.nix
     ../../modules/home/editors/emacs.nix
     ../../modules/home/tools/bat.nix
     ../../modules/home/tools/dev.nix

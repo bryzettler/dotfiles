@@ -1,0 +1,17 @@
+onboarding = false
+
+[theme]
+# Follow Ghostty's ANSI palette (now Catppuccin Mocha) instead of a built-in theme.
+name = "terminal"
+
+[keys]
+# Match tmux: ctrl+\ as the prefix (ctrl+b is emacs backward-char, and we run `emacs -nw`).
+prefix = 'ctrl+\'
+
+[ui.toast]
+# In-UI toasts (replaces the removed Claude Code notifier hooks).
+delivery = "herdr"
+
+[ui.toast.herdr]
+# top-right to line up with macOS native notifications.
+position = "top-right"
