@@ -15,3 +15,6 @@ delivery = "herdr"
 [ui.toast.herdr]
 # top-right to line up with macOS native notifications.
 position = "top-right"
+
+[ui]
+agent_panel_scope = "all"
