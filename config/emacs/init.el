@@ -320,6 +320,15 @@
          ("M-g R" . eglot-rename)
          ("M-g i" . consult-imenu)))
 
+;; Dumb-jump - ripgrep-based go-to-definition fallback when no LSP is attached.
+;; Runs after eglot's xref backend, before etags, so M-g d works in any buffer
+;; instead of dropping to the etags tag-list prompt.
+(use-package dumb-jump
+  :config
+  (setq dumb-jump-prefer-searcher 'rg
+        dumb-jump-force-searcher 'rg)
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+
 ;; Expand region
 (use-package expand-region
   :bind (("C-x ;" . er/expand-region)
@@ -341,6 +350,10 @@
 ;; Rainbow delimiters
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
+
+;; Highlight TODO / FIXME / HACK / NOTE keywords in comments
+(use-package hl-todo
+  :hook (prog-mode . hl-todo-mode))
 
 ;; Rainbow mode - colorize color strings in style files
 (use-package rainbow-mode
@@ -387,13 +400,20 @@
   :config
   (setq project-vc-extra-root-markers '(".project")))
 
+;; Breadcrumb - VSCode-style "project › file › symbol" trail in the header line
+(use-package breadcrumb
+  :hook (prog-mode . breadcrumb-local-mode))
+
 ;; Treemacs - project sidebar
 (use-package treemacs
   :commands (treemacs treemacs-select-window treemacs-add-and-display-current-project-exclusively)
   :init
-  (define-key input-decode-map "\e[32;13~" (kbd "C-s-SPC"))
-  (define-key input-decode-map "\e[99;13~" (kbd "s-c"))
-  (define-key input-decode-map "\e[46;13~" (kbd "s-."))
+  ;; Cmd keys arrive as ESC+<uppercase letter> (Meta chords), the only channel
+  ;; herdr forwards verbatim to a legacy pane. Fabricated CSI like "\e[99;13~"
+  ;; gets parsed and dropped by herdr's input re-encoder. See ghostty/config.
+  (define-key input-decode-map "\eT" (kbd "C-s-SPC"))
+  (define-key input-decode-map "\eC" (kbd "s-c"))
+  (define-key input-decode-map "\eA" (kbd "s-."))
   :config
   (setq treemacs-width 35
         treemacs-no-png-images t
@@ -465,6 +485,9 @@
          (magit-pre-refresh . diff-hl-magit-pre-refresh)
          (magit-post-refresh . diff-hl-magit-post-refresh))
   :config
+  ;; Terminal has no fringe, so git bars and flymake dots both want the margin.
+  ;; Put git bars on the RIGHT, leaving the left margin for flymake error dots.
+  (setq diff-hl-margin-side 'right)
   (diff-hl-margin-mode)
   (custom-set-faces
    '(diff-hl-insert ((t :foreground "#a6e3a1")))
@@ -474,6 +497,21 @@
 ;; Git link
 (use-package git-link
   :bind ("C-c g l" . git-link))
+
+;; Blamer - muted GitLens-style blame at end of the current line only
+(use-package blamer
+  :diminish blamer-mode
+  :custom
+  (blamer-idle-time 0.5)
+  (blamer-min-offset 40)
+  (blamer-type 'visual)
+  (blamer-author-formatter "  ✎ %s ")
+  (blamer-datetime-formatter "(%s)")
+  (blamer-commit-formatter " · %s")
+  :custom-face
+  (blamer-face ((t :foreground "#6c7086" :slant italic)))
+  :config
+  (global-blamer-mode 1))
 
 ;; =============================================================================
 ;; LSP & Languages (Eglot)
@@ -899,8 +937,10 @@
   :straight nil
   :hook ((eglot-managed-mode . flymake-mode)
          (prog-mode . (lambda ()
-                        (setq-local left-margin-width 1)
-                        (set-window-margins (selected-window) 1))))
+                        ;; Left margin = flymake error dots, right margin = diff-hl git bars
+                        (setq-local left-margin-width 1
+                                    right-margin-width 1)
+                        (set-window-margins (selected-window) 1 1))))
   :bind (("M-n" . flymake-goto-next-error)
          ("M-p" . flymake-goto-prev-error))
   :init
