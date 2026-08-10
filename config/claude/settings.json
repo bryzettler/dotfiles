@@ -1,61 +1,72 @@
 {
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
-    "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
-    "MAX_THINKING_TOKENS": "31999"
-  },
+  "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
-      "Bash(git:*)",
-      "Bash(yarn:*)",
-      "Bash(npm:*)",
-      "Bash(npx:*)",
-      "Bash(cargo:*)",
-      "Bash(anchor:*)",
-      "Bash(solana:*)",
-      "Bash(bun:*)",
-      "Bash(gh:*)",
-      "Bash(python3:*)",
-      "Bash(python:*)",
-      "Bash(pip:*)",
-      "Bash(docker:*)",
-      "Bash(docker-compose:*)",
-      "Bash(node -e:*)",
-      "Bash(rustc:*)",
-      "Bash(echo:*)",
-      "Bash(curl:*)",
-      "Bash(chmod:*)",
-      "Bash(grep:*)",
-      "Bash(rg:*)",
-      "Bash(cat:*)",
-      "Bash(ls:*)",
-      "Bash(head:*)",
-      "Bash(find:*)",
-      "Bash(tail:*)",
-      "Bash(mkdir:*)",
-      "Bash(mv:*)",
-      "Bash(cp:*)",
-      "Bash(touch:*)",
-      "Bash(wc:*)",
-      "Bash(sort:*)",
-      "Bash(uniq:*)",
-      "Bash(diff:*)",
-      "Bash(xargs:*)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(yarn *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(bun *)",
+      "Bash(pnpm *)",
+      "Bash(cargo *)",
+      "Bash(rustc *)",
+      "Bash(anchor *)",
+      "Bash(solana *)",
+      "Bash(python3 *)",
+      "Bash(python *)",
+      "Bash(pip *)",
+      "Bash(node -e *)",
+      "Bash(docker *)",
+      "Bash(docker-compose *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+      "Bash(find *)",
+      "Bash(wc *)",
+      "Bash(sort *)",
+      "Bash(uniq *)",
+      "Bash(diff *)",
+      "Bash(xargs *)",
+      "Bash(mkdir *)",
+      "Bash(mv *)",
+      "Bash(cp *)",
+      "Bash(touch *)",
+      "Bash(chmod *)",
+      "Bash(echo *)",
+      "Bash(curl *)",
+      "Bash(open *)",
+      "Bash(defuddle parse *)",
+      "Bash(claude mcp *)",
       "WebSearch",
-      "mcp__stitch"
+      "Skill(update-config)",
+      "Read(/Users/bry/.claude/plugins/cache/claude-plugins-official/**)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:developers.googleblog.com)"
     ],
-    "deny": ["Read(.env*)", "Bash(rm -rf:*)"],
+    "deny": [
+      "Read(.env*)",
+      "Bash(rm -rf *)"
+    ],
     "ask": [
-      "Bash(git push:*)",
-      "Bash(git rebase:*)",
-      "Bash(npm publish:*)",
-      "Bash(yarn publish:*)",
-      "Bash(cargo publish:*)",
-      "Bash(bun publish:*)",
-      "Bash(docker push:*)"
+      "Bash(git push *)",
+      "Bash(git rebase *)",
+      "Bash(npm publish *)",
+      "Bash(yarn publish *)",
+      "Bash(cargo publish *)",
+      "Bash(bun publish *)",
+      "Bash(docker push *)"
     ],
-    "defaultMode": "plan"
+    "defaultMode": "auto"
   },
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -64,6 +75,15 @@
           {
             "type": "command",
             "command": "~/.claude/hooks/block-destructive-git.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
           }
         ]
       }
@@ -77,15 +97,13 @@
             "command": "bash -c 'jq -r .tool_input.file_path | xargs npx prettier --write 2>/dev/null || true'"
           }
         ]
-      }
-    ],
-    "SessionStart": [
+      },
       {
-        "matcher": "",
+        "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/session-start-vault.sh"
+            "command": "python3 ~/.claude/hooks/check-comments.py"
           }
         ]
       }
@@ -96,31 +114,76 @@
         "hooks": [
           {
             "type": "command",
-            "command": "terminal-notifier -message \"Claude Code Finished\" -sound default"
-          },
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/stop-vault-logger.sh"
-          },
-          {
-            "type": "command",
             "command": "~/.config/tmux/pulse-start.sh"
-          }
-        ]
-      }
-    ],
-    "Notification": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "terminal-notifier -message \"Claude Code Needs Help\" -sound Basso"
           }
         ]
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "bash -c '\"/Users/bry/.bun/bin/bun\" \"$(ls -td ~/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts\"'"
+  },
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "context7@claude-plugins-official": false,
+    "frontend-design@claude-plugins-official": false,
+    "code-review@claude-plugins-official": false,
+    "code-simplifier@claude-plugins-official": false,
+    "skill-creator@claude-plugins-official": false,
+    "playwright@claude-plugins-official": false,
+    "claude-md-management@claude-plugins-official": false,
+    "ralph-loop@claude-plugins-official": false,
+    "claude-code-setup@claude-plugins-official": false,
+    "vercel@claude-plugins-official": false,
+    "superpowers@claude-plugins-official": false,
+    "caveman@caveman": false,
+    "superpowers@superpowers-marketplace": true,
+    "plannotator@plannotator": false,
+    "claude-hud@claude-hud": true,
+    "i-have-adhd@i-have-adhd": true,
+    "mattpocock-skills@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "superpowers-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "obra/superpowers-marketplace"
+      }
+    },
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    },
+    "plannotator": {
+      "source": {
+        "source": "github",
+        "repo": "backnotprop/plannotator"
+      }
+    },
+    "claude-hud": {
+      "source": {
+        "source": "github",
+        "repo": "jarrodwatts/claude-hud"
+      }
+    },
+    "i-have-adhd": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/bry/Documents/Work/i-have-adhd"
+      }
+    }
+  },
+  "effortLevel": "xhigh",
+  "autoCompactWindow": 180000,
   "prefersReducedMotion": true,
-  "reasoningEffort": "high"
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark-ansi",
+  "verbose": true,
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true
 }
