@@ -64,6 +64,12 @@ in
 
     functions = {
       fish_greeting = "";
+      # settings.json isn't symlinked (Claude Code rewrites it) — copy live → repo
+      claude-sync = ''
+        diff -u ~/.dotfiles/config/claude/settings.json ~/.claude/settings.json
+        cp ~/.claude/settings.json ~/.dotfiles/config/claude/settings.json
+        echo "synced ~/.claude/settings.json → dotfiles"
+      '';
       # Rename tmux window on directory change only (reduces flashing)
       cd = ''
         builtin cd $argv

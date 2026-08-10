@@ -9,6 +9,7 @@
     ../../modules/home/terminal/ghostty.nix
     ../../modules/home/terminal/herdr.nix
     ../../modules/home/editors/emacs.nix
+    ../../modules/home/claude.nix
     ../../modules/home/tools/bat.nix
     ../../modules/home/tools/dev.nix
     ../../modules/home/packages/node.nix
