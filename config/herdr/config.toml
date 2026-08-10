@@ -17,5 +17,9 @@ delivery = "herdr"
 position = "top-right"
 
 [ui]
-agent_panel_scope = "all"
 agent_panel_sort = "spaces"
+# Less chrome: no scrollbar column, no tab row until a second tab exists.
+pane_scrollbars = false
+hide_tab_bar_when_single_tab = true
+# Catppuccin Mocha mauve instead of the default cyan accent.
+accent = "#cba6f7"

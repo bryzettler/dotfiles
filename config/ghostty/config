@@ -14,6 +14,11 @@ theme = catppuccin-mocha
 font-size = 12
 window-padding-x = 12
 window-padding-y = 12
+window-padding-balance = true
+window-padding-color = extend
+adjust-cell-height = 15%
+font-thicken = true
+minimum-contrast = 1.1
 macos-titlebar-style = hidden
 cursor-style = block
 cursor-style-blink = false
@@ -39,14 +44,10 @@ keybind = cmd+w=text:\x1bw
 keybind = ctrl+tab=text:\x1cn
 keybind = ctrl+shift+tab=text:\x1cp
 keybind = cmd+comma=text:\x1b,
-keybind = shift+enter=text:\n
 # Emacs Cmd bindings via Meta chords (ESC+uppercase letter) — herdr forwards
 # these verbatim; fabricated CSI like \x1b[N;13~ gets re-parsed and dropped.
 keybind = ctrl+super+space=text:\x1bT
 keybind = cmd+c=text:\x1bC
 keybind = cmd+period=text:\x1bA
 keybind = ctrl+slash=text:\x1f
-# super+i / super+n: no emacs binding yet — left inert
-keybind = super+i=text:\x1b[105;13~
-keybind = super+n=text:\x1b[110;13~
 keybind = shift+enter=text:\x1b\r
