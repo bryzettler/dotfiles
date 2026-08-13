@@ -70,6 +70,14 @@ in
         cp ~/.claude/settings.json ~/.dotfiles/config/claude/settings.json
         echo "synced ~/.claude/settings.json → dotfiles"
       '';
+      # claude with auto permissions; first non-flag arg becomes the session name
+      cc = ''
+        if test (count $argv) -gt 0; and not string match -q -- '-*' $argv[1]
+          claude --permission-mode auto --name $argv[1] $argv[2..]
+        else
+          claude --permission-mode auto $argv
+        end
+      '';
       # Rename tmux window on directory change only (reduces flashing)
       cd = ''
         builtin cd $argv
