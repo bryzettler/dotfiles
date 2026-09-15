@@ -155,6 +155,10 @@
   "autoMode": {
     "soft_deny": [
       "$defaults"
+    ],
+    "allow": [
+      "$defaults",
+      "PR review submission: submitting a GitHub pull request review with `gh pr review` (approve or comment) or `gh api repos/<owner>/<repo>/pulls/<n>/reviews` (APPROVE or COMMENT event) is allowed. It is the output of the user's /review skill, publishes only review text and code suggestions to a repo the user already has push access to, and changes no branch or file."
     ]
   }
 }
