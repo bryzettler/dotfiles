@@ -46,6 +46,11 @@ fi
 
 cd "$DOTS_DIR"
 
+# git clean filter: keeps Claude Code's autoMode work context out of committed settings.json
+git config filter.claude-settings.clean "$DOTS_DIR/scripts/claude-settings-clean.sh"
+git config filter.claude-settings.smudge cat
+success "Registered claude-settings git filter"
+
 # 3. clone Steven Black hosts blocklist
 HOSTS_DIR="$HOME/.hosts-blocklist"
 if [[ ! -d "$HOSTS_DIR" ]]; then
