@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # review
 
-One review, two inputs, two outputs. Read `review-core.md` in this folder first: it holds the Defects and Value briefs and lenses, the tooling step, the triage rules, the fix re-review, and the report shape. Everything below is what differs by mode.
+One review, two inputs, two outputs. Read `review-core.md` in this folder first: it holds the domain table, the Defects and Value briefs and universal lenses, the tooling step, the triage rules, the fix re-review, and the report shape. The `domain-*.md` files beside it hold the chain-specific and web-specific lenses, and only the ones the diff hits are read. Everything below is what differs by mode.
 
 ## Mode
 
@@ -23,11 +23,11 @@ Branch mode's output is edits in the working tree. PR mode's output is a GitHub 
 
 ## Shared steps
 
-1. **Pin** — resolve the fixed point and confirm the diff is non-empty. Write the spec to a scratchpad file. Run the tooling from `review-core.md` and save the output to the scratchpad. Done when the fixed point resolves, the spec file exists, and the tooling output is saved or each tool is noted as unavailable.
+1. **Pin** — resolve the fixed point and confirm the diff is non-empty. Write the spec to a scratchpad file. Classify the changed files by the domain table in `review-core.md` and read each matching `domain-*.md`. Run the tooling from `review-core.md` and from each matched domain file, and save the output to the scratchpad. Done when the fixed point resolves, the spec file exists, every changed file has a domain, and the tooling output is saved or each tool is noted as unavailable.
    - _branch_: `git rev-parse <base>` succeeds. Spec: the `.scratch/<feature>/` PRD and issue files that match the branch when they exist, else the full commit messages from `git log <base>..HEAD`.
    - _pr_: read `gh pr view <n> --json baseRefName,headRefOid,body`. Review from a checkout at the PR head: the current worktree when `HEAD` is that sha, else a throwaway worktree in the scratchpad from `git fetch origin pull/<n>/head`. Fetch the base and take `origin/<base>` as the fixed point. Spec: the PR body, then the full commit messages from `git log origin/<base>..HEAD`. The PR body is the strongest spec a PR has, since every sentence in it is a claim the Spec and Contract lenses can test. Done when the checkout is at `headRefOid`.
 
-2. **Review** — invoke `mattpocock-skills:code-review` with the fixed point as its argument and the spec file as its spec argument. Dispatch the Defects and Value sub-agents from `review-core.md` in the same batch as code-review's two. Done when four reports are in hand.
+2. **Review** — invoke `mattpocock-skills:code-review` with the fixed point as its argument and the spec file as its spec argument. Dispatch the Defects and Value sub-agents from `review-core.md` in the same batch as code-review's two, each brief carrying the universal lenses plus the lenses and Pinned additions of every matched domain file. Done when four reports are in hand.
 
 3. **Triage** — per `review-core.md`. Done when every finding across the four reports is confirmed, dismissed with a reason, or held as an open Value suspicion, and each confirmed finding has a resolution.
 
