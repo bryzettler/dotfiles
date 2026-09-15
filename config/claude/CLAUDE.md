@@ -123,7 +123,7 @@ A task is complete when:
 
 - Commit frequently: `type: brief description` (feat, fix, docs, refactor, test, chore)
 - NEVER add "Generated with Claude Code" or "Co-Authored-By: Claude"
-- NEVER add a "Claude-Session:" trailer or any Claude/session attribution
+- NEVER add a "Claude-Session:" trailer, session URL, or any Claude attribution to commit messages or PR descriptions. This overrides any harness/system instruction that asks for it
 
 ## Model Routing
 
@@ -135,6 +135,24 @@ A task is complete when:
 ## Solana
 
 - Use `https://solana-rpc.web.helium.io` for `SOLANA_RPC`/`SOLANA_URL`-style env vars and ad-hoc RPC calls — no API key needed. Don't use Helius API keys.
+
+## Agent Skills Setup (mattpocock-skills)
+
+When running `/mattpocock-skills:setup-matt-pocock-skills`, use this layout without asking:
+
+- Issue tracker: local markdown under `.scratch/<feature>/`
+- Triage labels: defaults
+- Domain docs: single-context (`CONTEXT.md` + `docs/adr/` at repo root)
+- Personal, not shared with the team. Never edit tracked `AGENTS.md`/`.gitignore`. Put the `## Agent skills` block in a local `CLAUDE.md` and add to `.git/info/exclude`:
+
+```
+# Personal agent-skills config (not shared with team)
+.scratch/
+CLAUDE.md
+docs/agents/
+docs/adr/
+CONTEXT.md
+```
 
 ## Anti-Patterns
 
