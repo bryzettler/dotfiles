@@ -1,4 +1,8 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
@@ -6,17 +10,13 @@
       "Bash(gh *)",
       "Bash(yarn *)",
       "Bash(npm *)",
-      "Bash(npx *)",
       "Bash(bun *)",
       "Bash(pnpm *)",
       "Bash(cargo *)",
       "Bash(rustc *)",
       "Bash(anchor *)",
       "Bash(solana *)",
-      "Bash(python3 *)",
-      "Bash(python *)",
       "Bash(pip *)",
-      "Bash(node -e *)",
       "Bash(docker *)",
       "Bash(docker-compose *)",
       "Bash(ls *)",
@@ -30,12 +30,10 @@
       "Bash(sort *)",
       "Bash(uniq *)",
       "Bash(diff *)",
-      "Bash(xargs *)",
       "Bash(mkdir *)",
       "Bash(mv *)",
       "Bash(cp *)",
       "Bash(touch *)",
-      "Bash(chmod *)",
       "Bash(echo *)",
       "Bash(curl *)",
       "Bash(open *)",
@@ -66,7 +64,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "claude-fable-5[1m]",
+  "model": "fable",
   "hooks": {
     "PreToolUse": [
       {
@@ -127,37 +125,11 @@
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "context7@claude-plugins-official": false,
-    "frontend-design@claude-plugins-official": false,
-    "code-review@claude-plugins-official": false,
-    "code-simplifier@claude-plugins-official": false,
-    "skill-creator@claude-plugins-official": false,
-    "playwright@claude-plugins-official": false,
-    "claude-md-management@claude-plugins-official": false,
-    "ralph-loop@claude-plugins-official": false,
-    "claude-code-setup@claude-plugins-official": false,
-    "vercel@claude-plugins-official": false,
-    "superpowers@claude-plugins-official": false,
-    "caveman@caveman": false,
-    "superpowers@superpowers-marketplace": true,
     "plannotator@plannotator": false,
     "claude-hud@claude-hud": true,
-    "i-have-adhd@i-have-adhd": true,
     "mattpocock-skills@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
-    "superpowers-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "obra/superpowers-marketplace"
-      }
-    },
-    "caveman": {
-      "source": {
-        "source": "github",
-        "repo": "JuliusBrussee/caveman"
-      }
-    },
     "plannotator": {
       "source": {
         "source": "github",
@@ -169,15 +141,9 @@
         "source": "github",
         "repo": "jarrodwatts/claude-hud"
       }
-    },
-    "i-have-adhd": {
-      "source": {
-        "source": "directory",
-        "path": "/Users/bry/Documents/Work/i-have-adhd"
-      }
     }
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "medium",
   "autoCompactWindow": 180000,
   "prefersReducedMotion": true,
   "skipWorkflowUsageWarning": true,
@@ -185,5 +151,10 @@
   "verbose": true,
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "soft_deny": [
+      "$defaults"
+    ]
+  }
 }
