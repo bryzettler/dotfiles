@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # review
 
-One review, two inputs, two outputs. Read `review-core.md` in this folder first: it holds the domain table, the Defects and Value briefs and universal lenses, the tooling step, the triage rules, the fix re-review, and the report shape. The `domain-*.md` files beside it hold the chain-specific and web-specific lenses, and only the ones the diff hits are read. Everything below is what differs by mode.
+One review, two inputs, two outputs. Read `review-core.md` in this folder first: it holds the domain table, the tooling list, the triage rules, the fix re-review, and the report shape. `briefs.md` holds the four sub-agent briefs and the Defects and Value lenses, and the `domain-*.md` files hold the chain-specific and web-specific lenses; the sub-agents read those by path and the main loop never opens them. Everything below is what differs by mode.
 
 ## Mode
 
@@ -23,19 +23,19 @@ Branch mode's output is edits in the working tree. PR mode's output is a GitHub 
 
 ## Shared steps
 
-1. **Pin** — resolve the fixed point and confirm the diff is non-empty. Write the spec to a scratchpad file. Classify the changed files by the domain table in `review-core.md` and read each matching `domain-*.md`. Run the tooling from `review-core.md` and from each matched domain file, and save the output to the scratchpad. Done when the fixed point resolves, the spec file exists, every changed file has a domain, and the tooling output is saved or each tool is noted as unavailable.
+1. **Pin** — one `scout` agent (`general-purpose`, `model: "opus"`), so no tool output, spec text, or PR body enters the main loop. Its prompt carries the mode, the target, the scratchpad path, the domain table from `review-core.md`, and the tooling list from `review-core.md` plus the instruction to read the Tooling section of each matched `domain-*.md` in this folder. It resolves the fixed point, confirms the diff is non-empty, writes the spec to `<scratchpad>/spec.md`, classifies every changed file by the domain table, runs every supported tool with one output file per tool, and returns a manifest under 300 words: fixed point sha, checkout path, spec path, diff line count from `git diff --shortstat`, one line per changed file with its domains, tooling output paths, tools unavailable, the standards-source paths, and the project's lint and test commands. Done when the manifest names all of those and every changed file has a domain.
    - _branch_: `git rev-parse <base>` succeeds. Spec: the `.scratch/<feature>/` PRD and issue files that match the branch when they exist, else the full commit messages from `git log <base>..HEAD`.
-   - _pr_: read `gh pr view <n> --json baseRefName,headRefOid,body`. Review from a checkout at the PR head: the current worktree when `HEAD` is that sha, else a throwaway worktree in the scratchpad from `git fetch origin pull/<n>/head`. Fetch the base and take `origin/<base>` as the fixed point. Spec: the PR body, then the full commit messages from `git log origin/<base>..HEAD`. The PR body is the strongest spec a PR has, since every sentence in it is a claim the Spec and Contract lenses can test. Done when the checkout is at `headRefOid`.
+   - _pr_: `gh pr view <n> --json baseRefName,headRefOid,body`. Review from a checkout at the PR head: the current worktree when `HEAD` is that sha, else a throwaway worktree in the scratchpad from `git fetch origin pull/<n>/head`. Fetch the base and take `origin/<base>` as the fixed point. Spec: the PR body, then the full commit messages from `git log origin/<base>..HEAD`. The PR body is the strongest spec a PR has, since every sentence in it is a claim the Spec and Contract lenses can test. Done when the checkout is at `headRefOid`.
 
-2. **Review** — invoke `mattpocock-skills:code-review` with the fixed point as its argument and the spec file as its spec argument. Dispatch the Defects and Value sub-agents from `review-core.md` in the same batch as code-review's two, each brief carrying the universal lenses plus the lenses and Pinned additions of every matched domain file. Done when four reports are in hand.
+2. **Review** — dispatch the four sub-agents from `briefs.md` in one batch: Standards, Spec, Defects, Value. Each prompt carries the diff command and commit list, the spec path, the path of `briefs.md`, and a report path under the scratchpad; Standards adds the standards-source paths, Defects and Value add the matched `domain-*.md` paths and the tooling output paths. No lens, smell, or standards text is pasted. Done when four returns are in hand in the shape of the Return rule in `briefs.md`.
 
-3. **Triage** — per `review-core.md`. Done when every finding across the four reports is confirmed, dismissed with a reason, or held as an open Value suspicion, and each confirmed finding has a resolution.
+3. **Triage** — per `review-core.md`: fold duplicates, dispatch the verifiers, then resolve. Done when every finding across the four reports is confirmed, dismissed with a reason, or held as an open Value suspicion, and each confirmed finding has a resolution.
 
 4. **Gate** — zero confirmed findings and zero open Value suspicions is a clean diff.
    - _branch_: write the report and stop. Silence is the deliverable. An open Value suspicion is not silence: the report leads with it.
    - _pr_: all four axes agree the change is valid, so approve it: `gh pr review <n> --approve --body "LGTM"`. Write the report and stop. Zero confirmed findings but one or more open Value suspicions: no approval. Submit `gh pr review <n> --comment --body <file>` whose body asks the one question per suspicion that would close it, written to the "Public text" standard, then write the report and stop.
 
-Then continue with the steps for the mode. Both modes dispatch `fixer` once: it starts with no context and cannot ask, so every judgement call is settled before dispatch and the prompt states the change, not the reasoning. Per item: file and line, what is wrong, and the specific minimal edit. Plus the project's lint and test commands.
+Then continue with the steps for the mode. Both modes dispatch `fixer` once: it starts with no context and cannot ask, so every judgement call is settled before dispatch and the prompt states the change, not the reasoning. Per item: file and line, what is wrong, and the specific minimal edit. Plus the project's lint and test commands and a scratchpad path for their output.
 
 ## Branch mode
 
@@ -62,13 +62,13 @@ Then continue with the steps for the mode. Both modes dispatch `fixer` once: it 
 
 6. **Re-review the fix** — per `review-core.md`, against the fixer's diff in the checkout. Done when every drafted change passes the five lenses, or one follow-up `fixer` run has corrected the entries.
 
-7. **Redact** — read every `body` in the JSON as a stranger on the internet would, and rewrite it to the "Public text" standard. Done when each body's reason is stated purely in terms of the code visible in the PR diff.
+7. **Redact** — the fixer wrote each `body` to the "Public text" standard already. Read every body as a stranger on the internet would, and rewrite only the ones that fail; a passing body is left byte for byte. Done when each body's reason is stated purely in terms of the code visible in the PR diff.
 
-8. **Post** — list existing review comments (`gh api repos/{owner}/{repo}/pulls/<n>/comments`) and drop any entry whose marker, path and line already appear, so a rerun adds only new findings. Submit one review with `gh api repos/{owner}/{repo}/pulls/<n>/reviews --input <file>` where the payload is `{ "event": "COMMENT", "body": "<one-line summary>", "comments": [...] }` and every comment `body` starts with the marker `<!-- review -->`. `COMMENT` here and `APPROVE` only at the gate are the only two events this skill submits. Done when the API returns the review URL.
+8. **Post** — list existing marker comments as path and line only (`gh api --paginate repos/{owner}/{repo}/pulls/<n>/comments --jq '.[] | select(.body | startswith("<!-- review -->")) | {path, line}'`) and drop any entry whose path and line already appear, so a rerun adds only new findings. Submit one review with `gh api repos/{owner}/{repo}/pulls/<n>/reviews --input <file>` where the payload is `{ "event": "COMMENT", "body": "<one-line summary>", "comments": [...] }` and every comment `body` starts with the marker `<!-- review -->`. `COMMENT` here and `APPROVE` only at the gate are the only two events this skill submits. Done when the API returns the review URL.
 
 ## Cost budget
 
-Four review sub-agents (more only when the diff is split by size per `review-core.md`), one `fixer`, at most one follow-up `fixer`, the Defects and Value agents dispatched with `model: "fable"` and every other agent with `model: "opus"`, including the two that `code-review` has the main loop spawn. Fable also stays in the main loop for the judgement steps. Triage, the fix re-review, and redaction stay in the main loop. `fixer` is the only agent that edits; in PR mode it edits the checkout only, and nothing is pushed. The four axes are the whole review.
+One `scout`, four review sub-agents (more only when the diff is split by size per `review-core.md`), at most six verifiers, one `fixer`, at most one follow-up `fixer`. The Defects, Value, and verifier agents run with `model: "fable"` and every other agent with `model: "opus"`. Fable stays in the main loop for the resolutions, the +EV bar, the fix re-review, and redaction, and those work from returns and scratchpad paths: the main loop reads a source range or a report file only when a specific verdict needs it. No plugin skill is invoked. `fixer` is the only agent that edits; in PR mode it edits the checkout only, and nothing is pushed. The four axes are the whole review.
 
 ## Public text (PR mode)
 

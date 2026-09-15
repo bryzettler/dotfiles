@@ -4,7 +4,7 @@ Loaded for every diff that touches backend, frontend, jobs, infra, or config wit
 
 ## Tooling
 
-`tsc --noEmit` and the repo's lint script, `npm audit` (or `pnpm audit`), and the **trust-boundary grep** over the changed files, attached to the Value brief:
+`tsc --noEmit` and the repo's lint script, `npm audit` (or `pnpm audit`), and the **trust-boundary grep** over the changed files, saved by the scout and passed to the Value agent as a path:
 
 ```
 rg -n 'req\.(body|query|params|headers|cookies)|searchParams|process\.env|exec\(|spawn\(|eval\(|dangerouslySetInnerHTML|innerHTML|redirect\(|fetch\(|axios|cors|Access-Control|webhook|stripe|verify(Signature|Webhook)|jwt|session|cookie|admin|role|isAuthorized|middleware'

@@ -4,7 +4,7 @@ Loaded when the diff touches Solidity, Vyper, or a client that sends transaction
 
 ## Tooling
 
-`forge build` and `forge test` (or the Hardhat equivalents), `slither .` when installed, and the **external-call grep** over the changed contracts, attached to the Value brief:
+`forge build` and `forge test` (or the Hardhat equivalents), `slither .` when installed, and the **external-call grep** over the changed contracts, saved by the scout and passed to the Value agent as a path:
 
 ```
 rg -n '\.call\{?|\.delegatecall|\.staticcall|selfdestruct|ecrecover|tx\.origin|block\.timestamp|block\.number|msg\.value|transfer\(|transferFrom\(|safeTransfer|approve\(|_mint\(|_burn\(|initializer|_disableInitializers|onlyOwner|onlyRole|unchecked|assembly|receive\(\)|fallback\(\)|balanceOf\(address\(this\)\)|latestRoundData|getReserves|slot0'

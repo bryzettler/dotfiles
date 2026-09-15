@@ -4,7 +4,7 @@ Loaded when the diff touches a Solana program or a client that builds its transa
 
 ## Tooling
 
-Run the **raw-input grep** over the changed Rust files and attach every match to the Value brief:
+Run the **raw-input grep** over the changed Rust files and save every match; the scout passes the file to the Value agent as a path:
 
 ```
 rg -n 'invoke(_signed)?|CpiContext::new|new_with_signer|remaining_accounts|Instructions|load_(current_index|instruction_at)_checked|get_instruction_relative|ed25519|secp256(k1|r1)|UncheckedAccount|AccountInfo|try_from_unchecked|try_from_slice|try_borrow(_mut)?_data|init(_if_needed)?|close\s*=|realloc|create_program_address|bump\s*=|lamports|\.round\(|as u(8|16|32|64)|#\[account\(mut\)\]'
