@@ -15,6 +15,6 @@ One run, in order:
 2. Drive tdd (the `mattpocock-skills:tdd` skill) at those seams, one red-green slice at a time.
 3. Typecheck regularly and run single test files as you go.
 4. Run the full test suite once at the end.
-5. Commit to the current branch (`type: brief description`, no Claude attribution), then run the `mattpocock-skills:code-review` skill against the diff. Report its findings — do not act on them.
+5. Commit to the current branch (`type: brief description`; a `Co-Authored-By: Claude ...` trailer is fine, no `Claude-Session:` trailer or session URL), then run the `mattpocock-skills:code-review` skill against the diff. Report its findings — do not act on them.
 
 Your final report must account for every plan step — done, deviated, or blocked — include the actual output of the verification commands you ran (not just a claim that they passed), the commit hash, and the code-review findings.

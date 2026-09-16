@@ -1,9 +1,8 @@
 {
   "attribution": {
-    "commit": "",
+    "commit": "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>",
     "pr": ""
   },
-  "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
       "Bash(git *)",
