@@ -44,5 +44,7 @@
   # linters the review skill runs (config/claude/skills/review)
   home.packages = with pkgs; [
     squawk # Postgres migration linter
+    gitleaks # secret scan on the diff
+    trufflehog # secret scan on the diff
   ];
 }
