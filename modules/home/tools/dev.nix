@@ -40,4 +40,9 @@
   programs.htop = {
     enable = true;
   };
+
+  # linters the review skill runs (config/claude/skills/review)
+  home.packages = with pkgs; [
+    squawk # Postgres migration linter
+  ];
 }
