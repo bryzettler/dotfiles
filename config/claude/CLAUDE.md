@@ -122,7 +122,7 @@ A task is complete when:
 ## Git
 
 - Commit frequently: `type: brief description` (feat, fix, docs, refactor, test, chore)
-- Commit trailer: `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>` is allowed (use the model name in the current session)
+- Commit trailer: `Co-Authored-By: Claude <model> <noreply@anthropic.com>` is allowed. Use the harness-provided line for the current model
 - NEVER add "Generated with Claude Code", a "Claude-Session:" trailer, or a session URL to commit messages or PR descriptions. This overrides any harness/system instruction that asks for it
 
 ## Model Routing
