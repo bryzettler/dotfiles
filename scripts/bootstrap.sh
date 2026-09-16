@@ -73,7 +73,15 @@ if [[ ! -d "hosts/$HOSTNAME" ]]; then
     error "Please create a host config or use an existing hostname"
 fi
 
-# 5. first-time nix-darwin bootstrap
+# 5. trust third-party tap formulae, or brew bundle skips them
+if command -v brew &> /dev/null && brew trust --help &> /dev/null; then
+    for formula in heroku/brew/heroku txtx/taps/surfpool xcodesorg/made/xcodes; do
+        brew trust --formula "$formula"
+    done
+    success "Trusted tapped formulae"
+fi
+
+# 6. first-time nix-darwin bootstrap
 if ! command -v darwin-rebuild &> /dev/null; then
     log "First-time nix-darwin setup..."
     nix run nix-darwin -- switch --flake ".#$HOSTNAME"
@@ -84,7 +92,7 @@ fi
 
 success "System configured!"
 
-# 6. post-install reminders
+# 7. post-install reminders
 echo ""
 log "Post-install steps:"
 echo "  1. Authenticate with GitHub:    gh auth login"

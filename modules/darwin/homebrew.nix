@@ -14,6 +14,9 @@
 
     taps = [
       "homebrew/cask-fonts"
+      "heroku/brew"
+      "txtx/taps"
+      "xcodesorg/made"
     ];
 
     brews = [
@@ -58,6 +61,11 @@
       "readline"
       "enchant"
       "pkg-config"
+
+      # tapped (bootstrap.sh trusts these formulae before brew bundle runs)
+      "heroku/brew/heroku"
+      "txtx/taps/surfpool"
+      "xcodesorg/made/xcodes"
     ];
 
     casks = [
