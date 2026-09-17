@@ -11,6 +11,9 @@ in
   home.file.".claude/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/CLAUDE.md";
   home.file.".claude/RTK.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/RTK.md";
   home.file.".claude/agents/implementer.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/agents/implementer.md";
+  home.file.".claude/agents/fixer.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/agents/fixer.md";
+  home.file.".claude/skills/review".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/review";
+  home.file.".claude/skills/implement-tickets".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/implement-tickets";
   home.file.".claude/hooks/block-destructive-git.sh".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/hooks/block-destructive-git.sh";
   home.file.".claude/hooks/check-comments.py".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/hooks/check-comments.py";
 }
