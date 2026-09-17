@@ -1,6 +1,7 @@
 ---
 name: review
-description: Use when the user asks to review a branch, the current diff, or a PR. Four-axis review; branch mode applies fixes, PR mode posts inline suggestions or an LGTM approval when clean.
+description: Four-axis review of a branch against develop (fixes applied) or of a PR (inline suggestions, or an LGTM approval when clean).
+disable-model-invocation: true
 ---
 
 # review
