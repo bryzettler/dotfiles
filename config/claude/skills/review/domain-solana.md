@@ -12,6 +12,8 @@ rg -n 'invoke(_signed)?|CpiContext::new|new_with_signer|remaining_accounts|Instr
 
 Every match is a place the program does a security-critical check by hand instead of through Anchor's account validation, or moves or reads a token balance, and each one is a required stop for the Value agent. `cargo geiger` when installed, for `unsafe` blocks.
 
+The program's own tests are tooling too, as `forge test` is for EVM: `cargo test` for the unit tests, and `anchor test` (or `cargo test-sbf`, or the repo's litesvm or bankrun script, whichever the manifest or `Anchor.toml` names) for the instruction tests. The scout runs them once, output saved as a path, when no CI check already runs them. A program change with no instruction test to run is itself a Pinned hit.
+
 ## Entry map
 
 The **raw-input map**: every CPI, every `init`, `init_if_needed`, `realloc`, migration, and `close`, every loop over `remaining_accounts`, every manual PDA derivation, every manual deserialisation of an `AccountInfo`, every read of the Instructions sysvar or a signature precompile, every token transfer, and every read of a token or lamport balance. These are the places the program checks by hand what Anchor would otherwise check for it, and the grep output in the brief lists the candidates. A Pinocchio or native program has no Anchor layer: every account of every changed instruction is on the map, and its signer, owner, writable, address, and discriminator checks each have to appear in code.
