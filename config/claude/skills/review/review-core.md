@@ -23,7 +23,9 @@ Each domain file holds its tooling, its entry map (what the Value agent enumerat
 
 ## Tooling
 
-The scout runs whichever of these the repo supports, one output file per tool in the scratchpad: `cargo clippy --all-targets`, `cargo audit`, `npm audit` (or `pnpm audit`), `gitleaks detect` or `trufflehog filesystem` on the diff, and `squawk` on changed `.sql` files. Then the tooling of each domain file. Deterministic and near free. The Defects and Value prompts carry the paths. Record in the report which ran and which were unavailable, from the scout's manifest.
+The scout runs whichever of these the repo supports, one output file per tool in the scratchpad: `cargo clippy --all-targets`, `cargo audit`, `npm audit` (or `pnpm audit`), `gitleaks detect` or `trufflehog filesystem` on the diff, and `squawk` on changed `.sql` files. Then the tooling of each domain file. Deterministic and near free. Every review prompt carries the paths. Record in the report which ran and which were unavailable, from the scout's manifest.
+
+A tooling hit on a changed line (an unused import, a lint error, a type error the diff introduced) is a confirmed finding on its own, resolved as "fix the code" and handed to the fixer as an item without a verifier. No agent re-derives what a tool already reported, and the Standards brief skips it.
 
 The scout also lists the standards sources for the Standards brief and resolves issue references in the commit messages (`#123`, `Closes #45`) through `docs/agents/issue-tracker.md` when that file exists, folding the issue text into the spec file. No agent asks the user anything; a missing spec is written into the spec file as "no spec".
 
@@ -39,6 +41,8 @@ The main loop reads the verdicts, not the code. A CONFIRMED verdict whose restat
 
 A Value finding is different. Confirmed the same way, but a Value hit or suspicion the main loop cannot confirm is not dismissed: it goes to the report's **open suspicions** section with what was checked and what was not. Silence is never the answer to a possible loss of funds or data. Value findings are defects; the +EV bar below does not apply to them.
 
+An open suspicion is closed this round when the repo can close it. Before it is written as open, name the source that would settle it: a release workflow, a deploy script, a manifest, a config, a fixture. When that source is in the repo, a verifier reads it now and returns CONFIRMED, DISMISSED, or OPEN with the `file:line`. Only a suspicion whose answer lives outside the repo (a mainnet simulation, a production measurement, a team's process) stays open, and it goes to the state file so the next round carries it instead of re-deriving it. In a delta round a carried suspicion is re-verified only when the delta touches a file it names; otherwise it is copied forward unchanged.
+
 A non-defect finding (Standards smell, Spec scope note, cleanup) is confirmed only when it clears the **+EV bar**: the change makes the logic easier to follow, or makes it measurably more efficient. Stylistic, lateral, or "how I would have written it" changes are below the bar and change nothing.
 
 Every confirmed finding gets one resolution, chosen in the main loop:
@@ -53,4 +57,4 @@ After the fixer's edits land, read its diff against the five lenses that a fix m
 
 ## Report shape
 
-A severity table first: one row per confirmed finding with file, axis or lens, severity. Then five lists: fixed in code, fixed in the claim, left as is with the reasoning, open suspicions (Value only, each with what was checked and what was not), dismissed with the reason. Then lint and test results, as pass or fail per command from the fixer's return, with the failing lines when any. Then a coverage line: domains, files read, files not read, tools run, tools unavailable. On the zero path, the open suspicions and dismissed lists plus the coverage line.
+A severity table first: one row per confirmed finding with file, axis or lens, severity. Then five lists: fixed in code, fixed in the claim, left as is with the reasoning, open suspicions (Value only, each with what was checked and what was not, and whether it was carried from a prior round), dismissed with the reason. Then lint and test results, as pass or fail per command from the fixer's return, with the failing lines when any, and the entries marked unproven. Then a coverage line: round (full or delta since `<last>`), domains, files read, files not read, axes skipped, tools run, tools unavailable. On the zero path, the open suspicions and dismissed lists plus the coverage line.
