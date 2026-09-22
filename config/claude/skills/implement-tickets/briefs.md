@@ -14,7 +14,7 @@ A ticket is `NN-slug.md` with a header the scout parses:
 - `**Type:**` free text (feature, bug, spec, chore).
 - `**Status:**` one of `ready-for-agent`, `in-progress`, `done`, `failed`, `claimed`, `resolved`. A file with no parseable `Status:` is a planning or map ticket.
 - `**Blocked by:**` ticket numbers. The list may wrap across lines: read to the end of the sentence. Prose like "must merge before X" is ordering advice, not a blocker.
-- `**Tier:**` optional, `opus` or `fable`, set by a human; it wins over the rubric.
+- `**Tier:**` optional, `standard` or `deep` (legacy `opus` and `fable` mean the same), set by a human; it wins over the rubric.
 - Acceptance criteria as `- [ ]` checkboxes. They are the definition of done.
 - Relative links (`../spec.md`, prototypes) resolve against the ticket's own directory.
 
@@ -31,14 +31,14 @@ State classes the scout assigns:
 
 ## Tier rubric
 
-The scout proposes one tier per candidate ticket. Opus is the default and needs no reason. Fable is proposed when any of these holds, and the manifest names which:
+The scout proposes one tier per candidate ticket. Standard is the default and needs no reason. Deep is proposed when any of these holds, and the manifest names which:
 
 - **Value** — the change touches funds, authority, keys, an on-chain program or contract, a database migration, or a concurrency or scheduling path.
 - **Open design** — an acceptance criterion needs a decision the spec does not make: a data model, a public interface, an algorithm choice.
 - **Depth** — the ticket asks for a root-cause fix of a bug with no reproduction, or a performance change with a numeric target.
-- **Pinned** — `**Tier:** fable` in the header. `**Tier:** opus` pins the other way and overrides every signal above.
+- **Pinned** — `**Tier:** deep` in the header. `**Tier:** standard` pins the other way and overrides every signal above.
 
-A ticket that is many small mechanical edits, a cut across several modules or repos, a rename, a config change, a test backfill, or a straight port of a described function is opus even when it is long.
+A ticket that is many small mechanical edits, a cut across several modules or repos, a rename, a config change, a test backfill, or a straight port of a described function is standard even when it is long.
 
 ## Scout
 
@@ -54,7 +54,7 @@ A ticket that is many small mechanical edits, a cut across several modules or re
 
 ## Implementer
 
-`implementer` agent, opus by default, `model: "fable"` for the fable tier. The prompt carries: the ticket path, the spec path with section numbers, the notes folder when exploration ran, the repo path(s), the base ref, the scratchpad path for this ticket, and the path of this file. On an escalation it also carries the opus run's mismatch text.
+`implementer` agent for the standard tier, `implementer-deep` for the deep tier. The prompt carries: the ticket path, the spec path with section numbers, the notes folder when exploration ran, the repo path(s), the base ref, the scratchpad path for this ticket, and the path of this file. On an escalation it also carries the standard run's mismatch text.
 
 > Read the ticket at the path given; its relative links resolve against its own directory. Read the spec sections named, the notes folder if given, and the target repo's `CLAUDE.md` before writing code. All work happens in the repo, and the tickets folder stays untouched. Branch from the base ref given, named after the ticket (`NN-slug`), in a worktree when the repo's conventions say so. Implement per your agent definition, with one change: skip its code-review step, since the orchestrator reviews the branch after every ticket in the repo lands. Commit locally; the branch stays unpushed and no PR is opened. The acceptance criteria are the definition of done: run the repo's verification (tests, lint, typecheck) and check each criterion. Save every verification command's full output to the scratchpad path given, one file per command. Return under 250 words in this shape: `outcome:` one of `done` (every criterion verified or the unverified ones named with why), `mismatch` (the ticket or spec leaves a decision open or conflicts with the code; state the question in one sentence and stop without guessing), or `blocked` (an environmental failure: name the tool, infrastructure, or dependency); then repo, branch, worktree path, commit hashes, per verification command its pass or fail with the output file path and on failure the failing lines only, the acceptance criteria as met or unmet, and anything left unverified with the reason.
 

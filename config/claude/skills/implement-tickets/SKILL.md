@@ -21,16 +21,16 @@ Folder given: use it. None: glob `.scratch/*/issues` from the current directory.
 
 3. **Execute** — the frontier loop. Tickets in different repos run concurrently; tickets in the same repo run one at a time in topological order, because they share files and their blockers encode real ordering. Each `done` recomputes the frontier and unlocks dependents within the same run. Per dispatched ticket:
    1. **Claim** — edit the ticket, `Status: ready-for-agent` → `Status: in-progress`.
-   2. **Dispatch** one `implementer` at the ticket's tier: opus tier is `subagent_type: "implementer"` as is; fable tier adds `model: "fable"` (effort stays at the agent's medium). The prompt carries only pointers: the ticket path; the spec path plus the ticket's section numbers; the notes folder when exploration ran; the repo path(s); the base ref to branch from (the branch of the most recent `done` blocker in the same repo when one exists, else the repo's default branch); the scratchpad path `<scratchpad>/<NN>/` for verification output; and the path of `briefs.md`. Done when the return arrives in the shape of the Return rule in `briefs.md`.
+   2. **Dispatch** one `implementer` at the ticket's tier: standard tier is `subagent_type: "implementer"` (effort medium); deep tier is `subagent_type: "implementer-deep"` (effort high). Both run on opus. The prompt carries only pointers: the ticket path; the spec path plus the ticket's section numbers; the notes folder when exploration ran; the repo path(s); the base ref to branch from (the branch of the most recent `done` blocker in the same repo when one exists, else the repo's default branch); the scratchpad path `<scratchpad>/<NN>/` for verification output; and the path of `briefs.md`. Done when the return arrives in the shape of the Return rule in `briefs.md`.
    3. **Record** — by the return's outcome:
       - `done` → `Status: done`, tick only the acceptance-criteria boxes the return lists as verified, append the Agent result section below.
-      - `mismatch` from an opus run (the ticket or spec leaves a design decision open, or the plan conflicts with the code) → escalate once: leave `in-progress`, re-dispatch at fable with the same pointers plus the opus return's mismatch text, and note the escalation in the Agent result. A fable `mismatch` → `Status: failed`; its question goes to the report for the user.
+      - `mismatch` from a standard run (the ticket or spec leaves a design decision open, or the plan conflicts with the code) → escalate once: leave `in-progress`, re-dispatch at deep with the same pointers plus the standard return's mismatch text, and note the escalation in the Agent result. A deep `mismatch` → `Status: failed`; its question goes to the report for the user.
       - `blocked` (a missing tool, broken test infrastructure, a dependency that does not build) → `Status: failed`, no retry; its dependents become waiting.
 
       ```markdown
       ## Agent result (<date>)
 
-      Repo: <path> · Branch: <name> · Worktree: <path> · Tier: <opus|fable, escalated?>
+      Repo: <path> · Branch: <name> · Worktree: <path> · Tier: <standard|deep, escalated?>
       <2-4 sentences: what landed, verification evidence paths, anything left unverified>
       ```
 
@@ -42,11 +42,11 @@ Folder given: use it. None: glob `.scratch/*/issues` from the current directory.
 
 ## Tiers
 
-Opus is the default: the `implementer` agent as defined. Fable is for tickets the rubric in `briefs.md` marks as significant: money, authority, on-chain, migration, or concurrency paths, and design decisions the spec leaves to the implementer. A human pins a tier with `**Tier:** fable` or `**Tier:** opus` in the ticket header, and that wins over the rubric. Escalation is the only main-loop override, and only upward.
+Standard is the default: the `implementer` agent. Deep is the `implementer-deep` agent, the same contract at effort high, for tickets the rubric in `briefs.md` marks as significant: money, authority, on-chain, migration, or concurrency paths, and design decisions the spec leaves to the implementer. A human pins a tier with `**Tier:** deep` or `**Tier:** standard` in the ticket header (`fable` and `opus` are read as `deep` and `standard`), and that wins over the rubric. Escalation is the only main-loop override, and only upward.
 
 ## Cost budget
 
-One scout, explorers only on the scout's recommendation, one implementer per ticket plus at most one fable escalation, one reviewer per repo. Every agent runs on opus except fable-tier implementers. The implementer's own code-review step is skipped; the reviewer covers each branch once. Nothing is pushed and no PR is opened.
+One scout, explorers only on the scout's recommendation, one implementer per ticket plus at most one deep escalation, one reviewer per repo. Every agent runs on opus. The implementer's own code-review step is skipped; the reviewer covers each branch once. Nothing is pushed and no PR is opened.
 
 ## Guardrails
 

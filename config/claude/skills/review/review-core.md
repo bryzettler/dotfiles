@@ -33,7 +33,7 @@ The scout also lists the standards sources for the Standards brief and resolves 
 
 Main loop. First fold hits that share file, line, and mechanism across axes into one, keeping the higher severity and both axis names. Then every finding ends **confirmed**, **dismissed**, or (Value only) **open**, each with a stated reason.
 
-Defects and Value hits are verified by **verifier** agents (`general-purpose`, `model: "opus"`; `model: "fable"` when the group holds a Value hit), so the code reading happens outside the main loop. Group the folded hits by file; one verifier per file, and when more than six files have hits, one per top-level directory. Each prompt carries that group's hits with their evidence packets, the spec path, the path of `briefs.md`, and this brief:
+Defects and Value hits are verified by **verifier** agents (`general-purpose`, `model: "opus"`), so the code reading happens outside the main loop. Group the folded hits by file; one verifier per file, and when more than six files have hits, one per top-level directory. Each prompt carries that group's hits with their evidence packets, the spec path, the path of `briefs.md`, and this brief:
 
 > Read the code each hit points at and whatever it depends on; the packet is a starting point, not the evidence. For each hit return one of: CONFIRMED with the failure scenario restated in your own words, the input or state then the wrong outcome, under 80 words; DISMISSED with the specific reason the scenario cannot happen; or, for a Value hit only, OPEN with what you checked and what you could not. Quote the `file:line` that settles each verdict. Nothing else.
 
