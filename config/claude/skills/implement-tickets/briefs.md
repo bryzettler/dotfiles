@@ -33,13 +33,12 @@ State classes the scout assigns:
 
 The scout proposes one tier per candidate ticket. Opus is the default and needs no reason. Fable is proposed when any of these holds, and the manifest names which:
 
-- **Cut** — the ticket edits three or more modules or packages, or two repos.
 - **Value** — the change touches funds, authority, keys, an on-chain program or contract, a database migration, or a concurrency or scheduling path.
 - **Open design** — an acceptance criterion needs a decision the spec does not make: a data model, a public interface, an algorithm choice.
 - **Depth** — the ticket asks for a root-cause fix of a bug with no reproduction, or a performance change with a numeric target.
 - **Pinned** — `**Tier:** fable` in the header. `**Tier:** opus` pins the other way and overrides every signal above.
 
-A ticket that is many small mechanical edits, a rename, a config change, a test backfill, or a straight port of a described function is opus even when it is long.
+A ticket that is many small mechanical edits, a cut across several modules or repos, a rename, a config change, a test backfill, or a straight port of a described function is opus even when it is long.
 
 ## Scout
 
@@ -61,6 +60,6 @@ A ticket that is many small mechanical edits, a rename, a config change, a test 
 
 ## Reviewer
 
-`general-purpose`, fable. The prompt carries: the repo path, each branch to review with its base ref, the scratchpad path, and the path of this file.
+`general-purpose`, opus. The prompt carries: the repo path, each branch to review with its base ref, the scratchpad path, and the path of this file.
 
 > The review skill lives at `~/.claude/skills/review/`. Read its `SKILL.md` and `review-core.md`, then run it in branch mode once per branch given, from the repo path, with `<base>` set to that branch's base ref and the branch checked out. Fixes are applied and committed to the reviewed branch as the skill's branch mode does. Write each branch's report to `<scratchpad>/review-<branch>.md`. Return under 300 words per branch: the severity table, counts fixed in code, fixed in the claim, and left as is, open Value suspicions verbatim, lint and test pass or fail per command with the failing lines when any, and the report path.

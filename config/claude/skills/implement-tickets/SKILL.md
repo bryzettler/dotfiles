@@ -36,17 +36,17 @@ Folder given: use it. None: glob `.scratch/*/issues` from the current directory.
 
    4. Stop when the frontier is empty or `--max` is reached.
 
-4. **Review** — skip when `--max` stopped early or tickets are still waiting, and say so. Per repo that received work, one `reviewer` (`general-purpose`, `model: "fable"`), all repos concurrently. Its prompt carries the repo path, each branch to review with its base ref (the tip of each stacked chain against the chain's fork point on the default branch, and each independent branch against its own fork point), the scratchpad path, and the path of `briefs.md`. It runs the review skill in branch mode with fixes applied. Done when its return holds the severity table and per-command lint and test results for every branch. Then remove implementer worktrees (`git worktree remove`) and keep the branches.
+4. **Review** — skip when `--max` stopped early or tickets are still waiting, and say so. Per repo that received work, one `reviewer` (`general-purpose`, `model: "opus"`), all repos concurrently. Its prompt carries the repo path, each branch to review with its base ref (the tip of each stacked chain against the chain's fork point on the default branch, and each independent branch against its own fork point), the scratchpad path, and the path of `briefs.md`. It runs the review skill in branch mode with fixes applied. Done when its return holds the severity table and per-command lint and test results for every branch. Then remove implementer worktrees (`git worktree remove`) and keep the branches.
 
 5. **Report** — a table: ticket · outcome · tier · repo · branch · one-line note. Then waiting tickets with what unblocks each, escalations, the reviewer's severity tables and lint and test results per repo, and the reminder that branches are unpushed and the same command resumes safely.
 
 ## Tiers
 
-Opus is the default: the `implementer` agent as defined. Fable is for tickets the rubric in `briefs.md` marks as significant: cross-module or cross-repo cuts, money, authority, on-chain, migration, or concurrency paths, and design decisions the spec leaves to the implementer. A human pins a tier with `**Tier:** fable` or `**Tier:** opus` in the ticket header, and that wins over the rubric. Escalation is the only main-loop override, and only upward.
+Opus is the default: the `implementer` agent as defined. Fable is for tickets the rubric in `briefs.md` marks as significant: money, authority, on-chain, migration, or concurrency paths, and design decisions the spec leaves to the implementer. A human pins a tier with `**Tier:** fable` or `**Tier:** opus` in the ticket header, and that wins over the rubric. Escalation is the only main-loop override, and only upward.
 
 ## Cost budget
 
-One scout, explorers only on the scout's recommendation, one implementer per ticket plus at most one fable escalation, one reviewer per repo. Every agent runs on opus except fable-tier implementers and the reviewer. The implementer's own code-review step is skipped; the reviewer covers each branch once. Nothing is pushed and no PR is opened.
+One scout, explorers only on the scout's recommendation, one implementer per ticket plus at most one fable escalation, one reviewer per repo. Every agent runs on opus except fable-tier implementers. The implementer's own code-review step is skipped; the reviewer covers each branch once. Nothing is pushed and no PR is opened.
 
 ## Guardrails
 

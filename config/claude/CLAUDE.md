@@ -127,7 +127,7 @@ A task is complete when:
 
 ## Model Routing
 
-- Spec planning and debugging: handle in the main loop (Fable)
+- Spec planning and debugging: handle in the main loop (Opus)
 - Implementation of an approved plan: delegate to the `implementer` agent (Opus)
 - Trivial/mechanical tasks: handle inline in the main loop
 - Skip delegation when the task needs conversation context or back-and-forth
