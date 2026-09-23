@@ -43,6 +43,7 @@
       "curl"
       "gnupg"
       "zizmor"
+      "cargo-audit"
 
       # languages
       "fnm"
