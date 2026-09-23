@@ -42,6 +42,7 @@
       "wget"
       "curl"
       "gnupg"
+      "zizmor"
 
       # languages
       "fnm"
