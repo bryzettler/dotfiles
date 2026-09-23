@@ -1,6 +1,6 @@
 # Domain: Solana
 
-Loaded when the diff touches a Solana program or a client that builds its transactions. Sources: the sealevel-attacks catalogue, the Neodyme pitfalls, and the Cashio, Wormhole, Jet, Solend, Candy Machine, and SPL lending post-mortems collected at github.com/sannykim/solsec, and the Token-2022 checklist in the solana-foundation/solana-dev-skill security reference.
+Loaded when the diff touches a Solana program, a client that builds its transactions, or a script or workflow that decodes, verifies, or deploys it. Sources: the sealevel-attacks catalogue, the Neodyme pitfalls, and the Cashio, Wormhole, Jet, Solend, Candy Machine, and SPL lending post-mortems collected at github.com/sannykim/solsec, and the Token-2022 checklist in the solana-foundation/solana-dev-skill security reference.
 
 ## Tooling
 

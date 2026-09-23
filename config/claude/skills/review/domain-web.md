@@ -1,6 +1,6 @@
 # Domain: Web
 
-Loaded for every file with no chain signal: backend, frontend (Next.js, React Router, React Native), jobs, infra, config. Also loaded beside a chain domain for the client that talks to the chain, and beside `database` for query and migration code.
+Loaded for every file with no chain or CI signal: backend, frontend (Next.js, React Router, React Native), jobs, infra, config. Also loaded beside a chain domain for the client that talks to the chain, and beside `database` for query and migration code.
 
 ## Tooling
 
