@@ -7,7 +7,7 @@ description: Use when the user asks to implement, work through, or orchestrate a
 
 Work a folder of ticket markdown files to done. Tickets are a **task graph**: `Blocked by:` edges define a **frontier** of tickets ready to run. One fresh-context implementer per ticket, routed to the cheapest tier the ticket allows. State lives in each ticket's `Status:` field, so a re-run after a usage-limit stop, crash, or `/clear` resumes where it left off.
 
-The main loop's context is the scarce resource. Ticket bodies, spec text, verification output, and review reports go to sub-agents and scratchpad files and reach the main loop as paths and short returns. `briefs.md` in this folder holds every sub-agent brief, the ticket grammar, and the tier rubric; sub-agents read it by path and the main loop never opens it. The main loop's only writes are `Status:` edits and `## Agent result` sections in ticket files, and the only ticket files it edits are the ones it dispatched.
+The main loop's context is the scarce resource. Ticket bodies, spec text, verification output, and review reports go to sub-agents and scratchpad files and reach the main loop as paths and short returns. `briefs.md` in this folder holds every sub-agent brief, the ticket grammar, and the tier rubric; sub-agents read it by path. The main loop's only writes are `Status:` edits and `## Agent result` sections in ticket files, and the only ticket files it edits are the ones it dispatched.
 
 **Invocation:** `/implement-tickets [issues-folder] [--dry-run] [--only NN,NN] [--max N]`
 
@@ -15,30 +15,33 @@ Folder given: use it. None: glob `.scratch/*/issues` from the current directory.
 
 ## Steps
 
-1. **Plan** — one `scout` (`general-purpose`, `model: "opus"`). Its prompt carries the issues folder path, the `--only` list, the scratchpad path, and the path of `briefs.md`. It parses every ticket, reads the spec, resolves and verifies repo paths, classifies each ticket, computes the topological order and the frontier, proposes a tier per ticket from the rubric, writes `<scratchpad>/plan.md`, and returns a manifest under 300 words: one row per ticket (number, title, state, repo paths, blockers, tier with a one-phrase reason), the spec path, repos it could not resolve, and whether exploration would save repeated research and on what. Done when every `*.md` in the folder has a row and every repo path is verified or listed as unresolved. Ask the user about unresolved repos. Print the table. `--dry-run` stops here.
+1. **Plan** — one `scout` (`general-purpose`, `model: "opus"`). Its prompt carries the issues folder path, the `--only` list, the scratchpad path, and the path of `briefs.md`. It parses every ticket, reads the spec, resolves and verifies repo paths, classifies each ticket, computes the topological order and the frontier, proposes a tier per ticket from the rubric, assigns each ticket its PR group, writes `<scratchpad>/plan.md`, and returns a manifest under 300 words: one row per ticket (number, title, state, repo paths, blockers, tier with a one-phrase reason, PR group), the spec path, repos it could not resolve, and whether exploration would save repeated research and on what. Done when every `*.md` in the folder has a row and every repo path is verified or listed as unresolved. Ask the user about unresolved repos. Print the table. `--dry-run` stops here.
 
 2. **Explore** — only when the scout recommends it: one `explorer` (`general-purpose`, `model: "opus"`) per research topic. Its prompt carries the topic, the spec path, the repo paths, the notes folder `<issues-folder>/../notes/`, and the path of `briefs.md`. Done when it returns the list of note files it wrote.
 
-3. **Execute** — the frontier loop. Tickets in different repos run concurrently; tickets in the same repo run one at a time in topological order, because they share files and their blockers encode real ordering. Each `done` recomputes the frontier and unlocks dependents within the same run. Per dispatched ticket:
+3. **Execute** — the frontier loop. Tickets in different repos run concurrently; tickets in the same repo run one at a time in topological order, because they share files and their blockers encode real ordering. A ticket holds its repo's slot until its review lands. Each reviewed `done` recomputes the frontier and unlocks dependents within the same run. A `done` ticket with no `Reviewed:` line (a run that stopped between the two) gets its ticket review (step 3.4) before anything branches from it. Per dispatched ticket:
    1. **Claim** — edit the ticket, `Status: ready-for-agent` → `Status: in-progress`.
-   2. **Dispatch** one `implementer` at the ticket's tier: standard tier is `subagent_type: "implementer"` (effort medium); deep tier is `subagent_type: "implementer-deep"` (effort high). Both run on opus. The prompt carries only pointers: the ticket path; the spec path plus the ticket's section numbers; the notes folder when exploration ran; the repo path(s); the base ref to branch from (the branch of the most recent `done` blocker in the same repo when one exists, else the repo's default branch); the scratchpad path `<scratchpad>/<NN>/` for verification output; and the path of `briefs.md`. Done when the return arrives in the shape of the Return rule in `briefs.md`.
+   2. **Dispatch** one `implementer` at the ticket's tier: standard tier is `subagent_type: "implementer"` (effort medium); deep tier is `subagent_type: "implementer-deep"` (effort high). Both run on opus. The prompt carries only pointers: the ticket path; the spec path plus the ticket's section numbers; the notes folder when exploration ran; the repo path(s); the base ref to branch from (the `Reviewed:` sha of the most recent `done` blocker in the same repo when one exists, else the repo's default branch); the scratchpad path `<scratchpad>/<NN>/` for verification output; and the path of `briefs.md`. Done when the return arrives in the shape of the Return rule in `briefs.md`.
    3. **Record** — by the return's outcome:
       - `done` → `Status: done`, tick only the acceptance-criteria boxes the return lists as verified, append the Agent result section below.
-      - `mismatch` from a standard run (the ticket or spec leaves a design decision open, or the plan conflicts with the code) → escalate once: leave `in-progress`, re-dispatch at deep with the same pointers plus the standard return's mismatch text, and note the escalation in the Agent result. A deep `mismatch` → `Status: failed`; its question goes to the report for the user.
+      - `mismatch` from a standard run (the ticket or spec leaves a design decision open, the plan conflicts with the code, or the spec contradicts the real system) → escalate once: leave `in-progress`, re-dispatch at deep with the same pointers plus the standard return's mismatch text, and note the escalation in the Agent result. A deep `mismatch` → `Status: failed`; its question goes to the report for the user.
       - `blocked` (a missing tool, broken test infrastructure, a dependency that does not build) → `Status: failed`, no retry; its dependents become waiting.
 
       ```markdown
       ## Agent result (<date>)
 
       Repo: <path> · Branch: <name> · Worktree: <path> · Tier: <standard|deep, escalated?>
-      <2-4 sentences: what landed, verification evidence paths, anything left unverified>
+      <2-4 sentences: what landed, verification evidence paths>
+      Unverified: <the return's unverified claims, one per line, or "none">
       ```
 
-   4. Stop when the frontier is empty or `--max` is reached.
+   4. **Review the ticket** — one `reviewer` (`general-purpose`, `model: "opus"`) on the ticket's branch against the base ref it branched from. Its prompt carries the repo path, the worktree path, the branch, the base ref, the ticket's `Unverified:` lines as follow-ups, round `t`, the scratchpad path `<scratchpad>/<NN>/`, and the path of `briefs.md`. Done when the return names the head sha it reviewed after its fixes, and lint and tests pass. Append `Reviewed: <sha> (<report path>)` to the ticket's Agent result, and carry each spec question to the report. A failing lint or test run leaves the ticket `done` with no `Reviewed:` line, and its dependents wait.
 
-4. **Review** — skip when `--max` stopped early or tickets are still waiting, and say so. Per repo that received work, one `reviewer` (`general-purpose`, `model: "opus"`), all repos concurrently. Its prompt carries the repo path, each branch to review with its base ref (the tip of each stacked chain against the chain's fork point on the default branch, and each independent branch against its own fork point), the scratchpad path, and the path of `briefs.md`. It runs the review skill in branch mode with fixes applied. Done when its return holds the severity table and per-command lint and test results for every branch. Then remove implementer worktrees (`git worktree remove`) and keep the branches.
+   5. Stop when the frontier is empty or `--max` is reached.
 
-5. **Report** — a table: ticket · outcome · tier · repo · branch · one-line note. Then waiting tickets with what unblocks each, escalations, the reviewer's severity tables and lint and test results per repo, and the reminder that branches are unpushed and the same command resumes safely.
+4. **Harden** — never skipped: it reviews what landed, and a waiting, failed, or unrun ticket is named in the report, not a reason to stop. Per PR group, one `reviewer` round at a time on the group's tip against the base its PR will target: the previous group's tip when groups stack, else the fork point on the default branch. Groups in different repos run concurrently. Groups in one stack run bottom up, and before a stacked group's first round, merge the lower group's final tip into its branch, so the lower group's review fixes reach it. Each round is a full review of that diff. Run another round while the last one confirmed any finding, up to three rounds per group. Done when every `done` ticket's `Reviewed:` sha is an ancestor of a tip that a final round reviewed (`git merge-base --is-ancestor`), and each group's last round either confirmed nothing or is the third. Then remove implementer worktrees (`git worktree remove`) and keep the branches.
+
+5. **Report** — lead with every spec question from any review, verbatim, with its ticket and spec line: those need the user. Then a table: ticket · outcome · tier · repo · branch · reviewed sha · one-line note. Then per PR group: rounds run, each round's confirmed count, the last round's severity table, open suspicions, and lint and test results, and whether it ended clean or at the cap. Then waiting tickets with what unblocks each, escalations, and the reminder that branches are unpushed and the same command resumes safely.
 
 ## Tiers
 
@@ -46,7 +49,7 @@ Standard is the default: the `implementer` agent. Deep is the `implementer-deep`
 
 ## Cost budget
 
-One scout, explorers only on the scout's recommendation, one implementer per ticket plus at most one deep escalation, one reviewer per repo. Every agent runs on opus. The implementer's own code-review step is skipped; the reviewer covers each branch once. Nothing is pushed and no PR is opened.
+One scout, explorers only on the scout's recommendation, one implementer per ticket plus at most one deep escalation, one reviewer per `done` ticket, and one to three reviewer rounds per PR group. Each reviewer runs the whole review skill, so review is the larger share of a run's agents; that is the price of a branch that lands clean. Every agent runs on opus. The implementer's own code-review step is skipped, since the ticket review replaces it. Nothing is pushed and no PR is opened.
 
 ## Guardrails
 
