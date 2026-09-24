@@ -4,7 +4,7 @@ Loaded for every file with no chain or CI signal: backend, frontend (Next.js, Re
 
 ## Tooling
 
-`tsc --noEmit --noUnusedLocals --noUnusedParameters` (the flags catch what a fix commit leaves behind) and the repo's lint script, `npm audit` (or `pnpm audit`), and the **trust-boundary grep** over the changed files, saved by the scout and passed to the Value agent as a path:
+`tsc --noEmit --noUnusedLocals --noUnusedParameters` (the flags catch what a fix commit leaves behind) and the repo's lint script, `npm audit` (or `pnpm audit`) when the diff changes a manifest or lockfile, and the **trust-boundary grep** over the changed files, saved by the scout and passed to the Value agent as a path:
 
 ```
 rg -n 'req\.(body|query|params|headers|cookies)|searchParams|process\.env|exec\(|spawn\(|eval\(|dangerouslySetInnerHTML|innerHTML|redirect\(|fetch\(|axios|cors|Access-Control|webhook|stripe|verify(Signature|Webhook)|jwt|session|cookie|admin|role|isAuthorized|middleware|use server|use client|revalidate(Path|Tag)|AsyncStorage|SecureStore|Linking\.'

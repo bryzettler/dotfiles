@@ -12,7 +12,7 @@ rg -n 'invoke(_signed)?|CpiContext::new|new_with_signer|remaining_accounts|Instr
 
 Every match is a place the program does a security-critical check by hand instead of through Anchor's account validation, or moves or reads a token balance, and each one is a required stop for the Value agent. `cargo geiger` when installed, for `unsafe` blocks.
 
-The program's own tests are tooling too, as `forge test` is for EVM: `cargo test` for the unit tests, and `anchor test` (or `cargo test-sbf`, or the repo's litesvm or bankrun script, whichever the manifest or `Anchor.toml` names) for the instruction tests. The scout runs them once, output saved as a path, when no CI check already runs them. A program change with no instruction test to run is itself a Pinned hit.
+The program's own tests are tooling too, as `forge test` is for EVM: `cargo test` for the unit tests, and `anchor test` (or `cargo test-sbf`, or the repo's litesvm or bankrun script, whichever the manifest or `Anchor.toml` names) for the instruction tests. When no CI check already runs them, they run once as test runs per `review-core.md`: the scout returns the commands, and the main loop starts them in the background. A program change with no instruction test to run is itself a Pinned hit.
 
 ## Entry map
 
