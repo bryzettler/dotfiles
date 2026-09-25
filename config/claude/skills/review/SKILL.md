@@ -44,7 +44,7 @@ Then continue with the steps for the mode. Both modes dispatch `fixer` once: it 
 
 5. **Fix** — one `fixer` run carrying every code and claim resolution. Done when every item has an edit or a reported mismatch, and lint and tests pass or the failures are shown to pre-exist on `<base>`.
 
-6. **Re-review the fix** — per `review-core.md`. Done when every fixer edit passes the five lenses, or one follow-up `fixer` run has landed the corrections.
+6. **Re-review the fix** — per `review-core.md`. Done when every fixer edit passes the six lenses, or one follow-up `fixer` run has landed the corrections.
 
 ## PR mode
 

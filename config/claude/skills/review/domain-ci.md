@@ -32,4 +32,4 @@ The **secret-scope map**: every job that can read a secret, a signing key, a dep
 
 ## Pinned additions
 
-A change-detection script: a transitive fixture, and a change to a shared file. A tag or path matcher: the near-miss string it must reject. A cleanup step: a test or a documented dry run of the cancel path. A workflow script with unit tests (`node --test`, `pytest`): some workflow runs them on every PR; a test suite no CI job runs pins nothing.
+A change-detection script: a transitive fixture, and a change to a shared file. A tag or path matcher: the near-miss string it must reject. A cleanup step: a test or a documented dry run of the cancel path.

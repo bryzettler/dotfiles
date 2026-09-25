@@ -33,7 +33,7 @@ Step 4 in PR mode. Approve when all four axes agree the change is valid and the 
 
    The fixer proves each edit with the narrowest command that covers it: the type check, the lint script, and the unit test file it touched. It does not start a validator, a database, or a chain node, and it does not run an end-to-end suite. An edit whose only proof is such a suite goes out with the entry marked `"unproven": "<suite name>"` in the JSON, its comment `body` ends with the line "Not run against `<suite name>`.", and the report lists those. The author sees the flag where the fence is, not only the reviewer in the terminal. The prompt also carries the PR head sha, the base branch, the checkout path, the lint and test commands, the JSON path and shape, the anchoring rules, and the "Public text" standard for comment bodies. Done when every item has an entry and the checks it ran pass on the edited checkout, or a failure is shown to pre-exist at the PR head.
 
-6. **Re-review the fix** — per `review-core.md`, against the fixer's diff in the checkout. Done when every drafted change passes the five lenses, or one follow-up `fixer` run has corrected the entries.
+6. **Re-review the fix** — per `review-core.md`, against the fixer's diff in the checkout. Done when every drafted change passes the six lenses, or one follow-up `fixer` run has corrected the entries.
 
 7. **Redact** — the fixer wrote each `body` to the "Public text" standard already. Read every body as a stranger on the internet would, and rewrite only the ones that fail; a passing body is left byte for byte. Done when each body's reason is stated purely in terms of the code visible in the PR diff.
 
