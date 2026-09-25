@@ -12,23 +12,32 @@ A ticket is `NN-slug.md` with a header the scout parses:
 
 - `# NN — title`
 - `**Type:**` free text (feature, bug, spec, chore).
-- `**Status:**` one of `ready-for-agent`, `in-progress`, `done`, `failed`, `claimed`, `resolved`. A file with no parseable `Status:` is a planning or map ticket.
+- `**Status:**` one of `ready-for-agent`, `needs-triage`, `in-progress`, `done`, `failed`, `claimed`, `resolved`. A file with no parseable `Status:` is a planning or map ticket.
 - `**Blocked by:**` ticket numbers. The list may wrap across lines: read to the end of the sentence. Prose like "must merge before X" is ordering advice, not a blocker.
 - `**Tier:**` optional, `standard` or `deep` (legacy `opus` and `fable` mean the same), set by a human; it wins over the rubric.
-- `**PR:**` optional, the name of the PR the ticket ships in, set by a human; it wins over the scout's grouping.
+- `**PR:**` optional, the name of the PR the ticket ships in, set by a human; it wins over the scout's grouping. The name is also the branch name, so it follows the Branch names rule below.
+
+## PR groups
+
+Fewer PRs are better. One PR per ticket is wrong, and so is one PR per spec issue. Put tickets in one group when they are in the same repo and ship or deploy together. Split a group only for one of these reasons: the tickets are in different repos; a spec gives a reason that the parts must roll out apart (not only "one PR each"); or the diff is too large for one review. Name the reason for each split in the plan.
+
+## Branch names
+
+A group's name is its branch name. Use the repo's convention: read `git branch -r` and the repo's `CLAUDE.md`. With no convention, use `<type>/<slug>`: the type is `feat`, `fix`, or `chore`, and the slug says what the change does in 3–6 words (`fix/sink-refresh-stall-publisher-cursor-bound`). Do not put ticket numbers, `pr-NN`, or a sequence number in the name; they tell a reviewer nothing and go stale when groups merge.
+
 - Acceptance criteria as `- [ ]` checkboxes. They are the definition of done.
 - Relative links (`../spec.md`, prototypes) resolve against the ticket's own directory.
 
 State classes the scout assigns:
 
-| Status | Class |
-| --- | --- |
-| none, `resolved` | skipped: not agent-actionable |
-| `claimed` | skipped: owned elsewhere |
-| `in-progress` | skipped: died mid-run, user decides |
-| `done`, `failed` | skipped |
-| `ready-for-agent`, every blocker `done`, `resolved`, or a non-actionable ticket whose output exists | **frontier** |
-| `ready-for-agent`, any blocker `claimed`, `in-progress`, `failed`, or `ready-for-agent` | **waiting** |
+| Status                                                                                              | Class                               |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| none, `resolved`, `needs-triage`                                                                    | skipped: not agent-actionable       |
+| `claimed`                                                                                           | skipped: owned elsewhere            |
+| `in-progress`                                                                                       | skipped: died mid-run, user decides |
+| `done`, `failed`                                                                                    | skipped                             |
+| `ready-for-agent`, every blocker `done`, `resolved`, or a non-actionable ticket whose output exists | **frontier**                        |
+| `ready-for-agent`, any blocker `claimed`, `in-progress`, `failed`, or `ready-for-agent`             | **waiting**                         |
 
 ## Tier rubric
 
@@ -45,13 +54,13 @@ A ticket that is many small mechanical edits, a cut across several modules or re
 
 `general-purpose`, opus. The prompt carries: the issues folder path, the `--only` list, the scratchpad path, and the path of this file.
 
-> Read every `*.md` in the issues folder and parse each by the Ticket grammar in this file. Read the spec the tickets reference (usually `../spec.md`); its section structure names the target repo per ticket. Resolve repo names to absolute paths against, in order: explicit paths in the spec or ticket, the current directory, and the parent of the directory containing `.scratch`. Verify each path exists with `ls`. Classify every ticket by the State classes table, compute the topological order from `Blocked by:`, mark the frontier, and propose a tier per frontier and waiting ticket by the Tier rubric. Assign every candidate ticket a PR group: its `**PR:**` header, else the PR the spec or map puts it in (a "part 1", a PR list, a release split), else one group per repo. Record for each group which group it stacks on, if any. Apply `--only` as a filter on candidates, not on blockers. Write the full plan to `<scratchpad>/plan.md`: the table, the spec section numbers per ticket, the repo paths, and the PR groups. Recommend exploration only when two or more tickets would repeat the same codebase or external research, and name the topic. Return under 300 words: one row per file (number, title, state, repo paths, blockers, tier with a one-phrase reason, PR group, or the skip reason), the spec path, unresolved repo names, and the exploration recommendation.
+> Read every `*.md` in the issues folder and parse each by the Ticket grammar in this file. Read the spec the tickets reference (usually `../spec.md`); its section structure names the target repo per ticket. Resolve repo names to absolute paths against, in order: explicit paths in the spec or ticket, the current directory, and the parent of the directory containing `.scratch`. Verify each path exists with `ls`. Classify every ticket by the State classes table, compute the topological order from `Blocked by:`, mark the frontier, and propose a tier per frontier and waiting ticket by the Tier rubric. Assign every candidate ticket a PR group by the PR groups and Branch names rules in this file: its `**PR:**` header, else one group per repo; a spec or map that splits the work into more PRs (a "part 1", a PR list, one PR per issue) counts only when it gives a split reason those rules accept. When a `**PR:**` header breaks the Branch names rule, keep the header and flag the name in the manifest. Record for each group which group it stacks on, if any. Apply `--only` as a filter on candidates, not on blockers. Write the full plan to `<scratchpad>/plan.md`: the table, the spec section numbers per ticket, the repo paths, and the PR groups. Recommend exploration only when two or more tickets would repeat the same codebase or external research, and name the topic. Return under 300 words: one row per file (number, title, state, repo paths, blockers, tier with a one-phrase reason, PR group, or the skip reason), the spec path, unresolved repo names, and the exploration recommendation.
 
 ## Explorer
 
 `general-purpose`, opus. The prompt carries: the research topic, the spec path, the repo paths, the notes folder path, and the path of this file.
 
-> Research the topic against the repos and the spec: the existing code paths, conventions, interfaces, and external facts an implementer would otherwise rediscover. Write markdown notes to the notes folder, one file per topic, each note leading with the file paths and symbols an implementer should open. The notes folder sits outside every repo; write nothing inside a repo. Return the list of note paths written and one line per note saying what it covers.
+> Research the topic against the repos and the spec: the existing code paths, conventions, interfaces, and external facts an implementer would otherwise rediscover. Write markdown notes to the notes folder, one file per topic, each note leading with the file paths and symbols an implementer should open. When the topic has more than one design (where a write lands, one transaction or two, which layer holds a guard), write each option with the failure paths it opens and what repairs each one, and leave the choice to the implementer and the spec. The notes folder sits outside every repo; write nothing inside a repo. Return the list of note paths written and one line per note saying what it covers.
 
 ## Implementer
 
@@ -63,4 +72,4 @@ A ticket that is many small mechanical edits, a cut across several modules or re
 
 `general-purpose`, opus. The prompt carries: the repo path, the worktree path when there is one, the branch, the base ref, the follow-ups, the spec files (the group's ticket paths and the spec), the round number, from round 2 the sha the previous round reviewed and that round's report path, the scratchpad path, and the path of this file.
 
-> The review skill lives at `~/.claude/skills/review/`. Read its `SKILL.md` and `review-core.md` and run it once in branch mode, from the worktree (else the repo with the branch checked out), with `<base>` set to the base ref given. Write the follow-ups to `<scratchpad>/followups-<round>.md` and name that file to the skill as its follow-ups file, and name the spec files to it. In round 1 the whole of `git diff <base>...HEAD` is in scope. From round 2, name the previous round's sha and report to the skill, so it runs a delta round: the diff since that sha is the target, and the full diff is context. When the skill's fixer has landed, commit its edits on the branch as `fix: review round <round>`. Write the report to `<scratchpad>/review-<branch>-<round>.md`. Return under 300 words: the sha the skill reviewed, the head sha after that commit, the base sha, the severity table, the confirmed count, counts fixed in code, fixed in the claim, and left as is, each spec question verbatim with its spec line, the confirmed finding in one sentence, and two answers: `keep` and `change: <the behaviour the finding calls for>`, one marked `recommended:` with a one-line reason drawn from the finding and the spec, open Value suspicions verbatim, the revert check as guards flipped, red, and green, whether the fixer changed logic or only formatting, comments, docs, and changesets, lint and test pass or fail per command with the failing lines when any, and the report path.
+> The review skill lives at `~/.claude/skills/review/`. Read its `SKILL.md` and `review-core.md` and run it once in branch mode, from the worktree (else the repo with the branch checked out), with `<base>` set to the base ref given. Write the follow-ups to `<scratchpad>/followups-<round>.md` and name that file to the skill as its follow-ups file, and name the spec files to it. In round 1 the whole of `git diff <base>...HEAD` is in scope. From round 2, name the previous round's sha and report to the skill, so it runs a delta round: the diff since that sha is the target, and the full diff is context. When the skill's fixer has landed, commit its edits on the branch as `fix: review round <round>`. Write the report to `<scratchpad>/review-<branch>-<round>.md`. Return under 300 words: the sha the skill reviewed, the head sha after that commit, the base sha, the severity table, the confirmed count, counts fixed in code, fixed in the claim, and left as is, each spec question verbatim with its spec line, the confirmed finding in one sentence, its **blast radius** (every job, table, and consumer the finding reaches, beyond the one the spec names), and two answers: `keep` and `change: <the outcome the finding calls for>`, one marked `recommended:` with a one-line reason drawn from the finding's blast radius and the spec. A `change:` answer names the outcome ("a stuck sink pages someone within an hour", "no row keeps a stale stamp"), and leaves the mechanism to the implementer. A spec non-goal ("no new alert") backs `keep` only when the spec's authors weighed this blast radius. Then each follow-up from the report verbatim, open Value suspicions verbatim, the revert check as targets mutated, red, and green, whether the fixer changed logic or only formatting, comments, docs, and changesets, lint and test pass or fail per command with the failing lines when any, and the report path.
