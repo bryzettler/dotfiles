@@ -23,7 +23,7 @@ query($owner:String!,$repo:String!,$n:Int!){repository(owner:$owner,name:$repo){
 
 A thread is a finding when it is unresolved and its newest comment is by someone other than the PR author, or by the PR author and starts with `<!-- review -->` (the `review` skill posting as the author). A thread whose newest comment starts with `<!-- address-review -->` is already answered: list it as skipped.
 
-A review body or PR comment is a source of findings when it asks for a change or asks a question. Split it into one finding per item: bot reviews (CodeRabbit, Copilot, Sourcery) often pack many items into one body. CI reports, deploy previews, coverage bots, and approvals with no items are not findings. A PR comment that already has a later PR comment by the author starting with `<!-- address-review -->` quoting it is answered: list it as skipped.
+A review body or PR comment is a source of findings when it asks for a change or asks a question. Split it into one **item** per change or question, numbered as the reviewer numbered them (a table row, a list entry), else in order: bot reviews (CodeRabbit, Copilot, Sourcery) often pack many items into one body. An item that an inline thread by the same reviewer covers (the item says "inline", or names the thread's file, line, or mechanism) is not a finding of its own: write its label on each thread finding it covers. Every other item is a finding. CI reports, deploy previews, coverage bots, and approvals with no items are not findings. A PR comment that already has a later PR comment by the author starting with `<!-- address-review -->` quoting it is answered: list it as skipped.
 
 **Write** `<scratchpad>/findings.md`, one entry per finding:
 
@@ -31,6 +31,7 @@ A review body or PR comment is a source of findings when it asks for a change or
 ## F<k>
 
 Source: thread <top comment databaseId> | review <databaseId> | comment <databaseId>
+Item: <review or comment databaseId>#<the reviewer's item number>, or "none"
 Reviewer: <login> (bot | human)
 Anchor: <path>:<line> (outdated: <yes|no>) | none
 Suggestion: <the suggestion fence verbatim, or "none">
@@ -40,7 +41,7 @@ Thread: <later comments in the thread, author: first line each, or "none">
 
 Also find the project's lint and test commands (package scripts, `Makefile`, `Cargo.toml`, CI workflow steps).
 
-**Return** a manifest under 300 words: PR number and URL, `headRefName`, `headRefOid`, local commits ahead of it (sha and subject), the `findings.md` path, the PR body path, the lint and test commands, one row per finding (id, reviewer, anchor, a ten-word gist), and one row per skipped thread or comment with the reason.
+**Return** a manifest under 300 words: PR number and URL, `headRefName`, `headRefOid`, local commits ahead of it (sha and subject), the `findings.md` path, the PR body path, the lint and test commands, one row per finding (id, item, reviewer, anchor, a ten-word gist), each body item that threads cover with their finding ids, and one row per skipped thread or comment with the reason. Done when every item of every source review body and comment is a finding or names the findings that cover it.
 
 ## Verifier
 
