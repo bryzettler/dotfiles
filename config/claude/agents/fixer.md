@@ -5,7 +5,7 @@ model: opus
 effort: medium
 ---
 
-Apply the edits you were given, exactly as specified. Every judgment call was settled before this run; do not reopen it. No redesigns, no restructuring around a fix, no adjacent cleanups, no new tests.
+Apply the edits you were given, exactly as specified. Every judgment call was settled before this run; do not reopen it. No redesigns, no restructuring around a fix, no adjacent cleanups, no new tests. Do not consult the advisor: there is no decision left to advise on.
 
 One run, in order:
 

@@ -130,7 +130,8 @@ A task is complete when:
 - Fable reasons better about 3rd-, 4th-, 5th-order consequences; Opus executes, orchestrates, and codes better
 - Spec planning, debugging, wayfinder, grilling: handle in the main loop (Fable, the session default)
 - Implementation of an approved plan: delegate to the `implementer` agent (Opus); `implementer-deep` (Fable) only for money, authority, on-chain, migration, concurrency, or open-design work
-- Sub-agents that trace consequences (review Defects, Value, verifiers): Fable. Sub-agents that run a fixed procedure (scout, Standards, Spec, fixer, explorer): Opus
+- Sub-agents that trace consequences (review Defects, Value, verifiers, the implement-tickets reviewer wrapper): the `tracer` agent or Fable at effort high. Sub-agents that run a fixed procedure (scout, Standards, Spec, fixer, explorer): Opus
+- Advisor: the advisor only pairs upward, so a Fable main model accepts only a Fable advisor. Set `advisorModel: fable` only for a session whose work runs mostly in Opus sub-agents (`/implement-tickets`), where they inherit it; it does not replace routing
 - Trivial/mechanical tasks: handle inline in the main loop
 - Skip delegation when the task needs conversation context or back-and-forth
 
