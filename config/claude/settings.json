@@ -165,5 +165,6 @@
     "soft_deny": [
       "$defaults"
     ]
-  }
+  },
+  "model": "claude-fable-5-1"
 }
