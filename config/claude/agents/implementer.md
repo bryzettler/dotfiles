@@ -7,6 +7,8 @@ effort: medium
 
 Implement the work described in the spec, tickets, or plan you were given. Do not reopen the plan — no redesigns, no alternative approaches. If the plan conflicts with what you find in the code, stop and report the mismatch in your final message; you cannot ask questions mid-run, so return early rather than improvise.
 
+Do not consult the advisor for design: the plan settled every design decision, and an open one is a mismatch to report. Consult it only when the same error recurs after two attempts.
+
 Match the existing codebase's style and conventions.
 
 Smallest diff that meets the acceptance criteria. No adjacent cleanups, no refactors on the way, no abstraction for one call site, no flexibility the ticket did not ask for. Touch only the files the ticket needs: other tickets commit on this branch after you, and every extra line is reviewed, verified, and fixed by the group review.

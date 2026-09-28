@@ -129,9 +129,10 @@ A task is complete when:
 
 - Fable reasons better about 3rd-, 4th-, 5th-order consequences; Opus executes, orchestrates, and codes better
 - Spec planning, debugging, wayfinder, grilling: handle in the main loop (Fable, the session default)
-- Implementation of an approved plan: delegate to the `implementer` agent (Opus); `implementer-deep` (Fable) only for money, authority, on-chain, migration, concurrency, or open-design work
-- Sub-agents that trace consequences (review Defects, Value, verifiers, the implement-tickets reviewer wrapper): the `tracer` agent or Fable at effort high. Sub-agents that run a fixed procedure (scout, Standards, Spec, fixer, explorer): Opus
-- Advisor: the advisor only pairs upward, so a Fable main model accepts only a Fable advisor. Set `advisorModel: fable` only for a session whose work runs mostly in Opus sub-agents (`/implement-tickets`), where they inherit it; it does not replace routing
+- Implementation of an approved plan: delegate to the `implementer` agent (Opus, effort medium); `implementer-deep` (Opus, effort high, consults the advisor) only for money, authority, on-chain, migration, concurrency, or open-design work. No implementer runs on Fable
+- Sub-agents that trace consequences (review Defects, Value, verifiers): the `tracer` agent (Fable, effort high). Every other sub-agent, including orchestrating wrappers (scout, Standards, Spec, fixer, explorer, the implement-tickets reviewer wrapper): Opus
+- Advisor: `advisorModel: fable` is set globally. Opus sub-agents inherit it and get Fable at their decision points without running Fable throughout. The main loop already runs on Fable, so it does not consult the advisor: a second Fable rereading the transcript adds cost, not reasoning
+- For a session that is mostly orchestration (`/implement-tickets`), launch with `claude --model opus`; the Fable advisor carries the hard decisions
 - Trivial/mechanical tasks: handle inline in the main loop
 - Skip delegation when the task needs conversation context or back-and-forth
 
