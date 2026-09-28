@@ -31,7 +31,7 @@ Each finding ends with exactly one:
 
 1. **Pin** — one `scout` (`general-purpose`, `model: "opus"`) with the target, the scratchpad path, and the path of `briefs.md`. It checks the branch, collects every open finding into `<scratchpad>/findings.md`, and returns the manifest the Scout brief defines. Done when the manifest names the PR, the head sha, the lint and test commands, and one row per finding. A branch-check failure stops the run and goes to the user as the scout reported it. Zero findings: say so and stop.
 
-2. **Verify** — verifiers (`tracer`), one per file with findings, one per top-level directory when more than six files have findings, one for all findings with no file. Each prompt carries its finding ids, the `findings.md` path, the PR body path, the path of `briefs.md`, and a report path under the scratchpad. Done when every finding id has a return in the shape of the Verifier brief.
+2. **Verify** — verifiers (`verifier`), one per file with findings, one per top-level directory when more than six files have findings, one for all findings with no file. Each prompt carries its finding ids, the `findings.md` path, the PR body path, the path of `briefs.md`, and a report path under the scratchpad. Done when every finding id has a return in the shape of the Verifier brief.
 
 3. **Decide** — main loop. Give every finding a verdict from the table, working from the verifier returns: VALID → **fix** (`scope: out` → **defer**), FIXED → **fix** with that sha, INVALID → **decline**, CLAIM → **claim**, QUESTION → **answer**, SPEC → **ask**, NIT → **fix** or **decline** per the table. A return the main loop cannot follow goes back to the same verifier once. A **fix** whose edit touches more than one module, changes a public interface, or needs a new design is a **defer**. Done when every finding has a verdict and a one-line reason, and every **fix** and **claim** has a fixer item: file, line, what is wrong, the minimal edit. A reviewer's `suggestion` fence that the verifier confirmed still applies is the edit, verbatim.
 
@@ -53,7 +53,7 @@ A thread whose newest comment carries `<!-- address-review -->` is answered, and
 
 ## Cost budget
 
-One scout, at most seven verifiers (six file groups plus one for unanchored findings), one `fixer` plus at most one follow-up. Verifiers run as `tracer` (fable, effort high), because a verdict is a trace of consequences; the scout and `fixer` run on `opus`, because they execute a fixed procedure. `fixer` is the only agent that edits code; the main loop writes tickets, the commit, and the replies. Nothing is pushed or posted before the gate.
+One scout, at most seven verifiers (six file groups plus one for unanchored findings), one `fixer` plus at most one follow-up. Verifiers run as `verifier` (fable, effort medium), because a verdict is a trace of consequences and the finding already narrows the read; the scout and `fixer` run on `opus`, because they execute a fixed procedure. `fixer` is the only agent that edits code; the main loop writes tickets, the commit, and the replies. Nothing is pushed or posted before the gate.
 
 ## Report
 
