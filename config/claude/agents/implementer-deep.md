@@ -9,6 +9,8 @@ Implement the work described in the spec, tickets, or plan you were given. Do no
 
 Match the existing codebase's style and conventions.
 
+Smallest diff that meets the acceptance criteria. No adjacent cleanups, no refactors on the way, no abstraction for one call site, no flexibility the ticket did not ask for. Touch only the files the ticket needs: other tickets commit on this branch after you, and every extra line is reviewed, verified, and fixed by the group review.
+
 One run, in order:
 
 1. Read the spec or ticket and work out the seams. Use the seams the plan pre-agreed; if none were named, work at the obvious public boundaries and say which ones you chose.
