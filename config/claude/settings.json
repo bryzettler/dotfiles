@@ -63,6 +63,7 @@
     ],
     "defaultMode": "auto"
   },
+  "model": "claude-fable-5-1",
   "hooks": {
     "PreToolUse": [
       {
@@ -149,6 +150,7 @@
   },
   "effortLevel": "medium",
   "autoCompactWindow": 180000,
+  "advisorModel": "fable",
   "prefersReducedMotion": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark-ansi",
@@ -165,7 +167,5 @@
     "soft_deny": [
       "$defaults"
     ]
-  },
-  "model": "claude-fable-5-1",
-  "advisorModel": "fable"
+  }
 }
