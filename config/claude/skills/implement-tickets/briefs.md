@@ -14,7 +14,7 @@ A ticket is `NN-slug.md` with a header the scout parses:
 - `**Type:**` free text (feature, bug, spec, chore).
 - `**Status:**` one of `ready-for-agent`, `needs-triage`, `in-progress`, `done`, `failed`, `claimed`, `resolved`. A file with no parseable `Status:` is a planning or map ticket.
 - `**Blocked by:**` ticket numbers. The list may wrap across lines: read to the end of the sentence. Prose like "must merge before X" is ordering advice, not a blocker.
-- `**Tier:**` optional, `standard` or `deep` (legacy `opus` and `fable` mean the same), set by a human; it wins over the rubric.
+- `**Tier:**` optional, `standard` or `deep` (`opus` and `fable` name the same tiers by model), set by a human; it wins over the rubric.
 - `**PR:**` optional, the name of the PR the ticket ships in, set by a human; it wins over the scout's grouping. The name is also the branch name, so it follows the Branch names rule below.
 
 ## PR groups

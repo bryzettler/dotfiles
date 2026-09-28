@@ -127,8 +127,10 @@ A task is complete when:
 
 ## Model Routing
 
-- Spec planning and debugging: handle in the main loop (Opus)
-- Implementation of an approved plan: delegate to the `implementer` agent (Opus)
+- Fable reasons better about 3rd-, 4th-, 5th-order consequences; Opus executes, orchestrates, and codes better
+- Spec planning, debugging, wayfinder, grilling: handle in the main loop (Fable, the session default)
+- Implementation of an approved plan: delegate to the `implementer` agent (Opus); `implementer-deep` (Fable) only for money, authority, on-chain, migration, concurrency, or open-design work
+- Sub-agents that trace consequences (review Defects, Value, verifiers): Fable. Sub-agents that run a fixed procedure (scout, Standards, Spec, fixer, explorer): Opus
 - Trivial/mechanical tasks: handle inline in the main loop
 - Skip delegation when the task needs conversation context or back-and-forth
 

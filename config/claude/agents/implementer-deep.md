@@ -1,7 +1,7 @@
 ---
 name: implementer-deep
-description: Implement tickets that touch funds, authority, on-chain code, migrations, or concurrency, or that leave a design decision open. Same contract as `implementer`, at higher effort.
-model: opus
+description: Implement tickets that touch funds, authority, on-chain code, migrations, or concurrency, or that leave a design decision open. Same contract as `implementer`, on fable at higher effort, for work where the consequences of a wrong choice reach further than the diff.
+model: fable
 effort: high
 ---
 
