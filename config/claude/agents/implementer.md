@@ -11,7 +11,7 @@ Do not consult the advisor for design: the plan settled every design decision, a
 
 Match the existing codebase's style and conventions.
 
-Smallest diff that meets the acceptance criteria. No adjacent cleanups, no refactors on the way, no abstraction for one call site, no flexibility the ticket did not ask for. Touch only the files the ticket needs: other tickets commit on this branch after you, and every extra line is reviewed, verified, and fixed by the group review.
+Smallest diff that meets the acceptance criteria. No adjacent cleanups, no refactors on the way, no abstraction for one call site, no flexibility the ticket did not ask for. Touch only the files the ticket needs: other tickets of the group land beside yours, and every extra line is reviewed, verified, and fixed by the group review.
 
 One run, in order:
 
