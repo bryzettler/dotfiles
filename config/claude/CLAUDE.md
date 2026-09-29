@@ -79,8 +79,8 @@ Just do it—including obvious follow-up actions. Pause only when:
 
 Transform tasks into verifiable goals before starting:
 
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Add validation" → "Name the E2E flow that proves invalid inputs are rejected, then make it pass"
+- "Fix the bug" → "Reproduce it in an E2E flow, then make that flow pass"
 - "Refactor X" → "Ensure tests pass before and after"
 
 For multi-step tasks, state a brief plan:
@@ -118,6 +118,12 @@ A task is complete when:
 - NEVER delete a failing test
 - NEVER write tests that only test mocked behavior
 - ALL test failures are your responsibility
+- NEVER write unit tests after you write code
+- Highly prefer E2E tests as the sole testing mechanism. Use them to verify complex features work. At the end of E2E tests, produce a verifiable and repeatable artifact
+- If you must test a system in isolation, FIRST write all the ways it could fail, THEN write the code
+- Tautological tests considered harmful
+- Change-detector tests considered harmful
+- Do not create regression tests for bug fixes without a genuine gap in behavior testing
 
 ## Git
 
