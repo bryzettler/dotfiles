@@ -15,7 +15,7 @@ No coverage lines, no "checked, nothing" entries, no preamble. Those are in the 
 
 Repo standards plus a smell baseline. The prompt carries: the diff command and commit list, the standards-source paths from the scout's manifest (`CODING_STANDARDS.md`, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, `docs/agents/*`, whatever the repo documents), the tooling output paths, the path of this file, the report path to write, and this brief:
 
-> Read the standards sources and the Smell baseline in this file. Report, per file or hunk where relevant: (a) every place the diff violates a documented standard, citing the standard (file plus the rule); and (b) any baseline smell you spot, named, with the hunk quoted. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces and anything already in the tooling output files. For Duplicated Code, look past the diff: a new helper that repeats one already in the repo, or a test fixture that repeats the code under test, is a hit, and the fix names both sites. Under 400 words. Deliver per the Return rule in this file, with the quoted hunk as the evidence packet.
+> Read the standards sources, the Smell baseline, and the End state lens in this file. Report, per file or hunk where relevant: (a) every place the diff violates a documented standard, citing the standard (file plus the rule); (b) any baseline smell you spot, named, with the hunk quoted; and (c) every End state hit, with the commits that produced the shape. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces and anything already in the tooling output files. For Duplicated Code, look past the diff: a new helper that repeats one already in the repo, or a test fixture that repeats the code under test, is a hit, and the fix names both sites. Under 400 words. Deliver per the Return rule in this file, with the quoted hunk as the evidence packet.
 
 ### Smell baseline
 
@@ -33,3 +33,11 @@ A fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a
 - **Message Chains** — long `a.b().c().d()` navigation the caller shouldn't depend on. → hide the walk behind one method on the first object.
 - **Middle Man** — a class or function that mostly just delegates onward. → cut it, call the real target direct.
 - **Refused Bequest** — a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
+
+### End state
+
+The diff is read as one change, not as the commits that built it. Several commits, often from separate authors or agents, can leave a shape that no single author would write. This lens covers only lines the diff adds. Code on the base keeps its callers, and the Smell baseline covers it.
+
+- **Branch-internal compatibility** — a shim, flag, fallback, adapter, or old and new path side by side, where both sides were added in the diff. Nothing outside the branch calls the old side. → delete the old side, and call the end-state shape directly.
+- **Work-around of an earlier commit** — a later commit wraps, special-cases, or converts around a shape an earlier commit in the diff introduced. → change the earlier shape so the work-around is not needed. The fix names both commits.
+- **Historical names** — a name added in the diff that tells how the branch got here (`v2`, `new`, `legacy`, `temp`, a ticket number) and not what the code does. → rename it for the domain.
