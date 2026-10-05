@@ -1,7 +1,6 @@
 ---
 name: address-review
-description: Answer every open finding on your PR — fix it, decline it, defer it to a ticket, or answer it — then push and reply in each thread.
-disable-model-invocation: true
+description: Answer every open finding on your PR — fix it, decline it, defer it to a ticket, or answer it — then push and reply in each thread. Use when the user asks to address, answer, or respond to review comments or findings on their PR.
 ---
 
 # address-review
@@ -35,7 +34,7 @@ Each finding ends with exactly one:
 
 3. **Decide** — main loop. Give every finding a verdict from the table, working from the verifier returns: VALID → **fix** (`scope: out` → **defer**), FIXED → **fix** with that sha, INVALID → **decline**, CLAIM → **claim**, QUESTION → **answer**, SPEC → **ask**, NIT → **fix** or **decline** per the table. A return the main loop cannot follow goes back to the same verifier once. A **fix** whose edit touches more than one module, changes a public interface, or needs a new design is a **defer**. Done when every finding has a verdict and a one-line reason, and every **fix** and **claim** has a fixer item: file, line, what is wrong, the minimal edit. A reviewer's `suggestion` fence that the verifier confirmed still applies is the edit, verbatim.
 
-4. **Fix** — one `fixer` run with every **fix** and **claim** item on the code, the lint and test commands, and a scratchpad path for their output. Then the Fix re-review from `review-core.md` on its diff, with at most one follow-up `fixer` run. Commit the result on the PR branch as `fix: address review on #<n>` with the attribution trailer. A **claim** on the PR description is a new body written to `<scratchpad>/pr-body.md`, posted at step 7. Done when every item is in the commit or reported as a fixer mismatch (a mismatch becomes **ask**), and lint and tests pass or their failures are shown to pre-exist at the head sha from the manifest.
+4. **Fix** — one `fixer` run with every **fix** and **claim** item on the code, the lint and test commands, and a scratchpad path for their output. Then the Fix re-review from `review-core.md` on its diff, with at most one follow-up `fixer` run. Commit the result on the PR branch as `fix: address review on #<n>` with the attribution trailer. A **claim** on the PR description is a new body written to `<scratchpad>/pr-body.md`, posted at step 7: call the Skill tool with `pr` and write it in that shape, keep every claim in `pr-body-original.md` that still holds, and follow the Public text standard. Done when every item is in the commit or reported as a fixer mismatch (a mismatch becomes **ask**), and lint and tests pass or their failures are shown to pre-exist at the head sha from the manifest.
 
 5. **Defer** — one ticket per **defer** in `.scratch/<feature>/issues/` when a folder matches the branch, else `.scratch/pr-<n>-followups/issues/`, in the ticket grammar from `implement-tickets/briefs.md`: `**Status:** needs-triage`, a body that quotes the finding and the verifier's scenario, and one acceptance criterion. Done when every **defer** has a ticket path.
 
