@@ -32,7 +32,7 @@ Everything else here is deterministic and near free. Every review prompt carries
 
 A tooling hit on a changed line (an unused import, a lint error, a type error the diff introduced) is a confirmed finding on its own, resolved as "fix the code" and handed to the fixer as an item without a verifier. No agent re-derives what a tool already reported, and the Standards brief skips it.
 
-The scout also lists the standards sources for the Standards brief and resolves issue references in the commit messages (`#123`, `Closes #45`) through `docs/agents/issue-tracker.md` when that file exists, folding the issue text into the spec file. No agent asks the user anything; a missing spec is written into the spec file as "no spec".
+The scout also lists the standards sources for the Standards brief (`CODING_STANDARDS.md` and every file it points to, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.cursor/rules/*`, `docs/agents/*`) and resolves issue references in the commit messages (`#123`, `Closes #45`) through `docs/agents/issue-tracker.md` when that file exists, folding the issue text into the spec file. No agent asks the user anything; a missing spec is written into the spec file as "no spec".
 
 ## Triage
 
@@ -50,7 +50,7 @@ A Value finding is different. Confirmed the same way, but a Value hit or suspici
 
 An open suspicion is closed this round when the repo can close it. Before it is written as open, name the source that would settle it: a release workflow, a deploy script, a manifest, a config, a fixture. When that source is in the repo, a verifier reads it now and returns CONFIRMED, DISMISSED, or OPEN with the `file:line`. Only a suspicion whose answer lives outside the repo (a mainnet simulation, a production measurement, a team's process) stays open, and it goes to the state file so the next round carries it instead of re-deriving it. In a delta round a carried suspicion is re-verified only when the delta touches a file it names; otherwise it is copied forward unchanged.
 
-A non-defect finding (Standards smell, Spec scope note, cleanup) is confirmed only when it clears the **+EV bar**: the change makes the logic easier to follow, or makes it measurably more efficient. Stylistic, lateral, or "how I would have written it" changes are below the bar and change nothing.
+A non-defect finding (Standards smell, Spec scope note, cleanup) is confirmed only when it clears the **+EV bar**: the change makes the logic easier to follow, or makes it measurably more efficient. Stylistic, lateral, or "how I would have written it" changes are below the bar and change nothing. So is an error arm for a `checked_div` or `checked_rem` by a nonzero constant, which cannot fail. One finding is one comment: a pattern that repeats across files is confirmed once, and its comment lists every site.
 
 **The spec is a claim, not a verdict.** A wrong outcome traced to code that does what the spec says is a confirmed finding against the spec. It resolves as "fix the spec", never as dismissed. A spec that accepts a failure path ("keep the old value and warn", a listed known gap) is checked for its end state: what the next run, retry, or restart does with that state. An end state the spec did not name is a new finding, never covered by the acceptance.
 
