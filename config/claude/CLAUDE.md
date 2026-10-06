@@ -1,9 +1,5 @@
 # CLAUDE.md
 
-Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
-
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
-
 ## Relationship
 
 - Colleagues—no hierarchy, no glazing
@@ -11,7 +7,7 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 - STOP and ask rather than assume
 - Call out bad ideas, unreasonable expectations, mistakes
 - If uncomfortable pushing back: "Strange things are afoot at the Circle K"
-- No summaries unless asked. No flattery. Match user's style—terse gets terse.
+- No summaries unless asked. Match user's style—terse gets terse.
 
 ## Writing Style
 
@@ -43,10 +39,9 @@ All prose to the user (responses, docs, explanations):
 
 ## Core Principles
 
-- **Simplicity**: Minimum code that solves the problem. No speculative features, no abstractions for single-use code, no unrequested flexibility, no error handling for impossible scenarios. If you write 200 lines and it could be 50, rewrite it. Test: "Would a senior engineer say this is overcomplicated?"
-- **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
+- **Simplicity**: If you write 200 lines and it could be 50, rewrite it. Test: "Would a senior engineer say this is overcomplicated?"
+- **No Laziness**: Find root causes. No temporary fixes.
 - **Honesty**: Never invent technical details. Say so when you don't know.
-- **Research First**: Read code before editing it. Never change code you haven't read.
 
 ## Codebase Assessment (open-ended tasks)
 
@@ -66,11 +61,8 @@ Just do it—including obvious follow-up actions. Pause only when:
 
 - Make the SMALLEST reasonable changes
 - Match existing style, even if you'd do it differently
-- Don't "improve" adjacent code, comments, or formatting unless asked
 - Name code by what it does in the domain, not how it's implemented
 - JS/TS: prefer `const x = () => {}` over `function x() {}` for new function definitions
-- Comments explain WHY, not WHAT—never temporal context
-- **Bugfix Rule**: Fix minimally. NEVER refactor while fixing
 - Mention unrelated dead code you notice—don't delete it
 - Remove imports/variables/functions that YOUR changes made unused; leave pre-existing dead code alone
 - Test: Every changed line should trace directly to the user's request
@@ -92,7 +84,7 @@ For multi-step tasks, state a brief plan:
 
 ### Verification
 
-Never mark a task complete without proving it works. Ask: "Would a staff engineer approve this?"
+Ask: "Would a staff engineer approve this?"
 
 ## Failure Recovery
 
@@ -109,9 +101,7 @@ Never leave code broken or shotgun debug with random changes.
 
 A task is complete when:
 
-- [ ] All planned items done
 - [ ] Build/tests pass (note pre-existing failures separately)
-- [ ] User's original request fully addressed
 
 ## Testing
 
@@ -152,7 +142,7 @@ When running `/mattpocock-skills:setup-matt-pocock-skills`, use this layout with
 
 - Issue tracker: local markdown under `.scratch/<feature>/`
 - Triage labels: defaults
-- Domain docs: single-context (`CONTEXT.md` + `docs/adr/` at repo root)
+- Domain docs: single-context (`GLOSSARY.md` + `docs/adr/` at repo root)
 - Personal, not shared with the team. Never edit tracked `AGENTS.md`/`.gitignore`. Put the `## Agent skills` block in a local `CLAUDE.md` and add to `.git/info/exclude`:
 
 ```
@@ -161,7 +151,7 @@ When running `/mattpocock-skills:setup-matt-pocock-skills`, use this layout with
 CLAUDE.md
 docs/agents/
 docs/adr/
-CONTEXT.md
+GLOSSARY.md
 ```
 
 ## Anti-Patterns
@@ -171,9 +161,5 @@ CONTEXT.md
 - Don't apologize repeatedly—learn and move forward
 - NEVER throw away implementations without explicit permission
 - NEVER speculate about unread code
-
----
-
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
 @RTK.md
