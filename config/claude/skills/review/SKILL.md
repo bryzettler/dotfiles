@@ -45,7 +45,7 @@ Then continue with the steps for the mode. Both modes dispatch `fixer` once: it 
 
 5. **Fix** — one `fixer` run carrying every code and claim resolution. Done when every item has an edit or a reported mismatch, and lint and tests pass or the failures are shown to pre-exist on `<base>`.
 
-6. **Re-review the fix** — per `review-core.md`. Done when every fixer edit passes the six lenses, or one follow-up `fixer` run has landed the corrections.
+6. **Re-review the fix** — per `review-core.md`. Done per "Fix re-review" in `review-core.md`.
 
 ## PR mode
 
@@ -53,7 +53,7 @@ Steps 5 to 9 (Draft, Re-review the fix, Redact, Post, Persist) are under "Steps 
 
 ## Cost budget
 
-One `scout`, four review sub-agents (more only when the diff is split by size per `review-core.md`, fewer in a delta round), verifiers only for the files with a Value hit or a contradiction, at most six, plus one revert-check verifier, one `fixer`, at most one follow-up `fixer`. A delta round reviews the change since the last round, not the PR, and re-verifies a carried suspicion only when the delta touches the files it names. Model per agent: Defects and Value run as `tracer` (fable, effort high), because their job is to trace a change to its second- and third-order consequences; a Value verifier runs as `verifier` (fable, effort medium), because the packet narrows the read; a Defects hit gets no verifier, because the tracer proved it by a run or a quoted `file:line`, and a second fable read of the same lines adds cost, not evidence; the scout, Standards, Spec, the revert-check verifier, and `fixer` run on `opus`, because their job is execution against a fixed procedure. The main loop does the resolutions, the +EV bar, the fix re-review, and redaction, and those work from returns and scratchpad paths: the main loop reads a source range or a report file only when a specific verdict needs it. No plugin skill is invoked. `fixer` is the only agent that edits; in PR mode it edits the checkout only, and nothing is pushed. The four axes are the whole review.
+One `scout`, four review sub-agents (more only when the diff is split by size per `review-core.md`, fewer in a delta round or when Standards is skipped), verifiers only for a Value hit or a contradiction, at most two, plus one revert-check verifier at triage and one at the fix re-review, one `fixer`, at most one follow-up `fixer`. A delta round reviews the change since the last round, not the PR, and re-verifies a carried suspicion only when the delta touches the files it names. Model per agent: Defects and Value run as `tracer` (fable, effort high), because their job is to trace a change to its second- and third-order consequences; a Value verifier runs as `verifier` (fable, effort medium), because the packet narrows the read; a Defects hit gets no verifier, because the tracer proved it by a run or a quoted `file:line`, and a second fable read of the same lines adds cost, not evidence; the scout, Standards, Spec, the revert-check verifier, and `fixer` run on `opus`, because their job is execution against a fixed procedure. The main loop does the resolutions, the +EV bar, the fix re-review, and redaction, and those work from returns and scratchpad paths: the main loop reads a source range or a report file only when a specific verdict needs it. No plugin skill is invoked. `fixer` is the only agent that edits; in PR mode it edits the checkout only, and nothing is pushed. The four axes are the whole review.
 
 ## Report
 
