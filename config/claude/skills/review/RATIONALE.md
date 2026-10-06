@@ -53,6 +53,19 @@ A blind second round on #1345 ran after the lenses were patched from the human r
 
 The misses log could not show any of this: it named the lens that should have fired, and the returns that showed the lens firing and being cleared were not kept. Hence the kept returns and the `Seen:` field in `address-review`.
 
+## Audited clearances
+
+A third blind round on #1345 (head `1d50617e8`) ran with every rule above in place, and the human reviewer still found eleven classes the round did not. Every one sat in a "checked, nothing" line, cleared with a reason the briefs already forbid ("same as develop", "README documents it") or with a restatement of the code ("per-call > env > node ∩ signer" is the reorder, written as its own clearance). The rule existed; nothing read the lines against it. Triage read coverage lists only "when a verdict needs that context", which is never.
+
+- A rule an agent applies to its own work is a request. A check the main loop runs on the output is a gate. Hence the coverage audit in `triage.md`, run by `tools/audit-coverage.py`, not by reading.
+- The audit can only check what the line states. Hence the typed fields in `return-rule.md`: `sig:`, `arms:`/`examples:`, `probe:`, `order:`, `parity:`, `lenses:`. A field forces the check, and a field that shows the hit makes the clearance self-refuting.
+- Some classes need no judgement at all. A sync-to-async export and an async body with no await are syntax: `tools/ts-signatures.mjs` finds them in the scout, and triage confirms them as tooling hits.
+- A verifier dismissed a traced wrong outcome because the README documented it, which `verdicts.md` already forbids. Hence the dismissal check in triage step 6.
+- A parity table had the differing cell ("kit throws at compile" beside fallbacks) and called it clean, because the rule named only empty and doubled cells. Hence differing outcomes in Neighbours.
+- The Quote lens named the lifecycle steps, but nothing made the return show each step, so `close` was never walked and an account `create` charges for and `close` never refunds went unseen. Hence one coverage line per lifecycle step in `brief-value.md`.
+- The round approved nothing and posted nothing, so Persist never ran and `address-review` would have logged "returns not kept". The main loop also condensed returns after a compaction. Hence persist on every gate path, and each axis writes its own return file.
+- CI tails were sampled (3 of 23 failing lanes). Hence one tail per failing check in the scout.
+
 ## Domains
 
 - CI: a release or deploy workflow is where a key, a token, or an upgrade authority meets code the public can influence, so it gets the same scrutiny as the program it ships.

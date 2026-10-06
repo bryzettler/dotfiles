@@ -46,7 +46,8 @@ Run whichever of these the repo supports:
 - `gitleaks detect` or `trufflehog filesystem` on the diff.
 - `cargo audit` only when the diff changes a `Cargo.toml` or `Cargo.lock`; `npm audit` (or `pnpm audit`) only when it changes a `package.json` or a JS lockfile.
 - The Tooling section of each matched domain file. Save each domain grep's output as its own file: its path goes to the Value agent.
-- PR mode: `gh pr checks <n>`.
+- When the diff changes a `.ts` or `.tsx` file: from the repo root, `node ~/.claude/skills/review/tools/ts-signatures.mjs <fixed point> <head>`, saved as `signatures.txt`. A `SIG` line is an exported function whose async-ness, parameters, or return type changed. A `NOAWAIT` line is an async function the diff added or made async whose body awaits nothing. Triage reads both as tooling hits.
+- PR mode: `gh pr checks <n>`. For every failing check, one tail per check, never a sample: `gh run view <run id> --log-failed | tail -n 40`, saved as `ci-<check name>.txt`. A check whose log cannot be fetched is listed as such.
 
 **Test runs.** When there is no CI or no check runs the tests, and always in branch mode, the gate needs one run of the project's test command, plus the test tooling a domain file names (`anchor test`, `forge test`). Run none of them: return each as command, working directory, and output path. The main loop starts them.
 
@@ -74,7 +75,7 @@ Under 300 words:
 - Standards scope and the standards-source paths
 - Value scope, run or skip, with the one reason
 - the project's lint and test commands, and the backend commands
-- execution evidence: in PR mode the `gh pr checks <n>` result, every check named with pass, fail, or pending, or "no CI"; and the test runs, each as command, working directory, and output path
+- execution evidence: in PR mode the `gh pr checks <n>` result, every check named with pass, fail, or pending, or "no CI", and each failing check with its tail path; and the test runs, each as command, working directory, and output path
 - the `flows.md` path with its flow and group counts, when Flows ran
 - `prior.md` path when there is one, and the delta-round fields `delta-round.md` adds
 

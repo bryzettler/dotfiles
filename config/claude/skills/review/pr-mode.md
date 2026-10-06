@@ -4,9 +4,11 @@ What PR mode adds to the steps in `SKILL.md`: the gate, steps 5 to 9, anchoring,
 
 ## Gate (step 4)
 
-- **Approve** when every dispatched axis agrees the change is valid and the execution evidence is green: every check in `gh pr checks <n>` passed, none pending, none failing; and when no check runs the tests, the test run from step 2 passed. Run `gh pr review <n> --approve --body "LGTM"`, write the report, and stop.
-- **Red or pending check, or a failing test run:** this blocks approval regardless of the axes. Submit a comment review that names the check or the failing test, and write the report. Approve no pending check and wait on none: the next round approves when it is green.
-- **Zero confirmed findings, one or more open Value suspicions:** submit `gh pr review <n> --comment --body <file>`, whose body asks the one question per suspicion that would close it. Write the report and stop.
+Every branch below ends with step 9, Persist, before the report: a round that approves or posts nothing still keeps its returns.
+
+- **Approve** when every dispatched axis agrees the change is valid and the execution evidence is green: every check in `gh pr checks <n>` passed, none pending, none failing; and when no check runs the tests, the test run from step 2 passed. Run `gh pr review <n> --approve --body "LGTM"`, persist, write the report, and stop.
+- **Red or pending check, or a failing test run:** this blocks approval regardless of the axes. Submit a comment review that names the check or the failing test, persist, and write the report. Approve no pending check and wait on none: the next round approves when it is green.
+- **Zero confirmed findings, one or more open Value suspicions:** submit `gh pr review <n> --comment --body <file>`, whose body asks the one question per suspicion that would close it. Persist, write the report, and stop.
 - **Confirmed findings:** continue to step 5.
 
 ## Steps after the gate
@@ -43,7 +45,7 @@ What PR mode adds to the steps in `SKILL.md`: the gate, steps 5 to 9, anchoring,
 
    Done when the API returns the review URL.
 
-9. **Persist** — after the gate or the post, write `~/.claude/review-state/<owner>__<repo>__<n>.md` (create the directory), overwriting it each round: the head sha reviewed, the PR body as reviewed, every open suspicion with what was checked and what was not, and every dismissal with its reason. Copy every `return-*.md` from step 2 to `~/.claude/review-state/<owner>__<repo>__<n>.returns/<head sha>/`, so `address-review` can tell a lens that never fired from one an agent cleared.
+9. **Persist** — on every path out of the gate, posted or not, and again after the post, write `~/.claude/review-state/<owner>__<repo>__<n>.md` (create the directory), overwriting it each round: the head sha reviewed, the PR body as reviewed, every open suspicion with what was checked and what was not, and every dismissal with its reason. Copy every `return-*.md` and `audit.txt` from steps 2 and 3, byte for byte, to `~/.claude/review-state/<owner>__<repo>__<n>.returns/<head sha>/`, so `address-review` can tell a lens that never fired from one an agent cleared.
 
 ## Anchoring
 

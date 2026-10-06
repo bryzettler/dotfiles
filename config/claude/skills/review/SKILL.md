@@ -36,13 +36,13 @@ Branch mode's output is edits in the working tree. PR mode's output is a GitHub 
 2. **Review** — in one message:
    - Start each **test run** from the manifest in the background (`run_in_background`).
    - Dispatch the axes: Standards and Spec (`general-purpose`, `model: "opus"`), Defects and Value (`tracer`).
-   - Every prompt carries the diff command and commit list, the spec path, the path of its `brief-<axis>.md`, the tooling output paths, and a scratchpad path for proof-run output. Standards adds the **standards sources**. Defects and Value add the matched `domain-*.md` paths. Defects adds the `prior.md` path when there is one. In PR mode, Spec and Defects add the `pr-body.md` path. Paste no lens, smell, or standards text, and name no focus or priority: the prompt carries only these pointers, so each agent covers every path its brief lists.
+   - Every prompt carries its return path (`<scratchpad>/return-<axis>[-<slice>].md`), the diff command and commit list, the spec path, the path of its `brief-<axis>.md`, the tooling output paths, and a scratchpad path for proof-run output. Standards adds the **standards sources**. Defects and Value add the matched `domain-*.md` paths. Defects adds the `prior.md` path when there is one. In PR mode, Spec and Defects add the `pr-body.md` path. Paste no lens, smell, or standards text, and name no focus or priority: the prompt carries only these pointers, so each agent covers every path its brief lists.
    - **Standards scope** skip: dispatch no Standards agent. The Spec prompt also names `brief-standards.md` for its End state and Public repo lenses.
    - **Value scope** skip: dispatch no Value agent.
    - Spec path "no spec": dispatch no Spec agent.
    - Diff line count over about 1500: split Defects by package or top-level directory, one agent per slice; each slice's prompt names the files it owns. Split Value by the scout's `flows.md`: one agent per flow group, each prompt naming its flows and every file on them, whatever the package. Changed files on no flow form one more Value slice, by directory.
 
-   Save each return verbatim to `<scratchpad>/return-<axis>[-<slice>].md` as it arrives, by whatever channel it arrives; summarise none. Triage reads the summary it needs from the file; the misses log needs the coverage lists whole.
+   Each axis writes its own return file before its final message, per `return-rule.md`. When a file is missing, save the final message to that path verbatim as it arrives; summarise none, and never rewrite a return from memory after a compaction. Triage reads the summary it needs from the file; the misses log needs the coverage lists whole.
 
    Done when every dispatched axis has a return per "Review hits" in `return-rule.md` in this folder.
 

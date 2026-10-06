@@ -1,23 +1,27 @@
 # Review: triage
 
-Step 3, in the main loop. Every finding ends **confirmed**, **dismissed**, or (Value only) **open**, each with a stated reason. Keep each axis return; read its coverage list only when a verdict needs that context. Read `verdicts.md` in this folder first: it holds the verdicts, their rules, and the +EV bar.
+Step 3, in the main loop. Every finding ends **confirmed**, **dismissed**, or (Value only) **open**, each with a stated reason. Keep each axis return. The main loop reads no coverage list whole: step 4 audits it with a script, and reads only the lines the script rejects. Read `verdicts.md` in this folder first: it holds the verdicts, their rules, and the +EV bar.
 
 ## Steps
 
 1. **Fold** — merge hits that share file, line, and mechanism across axes into one. Keep the higher severity and both axis names.
 2. **Contradictions** — find two returns, or a return and a verdict, that state opposite facts about one path ("the timeout bounds the stream" against "the timeout ends at the headers"). Each contradiction goes to a Value verifier as a hit, with both claims quoted. The fact it settles joins the findings.
 3. **Tooling hits** — a tooling hit on a changed line (an unused import, a lint error, a type error the diff introduced) is a confirmed finding, resolved as Fix the code, with no verifier.
-4. **Defects** — settle each hit from its packet, in the main loop:
+   - Each `NOAWAIT` line in `signatures.txt` is a confirmed Contract finding: drop the `async`, or await what the body needs.
+   - Each `SIG` line on a package that publishes (no `"private": true` in its `package.json`) is a confirmed Contract finding unless a `.changeset/*.md` in the diff bumps that package at the breaking tier (major; minor while the version is `0.x`). Check with `grep -l '<package name>' .changeset/*.md` and read only those files' front matter.
+   - Each `ci-<check>.txt` tail is a CI truth item: the Defects return must name it with its own failure signature. A failing check no return names is a confirmed finding with "explain the failure" as its fix.
+4. **Coverage audit** — `python3 -I ~/.claude/skills/review/tools/audit-coverage.py <scratchpad>/return-*.md > <scratchpad>/audit.txt`. Read `audit.txt` only. Each `REJECT` line is a clearance the return did not earn: its fields are missing, it cites a forbidden reason, or its own fields show a hit (a changed `sig:`, fewer `examples:` than `arms:`, a `probe:` that admits several types, an `order:` with a fetch or override ahead of a gate, a `parity:` that differs). Group the rejects by axis and send each group to one `tracer` with the brief of that axis, the return-rule path, and the rejected lines as quoted: its job is to check only those items and return hits or a clearance with every field filled. Its return goes to `<scratchpad>/return-<axis>-audit.md`, and its hits join step 5 or 6 by axis. Run the audit once more on that return; a line rejected twice is a confirmed finding of the lens its field names, with the field as its evidence.
+5. **Defects** — settle each hit from its packet, in the main loop:
    - Its proof run (a test, script, or repro whose command and output path the hit names) shows the scenario, or its quoted `file:line` settles it where nothing can run: confirmed.
    - Neither, or a scenario the main loop cannot follow from the packet: dismissed as untraced.
    - A guard or call site the Pinned lens lists as reached by no unit test file: a confirmed Pinned finding, with the missing test as its fix.
    - Send no Defects hit to a verifier.
-5. **Value** — group Value hits, contradictions, every Value suspicion, and every Defects suspicion on an amount, a signer, or a guard by top-level directory into at most two `verifier` agents. A suspicion goes now unless its answer lives outside the repo (see Settle a suspicion from the repo). Each prompt carries that group's hits with their evidence packets, its suspicions as quoted, the spec path, the path of `verdicts.md`, and the path of `brief-value.md`. Read the verdicts, not the code. Send a CONFIRMED verdict you cannot follow back to the same verifier once; then dismiss it.
-6. **Standards and Spec** — apply "The +EV bar" in `verdicts.md`. They get no verifier.
-7. **Revert check** — per "Revert check" in `review-rules.md` in this folder, with the targets the Defects return lists.
-8. **Resolve** — give every confirmed finding one resolution, below.
+6. **Value** — group Value hits, contradictions, every Value suspicion, and every Defects suspicion on an amount, a signer, or a guard by top-level directory into at most two `verifier` agents. A suspicion goes now unless its answer lives outside the repo (see Settle a suspicion from the repo). Each prompt carries that group's hits with their evidence packets, its suspicions as quoted, the spec path, the path of `verdicts.md`, and the path of `brief-value.md`. Read the verdicts, not the code. Send a CONFIRMED verdict you cannot follow back to the same verifier once; then dismiss it. Check every DISMISSED against "Rules for every verdict" in `verdicts.md`: a dismissal whose reason is a spec, README, PR-body, or changeset citation, "pre-existing" on a line the diff touches, or "no funds move" on a traced wrong amount or outcome is not a dismissal. A Defects-class outcome (a wrong amount, a thrown error, a broken caller) is then a confirmed Defects finding; any other goes back to the verifier once, with the rule quoted.
+7. **Standards and Spec** — apply "The +EV bar" in `verdicts.md`. They get no verifier.
+8. **Revert check** — per "Revert check" in `review-rules.md` in this folder, with the targets the Defects return lists.
+9. **Resolve** — give every confirmed finding one resolution, below.
 
-Done when every hit has a verdict and a resolution (CONFIRMED with a resolution, DISMISSED with a reason), every Value hit and every suspicion step 5 names has a verifier verdict or a stated OPEN with what was checked and what was not, and the revert check has returned a line per target.
+Done when the audit has run and every rejected line has a tracer verdict, every hit has a verdict and a resolution (CONFIRMED with a resolution, DISMISSED with a reason), every Value hit and every suspicion step 6 names has a verifier verdict or a stated OPEN with what was checked and what was not, and the revert check has returned a line per target.
 
 ## Rules
 
