@@ -4,7 +4,7 @@ Frontends: Next.js, React Router, React Native.
 
 ## Tooling
 
-`tsc --noEmit --noUnusedLocals --noUnusedParameters` (the flags catch what a fix commit leaves behind) and the repo's lint script, and the **trust-boundary grep** over the changed files:
+`tsc --noEmit --noUnusedLocals --noUnusedParameters` (the flags catch what a fix commit leaves behind) and the repo's lint script; `knip` (else `ts-prune`) on each changed package that is published, since `tsc` never flags an unused export: an export the diff adds that nothing outside its tests imports is a tooling hit; and the **trust-boundary grep** over the changed files:
 
 ```
 rg -n 'req\.(body|query|params|headers|cookies)|searchParams|process\.env|exec\(|spawn\(|eval\(|dangerouslySetInnerHTML|innerHTML|redirect\(|fetch\(|axios|cors|Access-Control|webhook|stripe|verify(Signature|Webhook)|jwt|session|cookie|admin|role|isAuthorized|middleware|use server|use client|revalidate(Path|Tag)|AsyncStorage|SecureStore|Linking\.'

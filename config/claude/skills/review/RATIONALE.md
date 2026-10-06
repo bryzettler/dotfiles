@@ -38,7 +38,20 @@ Authors apply fences and skim prose: a finding that leaves Draft without its own
 
 ## Lenses
 
-Lens edits start from `~/.claude/review-misses.md`, which `address-review` appends to when a human finds what a round missed. Group its entries by lens; a lens with repeat misses needs sharper wording, and "no lens" entries that share a class need a new lens. The briefs repeat the "leans on" rule from `verdicts.md` on purpose (see Agents and models).
+Lens edits start from `~/.claude/review-misses.md`, which `address-review` appends to when a human finds what a round missed. Group its entries by `Seen:` first: a miss seen as cleared or unverified is fixed in the brief rule or triage step that let it through. Group the rest by lens; a lens with repeat misses needs sharper wording, and "no lens" entries that share a class need a new lens. The briefs repeat the "leans on" rule from `verdicts.md` on purpose (see Agents and models).
+
+## Clearing, not wording
+
+A blind second round on #1345 ran after the lenses were patched from the human review of the first, and seven of the eleven logged classes recurred with their lens in place. None was a wording miss:
+
+- Agents cleared the item with a reason the briefs forbid in spirit: "rename only", "unchanged from base", "the changeset documents it". Hence the clear-reason rule in both tracer briefs.
+- The line reached the axis without the lens: Defects quoted a float round trip, but Arithmetic lived in the Value brief; Value quoted a truthy probe, but Falsy branch lived in the Defects brief. Hence `lenses-shared.md`.
+- A slice owned every send path and built no parity table. Hence the parity table in the return.
+- One worked example covered one arm of a funding expression; the double count lived on the other. Hence one example per arm.
+- Triage step 5 sent hits but no suspicions to the verifiers, so four items sat unread in suspicion lists. Hence suspicions to verifiers.
+- The Contract lens said "major", which is wrong under `0.x`; the real miss was a needless break.
+
+The misses log could not show any of this: it named the lens that should have fired, and the returns that showed the lens firing and being cleared were not kept. Hence the kept returns and the `Seen:` field in `address-review`.
 
 ## Domains
 

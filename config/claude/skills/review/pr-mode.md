@@ -43,7 +43,7 @@ What PR mode adds to the steps in `SKILL.md`: the gate, steps 5 to 9, anchoring,
 
    Done when the API returns the review URL.
 
-9. **Persist** — after the gate or the post, write `~/.claude/review-state/<owner>__<repo>__<n>.md` (create the directory), overwriting it each round: the head sha reviewed, the PR body as reviewed, every open suspicion with what was checked and what was not, and every dismissal with its reason.
+9. **Persist** — after the gate or the post, write `~/.claude/review-state/<owner>__<repo>__<n>.md` (create the directory), overwriting it each round: the head sha reviewed, the PR body as reviewed, every open suspicion with what was checked and what was not, and every dismissal with its reason. Copy every `return-*.md` from step 2 to `~/.claude/review-state/<owner>__<repo>__<n>.returns/<head sha>/`, so `address-review` can tell a lens that never fired from one an agent cleared.
 
 ## Anchoring
 

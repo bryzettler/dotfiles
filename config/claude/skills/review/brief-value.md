@@ -1,6 +1,6 @@
 # Review brief: Value
 
-Loss of funds, authority, or data. Before starting, read the Universal Value lenses below, plus the entry map and Value lenses of each domain file your prompt names. Deliver per "Review hits" in `~/.claude/skills/review/return-rule.md`.
+Loss of funds, authority, or data. Before starting, read the Universal Value lenses below and `lenses-shared.md` in this folder, plus the entry map and Value lenses of each domain file your prompt names. Deliver per "Review hits" in `~/.claude/skills/review/return-rule.md`.
 
 ## Steps
 
@@ -13,13 +13,13 @@ When your prompt names flows, those flows are your slice, end to end. Read every
 4. **Constraints before arithmetic** — work the entry map and the input constraints first. Check every constraint on those inputs whether or not the constraint line changed: a new caller of an unchanged helper inherits every check the helper lacks. Older code is the diff's when the diff calls it, moves or extracts it, widens who reaches it, or makes an outcome depend on it: its loss is a hit.
 5. **Report** every hit as `file:line`, the lens name, the attacker or failure (who, holding what, sends what), the outcome (what they gain or the protocol loses), and the minimal fix.
 6. **Prove** a critical or high hit with a run. A medium or low hit stands on its quoted `file:line`.
-7. **Rank** — critical (funds, authority, or data lost), high (funds stuck, wrong amount, or a table locked for the deploy), medium, low. Hits have no length cap; the suspicions list stays under 300 words. List every suspicion, whatever the space: a verifier reads each hit after you, so a suspicion costs less than a missed path.
+7. **Suspicions** — a suspicion you drop names the reason from the code. "Unchanged from base", "no regression", and "pre-existing" are not reasons when the diff calls, moves, or extracts the code or makes an outcome depend on it: that path is a hit. Every suspicion you do not drop stays on the list; a verifier reads it.
+8. **Rank** — critical (funds, authority, or data lost), high (funds stuck, wrong amount, or a table locked for the deploy), medium, low. Hits have no length cap; the suspicions list stays under 300 words. List every suspicion, whatever the space: a verifier reads each hit after you, so a suspicion costs less than a missed path.
 
 ## Universal Value lenses
 
 These apply in every domain. The domain files add the lenses for the chain or the web stack.
 
-- **Arithmetic** — every amount, fee, share, or price calculation. → Overflow and underflow on each operation. Decimals and units agree on both sides (lamports against SOL, wei against ether, base units against UI units, token A decimals against token B). Every narrowing cast (`as u32`, `uint128(x)`, `Number(bigint)`) is checked or provably in range. Rounding direction favours the protocol on every division: `floor` or `ceil` by direction, never `round`, and a rounding error that favours the caller compounds when the operation can be repeated with dust. Re-derive each fee and share with a worked example. A lamport or base-unit amount stays an integer end to end: a round trip through a float (`/ LAMPORTS_PER_SOL`, then `*` back) is a hit.
 - **Quote** — every entity the diff funds, prices, or quotes: a cron job, an escrow, a rent-paying account, a subscription. → Walk it through create, re-apply with unchanged input, change one input, run N times, and close. At each step put the quote beside what the chain or backend consumes, as a worked example with numbers. A quote sized for a state the entity leaves at the next step (funded for zero claims, then claims added) is a hit. A re-apply with unchanged input that prices or executes as a change (a value resolved fresh, from the clock or a default, compared with the stored one) is a hit. Replay asks whether a second run is a no-op; Quote asks whether the quote still fits the state.
 - **Destination** — every place funds or authority land. → Who can set the destination account, the close destination, the rent recipient, the new authority, the withdrawal address. A destination taken from an argument or an unchecked input is a hit unless a check binds it to the signer.
 - **Replay** — every action with a side effect. → What happens when it runs twice: a retried transaction, a duplicate job, two bot instances, a partial success followed by a resend, a webhook delivered again. A nonce, an idempotency key, or an on-chain state check must make the second run a no-op.

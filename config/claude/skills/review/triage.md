@@ -12,12 +12,12 @@ Step 3, in the main loop. Every finding ends **confirmed**, **dismissed**, or (V
    - Neither, or a scenario the main loop cannot follow from the packet: dismissed as untraced.
    - A guard or call site the Pinned lens lists as reached by no unit test file: a confirmed Pinned finding, with the missing test as its fix.
    - Send no Defects hit to a verifier.
-5. **Value** — group Value hits and contradictions by top-level directory into at most two `verifier` agents. Each prompt carries that group's hits with their evidence packets, the spec path, the path of `verdicts.md`, and the path of `brief-value.md`. Read the verdicts, not the code. Send a CONFIRMED verdict you cannot follow back to the same verifier once; then dismiss it.
+5. **Value** — group Value hits, contradictions, every Value suspicion, and every Defects suspicion on an amount, a signer, or a guard by top-level directory into at most two `verifier` agents. A suspicion goes now unless its answer lives outside the repo (see Settle a suspicion from the repo). Each prompt carries that group's hits with their evidence packets, its suspicions as quoted, the spec path, the path of `verdicts.md`, and the path of `brief-value.md`. Read the verdicts, not the code. Send a CONFIRMED verdict you cannot follow back to the same verifier once; then dismiss it.
 6. **Standards and Spec** — apply "The +EV bar" in `verdicts.md`. They get no verifier.
 7. **Revert check** — per "Revert check" in `review-rules.md` in this folder, with the targets the Defects return lists.
 8. **Resolve** — give every confirmed finding one resolution, below.
 
-Done when every hit has a verdict and a resolution (CONFIRMED with a resolution, DISMISSED with a reason), every Value hit has a verifier verdict or a stated OPEN with what was checked and what was not, and the revert check has returned a line per target.
+Done when every hit has a verdict and a resolution (CONFIRMED with a resolution, DISMISSED with a reason), every Value hit and every suspicion step 5 names has a verifier verdict or a stated OPEN with what was checked and what was not, and the revert check has returned a line per target.
 
 ## Rules
 
