@@ -1,10 +1,10 @@
 # Domain: Database
 
-Loaded when the diff touches a migration, a schema definition, or code that builds queries. Every target is Postgres. The named forms are raw SQL, drizzle, prisma, kysely, knex, sequelize, sqlx, and Ecto; a lens states the rule once and the forms are how to check it.
+Every target is Postgres. The named forms are raw SQL, drizzle, prisma, kysely, knex, sequelize, sqlx, and Ecto; a lens states the rule once and the forms are how to check it.
 
 ## Tooling
 
-`squawk` over every changed `.sql` file, one output file, listed as unavailable when it is not on `PATH`. Migrations written in JS, Elixir, or the prisma DSL get no tool, and the Lock lens does that work by hand. Then the **schema-change grep** over the changed files with `drizzle/meta/` snapshots dropped from the list (generated JSON that matches every term), saved by the scout and passed to the Value agent as a path:
+`squawk` over every changed `.sql` file, one output file, listed as unavailable when it is not on `PATH`. Migrations written in JS, Elixir, or the prisma DSL get no tool, and the Lock lens does that work by hand. Then the **schema-change grep** over the changed files with `drizzle/meta/` snapshots dropped from the list (generated JSON that matches every term):
 
 ```
 rg -n -i 'alter table|create (unique )?index|drop (table|column|index)|truncate (table )?"|delete from|update \w+ set|not null|set default|rename (to|column)|alter column|lock table|for update|concurrently|disable_ddl_transaction|\.transaction\(|sql`|\.raw\(|\.execute\(|\.query\(|query!\(|Repo\.(query|delete_all|update_all)'

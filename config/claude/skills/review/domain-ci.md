@@ -1,10 +1,8 @@
 # Domain: CI
 
-Loaded for every file under `.github/workflows/` or `.github/actions/`, and for every script a workflow step runs from the repo. A release or deploy workflow is where a key, a token, or an upgrade authority meets code the public can influence, so it gets the same scrutiny as the program it ships.
-
 ## Tooling
 
-`actionlint` over the changed workflow files, and `zizmor` over `.github/` when installed. Then the **secret-scope grep** over every workflow file, changed or not, saved by the scout and passed to the Value agent as a path:
+`actionlint` over the changed workflow files, and `zizmor` over `.github/` when installed. Then the **secret-scope grep** over every workflow file, changed or not:
 
 ```
 rg -n 'secrets\.|GITHUB_TOKEN|permissions:|pull_request_target|workflow_run|head_ref|github\.event\.(pull_request|issue|comment|review|head_commit)|uses:|run:|npm (ci|install)|pnpm (install|i\b)|yarn( install)?$|npx |curl .*\| *(ba)?sh|cache|restore-keys|if: *(failure|always|cancelled)\(\)|timeout-minutes|continue-on-error|steps\.[a-z0-9_-]+\.outputs'

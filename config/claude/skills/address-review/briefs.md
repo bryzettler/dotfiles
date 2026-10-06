@@ -1,6 +1,6 @@
 # address-review: briefs
 
-Read by the scout and the verifiers by path. The main loop never opens this file.
+Find your section by the role your prompt names. Return per `~/.claude/skills/review/return-rule.md`.
 
 ## Scout
 
@@ -23,7 +23,7 @@ query($owner:String!,$repo:String!,$n:Int!){repository(owner:$owner,name:$repo){
 
 A thread is a finding when it is unresolved and its newest comment is by someone other than the PR author, or by the PR author and starts with `<!-- review -->` (the `review` skill posting as the author). A thread whose newest comment starts with `<!-- address-review -->` is already answered: list it as skipped.
 
-A review body or PR comment is a source of findings when it asks for a change or asks a question. Split it into one **item** per change or question, numbered as the reviewer numbered them (a table row, a list entry), else in order: bot reviews (CodeRabbit, Copilot, Sourcery) often pack many items into one body. An item that an inline thread by the same reviewer covers (the item says "inline", or names the thread's file, line, or mechanism) is not a finding of its own: write its label on each thread finding it covers. Every other item is a finding. CI reports, deploy previews, coverage bots, and approvals with no items are not findings. A PR comment that already has a later PR comment by the author starting with `<!-- address-review -->` quoting it is answered: list it as skipped.
+A review body or PR comment is a source of findings when it asks for a change or asks a question. Split it into one **item** per change or question, numbered as the reviewer numbered them (a table row, a list entry), else in order: bot reviews (CodeRabbit, Copilot, Sourcery) often pack many items into one body. An item that an inline thread by the same reviewer covers (the item says "inline", or names the thread's file, line, or mechanism) is covered: write its label on each thread finding it covers. Every other item is a finding. Skip CI reports, deploy previews, coverage bots, and approvals with no items. A PR comment that already has a later PR comment by the author starting with `<!-- address-review -->` quoting it is answered: list it as skipped.
 
 **Write** `<scratchpad>/findings.md`, one entry per finding:
 
@@ -45,18 +45,4 @@ Also find the project's lint and test commands (package scripts, `Makefile`, `Ca
 
 ## Verifier
 
-You judge review findings against the code. You edit nothing. The reviewer may be right, wrong, or right about a different line than the one they commented on; the code settles it. Read the code each finding points at and whatever it depends on. For an outdated anchor, find where that code lives now at `HEAD`. Check `git log <headRefOid>..HEAD` too: a local commit may already fix the finding.
-
-For each finding id, return one of these, with the `file:line` that settles it quoted:
-
-- **VALID** — the scenario, input or state then the wrong outcome, in your own words under 80 words; then the minimal edit as file, line, and replacement. When the finding carries a `suggestion` fence, say whether it still applies verbatim at `HEAD`, and if it does not, give the corrected edit. Add `scope: out` when the fix needs changes to code this PR does not touch, a new design, or a public interface change.
-- **FIXED** — a local commit or a later line already resolves it; name the sha.
-- **INVALID** — the specific reason the scenario cannot happen or the finding misreads the code.
-- **CLAIM** — the code is right and a comment, doc, or the PR body says otherwise; quote the wrong text and give its corrected wording.
-- **QUESTION** — the finding asks something and no change follows; the answer, from the code, in under 60 words.
-- **SPEC** — the finding asks for behaviour the PR body contradicts, or the choice is a product call; the PR body line and the question the author must answer.
-- **NIT** — a lateral preference (naming, ordering, style). Say whether a repo convention (a lint rule, a style guide, the dominant pattern in sibling files) supports or contradicts it, and give the edit.
-
-Two reasons never make a finding INVALID: that the flaw predates the PR, and that the PR body asks for the behaviour. The first is VALID with `scope: out` when the PR does not reach the flaw; the second is SPEC.
-
-Write the full reasoning to your report path. Return only the per-finding verdicts.
+Read `~/.claude/skills/review/verdicts.md` and follow its verifier brief. The prompt carries your finding ids, the `findings.md` path, the PR body path, and the head sha from the manifest. Each finding is a hit; its `Suggestion:` line is the `suggestion` fence the verdict checks. All five verdicts apply.
