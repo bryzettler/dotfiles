@@ -19,12 +19,16 @@ BAD_REASON = re.compile(
     r"|unchanged from base|pre-?existing|rename|renamed|moved|no regression|no funds move)\b",
     re.I,
 )
-SIG = re.compile(r"\bsig:\s*([^;|]+)", re.I)
+# a field runs to the next ";"; "|" ends it too, but "||" in a code span does not
+FIELD = r"((?:\|\||[^;|])+)"
+SIG = re.compile(r"\bsig:\s*" + FIELD, re.I)
 ARMS = re.compile(r"\barms:\s*(\d+)", re.I)
 EXAMPLES = re.compile(r"\bexamples:\s*(\d+)", re.I)
-PROBE = re.compile(r"\bprobe:\s*([^;|]+)", re.I)
-ORDER = re.compile(r"\border:\s*([^;|]+)", re.I)
-PARITY = re.compile(r"\bparity:\s*([^;|]+)", re.I)
+PROBE = re.compile(r"\bprobe:\s*" + FIELD, re.I)
+ORDER = re.compile(r"\border:\s*" + FIELD, re.I)
+# parity cells are "|"-separated, so the field runs to the next ";"
+PARITY = re.compile(r"\bparity:\s*([^;]+)", re.I)
+TIER = re.compile(r"\b(major|breaking tier|minor)\b", re.I)
 AMOUNT = re.compile(r"(lamport|fee|rent|fund|amount|price|quote|cost|balance|reward)", re.I)
 EARLY = re.compile(r"(env|override|rpc|fetch|get\w*Info|detect|fallback|default)", re.I)
 GATE = re.compile(r"(signer|capabilit|auth|owner|permission|guard)", re.I)
@@ -35,30 +39,34 @@ def audit(path, n, line, cleared):
     if cleared:
         if not re.search(r"\blenses:", line, re.I):
             reasons.append("no lenses: field")
-        m = BAD_REASON.search(line.split("lenses:")[0])
+        # the sig: field may name the changeset that admits a break
+        m = BAD_REASON.search(SIG.sub("", line.split("lenses:")[0]))
         if m:
             reasons.append(f"forbidden reason '{m.group(0)}'")
     m = SIG.search(line)
     if m:
         v = m.group(1).strip()
         low = v.lower()
-        if re.search(r"→|->", v):
-            if cleared and not re.search(r"\b(major|breaking tier|minor \(0\.x\))\b", line, re.I):
+        if low.startswith("unchanged") or low.startswith("new"):
+            pass
+        elif low.startswith("removed") or re.search(r"→|->", v):
+            if cleared and not TIER.search(v):
                 reasons.append(f"sig changed with no breaking-tier changeset named ({v})")
-        elif not (low.startswith("unchanged") or low.startswith("new") or low.startswith("removed")):
+        else:
             reasons.append(f"sig not in 'unchanged | new | removed | old → new' form ({v})")
     arms, examples = ARMS.search(line), EXAMPLES.search(line)
-    if cleared and AMOUNT.search(line.split("—")[0]) and not (arms and examples):
+    item = re.sub(r"^\s*-\s*\S+:\d+\s*", "", line.split("—")[0])
+    if cleared and AMOUNT.search(item) and not (arms and examples):
         reasons.append("amount item without arms:/examples:")
     if arms and examples and int(examples.group(1)) < int(arms.group(1)):
         reasons.append(f"examples {examples.group(1)} < arms {arms.group(1)}")
-    m = PROBE.search(line)
-    if m:
+    for m in PROBE.finditer(line):
         if "admits" not in m.group(1):
             reasons.append(f"probe names no admitted types ({m.group(1).strip()})")
         else:
-            admitted = m.group(1).split("admits", 1)[1]
-            if len(re.split(r",|\bor\b|/|\|", admitted)) > 1:
+            # a parenthetical explains a type; it does not add one
+            admitted = re.sub(r"\([^()]*\)", "", m.group(1).split("admits", 1)[1])
+            if len(re.split(r",|\band\b|\bor\b|/", admitted)) > 1:
                 reasons.append(f"probe admits several types ({admitted.strip()})")
     m = ORDER.search(line)
     if m:
@@ -70,6 +78,11 @@ def audit(path, n, line, cleared):
     m = PARITY.search(line)
     if m and "differs" in m.group(1).lower():
         reasons.append(f"parity {m.group(1).strip()}")
+    elif m:
+        # a sibling lacks a guard another runs: a differing cell (lenses-shared.md, Neighbours)
+        nones = [c.strip() for c in m.group(1).split("|") if re.search(r"\bnone\b", c, re.I)]
+        if nones:
+            reasons.append(f"parity cell none ({' | '.join(nones)})")
     return reasons
 
 
