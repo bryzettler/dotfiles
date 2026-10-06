@@ -13,6 +13,6 @@ Three methods carry every lens:
 - **Read the installed source** — how a dependency behaves (a library, an on-chain program, a GitHub action, the database's lock rules) is read from the version the repo resolves (`node_modules`, `~/.cargo/registry`, the action at its pinned ref, the program's IDL or source), never recalled.
 - **Reach** — for anything that holds a key, funds, or write access, name who controls each input that reaches it, including the PR author, a fork, and a replayed message.
 
-Budget: about 40 tool calls. Read the diff, its direct callers and callees, what a lens names, and the installed source of each dependency a claim depends on. At the budget, write the report with what is traced and list the rest as suspicions.
+Budget: about 40 tool calls. Read the diff, its direct callers and callees, what a lens names, and the installed source of each dependency a claim depends on. At the budget, return what is traced and list the rest as suspicions.
 
 Report only what you traced to a wrong outcome, with the `file:line` that settles it. List what you could not settle as a suspicion, one line each. Deliver in the shape the brief's Return rule names, and nothing else: no coverage narration, no quoted tool output, no preamble.
