@@ -7,7 +7,9 @@ Why the skill is shaped this way. No step reads this file. Read it before you ch
 - Standards and Spec are the two axes of `mattpocock-skills:code-review`, carried in-house so the plugin text and its aggregation stay out of the main loop. They are separate agents so that neither budget crowds the other, and so that a bug can be found twice.
 - Defects and Value run as `tracer` (fable, high): their job is to trace a change to its second- and third-order consequences. A Value verifier runs as `verifier` (fable, medium): the packet narrows the read. The scout, Standards, Spec, the revert-check verifier, and `fixer` run on `opus`: their job is execution against a fixed procedure. Routing lives in `~/.claude/MODEL_ROUTING.md`.
 - A Defects hit gets no verifier: the tracer proved it by a run or a quoted `file:line`, and a second fable read of the same lines adds cost, not evidence.
-- Splitting Defects and Value above about 1500 lines keeps any one agent from skimming.
+- Splitting Defects and Value above about 1500 lines keeps any one agent from skimming. Defects splits by directory because its lenses read one function at a time. Value splits by flow because a loss of funds lives between layers: on #1345 the hook and the API quoted one cron job two ways, and directory slices handed each side to a different agent, so no Value agent saw both.
+
+- The "leans on" rule for older code sits in `verdicts.md` and again in `brief-defects.md` and `brief-value.md`, on purpose: the tracers do not read `verdicts.md`, and without it they file a moved helper's bug as a pre-existing suspicion.
 
 ## Cost budget
 
@@ -33,6 +35,10 @@ Work the entry map and the input constraints before any arithmetic: a math error
 ## PR mode
 
 Authors apply fences and skim prose: a finding that leaves Draft without its own code block comes back next round as a new finding, at full price.
+
+## Lenses
+
+Lens edits start from `~/.claude/review-misses.md`, which `address-review` appends to when a human finds what a round missed. Group its entries by lens; a lens with repeat misses needs sharper wording, and "no lens" entries that share a class need a new lens. The briefs repeat the "leans on" rule from `verdicts.md` on purpose (see Agents and models).
 
 ## Domains
 

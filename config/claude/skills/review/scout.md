@@ -9,7 +9,8 @@ You pin the review so the axes start from files, not from a search. Ask the user
 3. **Classify** — give every changed file one or more domains from the Domain table.
 4. **Tooling** — run the Tooling below, one output file per tool in the scratchpad.
 5. **Scopes and commands** — decide the Standards and Value scopes, find the standards sources, the lint and test commands, and the backend commands.
-6. **Return** the manifest.
+6. **Flows** — when the diff is over about 1500 lines and the Value scope runs, write `<scratchpad>/flows.md` per Flows below.
+7. **Return** the manifest.
 
 When the prompt names `<last>`, or Prior round below finds one, this is a delta round: also do the Pin section of `delta-round.md` in this folder.
 
@@ -56,6 +57,12 @@ Run whichever of these the repo supports:
 - **Value scope** — run when the diff can reach funds, keys, authority, or stored data: a chain or database domain, web code on a trust-boundary grep hit, or a CI file that reads `secrets.*`, runs on `pull_request_target` or `workflow_run`, or grants a write `permissions:` scope. Else skip, with the one reason.
 - **Backend command** — per matched database or chain domain: how to start a disposable instance with the schema or program loaded (a docker Postgres plus the repo's migrate command, a local validator, the repo's bankrun or litesvm script). "none" when it cannot start (`docker info` fails, no validator binary).
 
+## Flows
+
+A **flow** is one operation that moves value, named by its entry point: a UI hook, an API endpoint, a job, an instruction. It runs from the client that quotes or builds it, through the server that prices or sends it, to the program or table that consumes it, across every package on that path. Start from the changed files that compute an amount, fee, rent, or funding, or that move authority, and follow imports and calls both ways until the path reaches the consumer.
+
+Write `flows.md` as one section per flow: its name, its entry point, and every file on its path with `changed` or `context`. Then group the flows so each group holds about 1500 changed lines; never split a flow. A file may sit in several groups. List last the changed files on no flow.
+
 ## Manifest
 
 Under 300 words:
@@ -68,6 +75,7 @@ Under 300 words:
 - Value scope, run or skip, with the one reason
 - the project's lint and test commands, and the backend commands
 - execution evidence: in PR mode the `gh pr checks <n>` result, every check named with pass, fail, or pending, or "no CI"; and the test runs, each as command, working directory, and output path
+- the `flows.md` path with its flow and group counts, when Flows ran
 - `prior.md` path when there is one, and the delta-round fields `delta-round.md` adds
 
 Done when the manifest names all of those and every changed file has a domain.

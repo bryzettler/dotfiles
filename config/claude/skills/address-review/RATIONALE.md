@@ -14,3 +14,7 @@ A rerun needs no section of its own:
 - A reviewer reply after that comment reopens the thread: the newest comment is then the reviewer's, so the scout's finding rule collects it.
 - A rerun after the user stopped at the gate finds the earlier commit ahead of the remote head. The verifiers check `git log <headRefOid>..HEAD` and return FIXED with its sha, so nothing is fixed twice.
 - The new summary covers only the findings this run answered (step 6).
+
+## Misses
+
+A human finding that a `review` round could have seen is the cheapest lens test there is: the code was in front of the round, and it did not fire. The log records the class and the lens, never the instance, because a lens names a class. `review/RATIONALE.md` says where lens edits start. The log lives under `~/.claude/`, beside `review-state/`, because runs in any repo append to it.

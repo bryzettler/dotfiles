@@ -7,7 +7,7 @@ description: Use when the user asks to address, answer, or respond to review com
 
 The other half of `review`. A reviewer (you through `/review pr`, a teammate, or a bot) left findings on your PR. This skill gives every one an **outcome** from the Outcomes table below, lands the fixes as one commit, and replies in each thread with what happened and why. The code settles every outcome, never the reviewer's standing: a bot's finding that holds gets fixed, and a senior reviewer's finding that the code refutes gets declined with the `file:line` that refutes it.
 
-Keep the main loop's context for outcomes. Comment bodies, code reads, and lint and test output go to sub-agents and scratchpad files and reach the main loop as paths and short returns. `briefs.md` in this folder holds the scout and verifier briefs; pass its path. `fixer` is the only agent that edits code; the main loop writes the tickets, the commit, and the replies. Nothing is pushed or posted before the gate.
+Keep the main loop's context for outcomes. Comment bodies, code reads, and lint and test output go to sub-agents and scratchpad files and reach the main loop as paths and short returns. `briefs.md` in this folder holds the scout and verifier briefs; pass its path. `fixer` is the only agent that edits code; the main loop writes the tickets, the commit, the replies, and the miss log. Nothing is pushed or posted before the gate.
 
 **Invocation:** `/address-review [pr | <n> | #<n> | <PR URL>]`. No argument or `pr`: the PR open for the current branch.
 
@@ -35,7 +35,9 @@ Keep the main loop's context for outcomes. Comment bodies, code reads, and lint 
    - A **fix** whose edit touches more than one module, changes a public interface, or needs a new design is a **defer**. When the reviewer marked it blocking (a changes-requested review, a "Blocking" heading), it is an **ask**.
    - The +EV bar in the Outcomes table is "The +EV bar" in `verdicts.md`.
 
-   Done when every finding has an outcome and a one-line reason, and every **fix** and **claim** has a fixer item: file, line, what is wrong, the minimal edit. A reviewer's `suggestion` fence that the verifier confirmed still applies is the edit, verbatim.
+   - **Misses:** when the manifest lists a `review` round, a finding from another reviewer is a miss when its verdict is CONFIRMED `defect`, `claim`, or `design` and its anchor line exists at that round's commit (`git show <sha>:<path>`). Append one entry per miss to `~/.claude/review-misses.md`: the date, `<owner>/<repo>#<n>`, the round's sha, the mechanism as a class in one sentence (never the instance), and the lens in `~/.claude/skills/review/` that should have fired, or "no lens".
+
+   Done when every finding has an outcome and a one-line reason, every miss has an entry, and every **fix** and **claim** has a fixer item: file, line, what is wrong, the minimal edit. A reviewer's `suggestion` fence that the verifier confirmed still applies is the edit, verbatim.
 
 4. **Fix** — one `fixer` run with every **fix** and **claim** item on the code, the lint and test commands, the backend commands, and a scratchpad path for their output.
    - Then "Fix re-review" in `~/.claude/skills/review/review-rules.md` on its diff, with at most one follow-up `fixer` run. A fix still `unproven` after that stays a **fix**, and its reply names the backend it was not run against.
@@ -76,4 +78,4 @@ Each finding ends with exactly one:
 
 ## Report
 
-The gate table with each posted reply's URL added, the commit sha, the ticket paths, the lint and test results per command, each **ask** with the user's ruling, and the findings skipped as already answered.
+The gate table with each posted reply's URL added, the commit sha, the ticket paths, the lint and test results per command, each **ask** with the user's ruling, the miss entries appended, and the findings skipped as already answered.

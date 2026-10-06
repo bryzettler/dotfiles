@@ -17,7 +17,7 @@ gh api graphql -F owner=<o> -F repo=<r> -F n=<n> -f query='
 query($owner:String!,$repo:String!,$n:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$n){
   reviewThreads(first:100){nodes{isResolved isOutdated path line originalLine
     comments(first:50){nodes{databaseId author{login} body createdAt}}}}
-  reviews(first:100){nodes{databaseId author{login} state body submittedAt}}
+  reviews(first:100){nodes{databaseId author{login} state body submittedAt commit{oid}}}
   comments(first:100){nodes{databaseId author{login} body createdAt}}}}}'
 ```
 
@@ -39,9 +39,11 @@ Finding: <the full comment text for this item, verbatim>
 Thread: <later comments in the thread, author: first line each, or "none">
 ```
 
+**Review rounds.** List each review whose inline comments start with `<!-- review -->` (a `review` skill round), with its `commit{oid}`, or "none".
+
 Also find the project's lint and test commands (package scripts, `Makefile`, `Cargo.toml`, CI workflow steps), and the backend command for any database or chain code the findings touch (how to start a disposable instance with the schema or program loaded), or "none".
 
-**Return** a manifest under 300 words: PR number and URL, `headRefName`, `headRefOid`, local commits ahead of it (sha and subject), the `findings.md` path, the PR body path, the lint and test commands, the backend commands, one row per finding (id, item, reviewer, anchor, a ten-word gist), each body item that threads cover with their finding ids, and one row per skipped thread or comment with the reason. Done when every item of every source review body and comment is a finding or names the findings that cover it.
+**Return** a manifest under 300 words: PR number and URL, `headRefName`, `headRefOid`, local commits ahead of it (sha and subject), the `findings.md` path, the PR body path, the lint and test commands, the backend commands, the review rounds with their commit shas, one row per finding (id, item, reviewer, anchor, a ten-word gist), each body item that threads cover with their finding ids, and one row per skipped thread or comment with the reason. Done when every item of every source review body and comment is a finding or names the findings that cover it.
 
 ## Verifier
 

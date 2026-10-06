@@ -40,6 +40,9 @@ Return the list of note paths written and one line per note saying what it cover
 - The acceptance criteria are the definition of done: run the repo's verification (tests, lint, typecheck) and check each criterion.
 - A test's expected value comes from the spec or from an independent calculation, never from a run of the code under test. Reach green with every assertion at full strength: never loosen an assertion or turn a throw into a skip.
 - A new test file runs in CI: add it where its siblings are wired, such as a hand-written matrix.
+- A test fixture is a state the setup path produces.
+- An export of a published package keeps its signature (sync stays sync), or the changeset bumps major.
+- A quote, estimate, or funding helper gets a test across the entity's whole life: create, re-apply with unchanged input, change one input, each checked against what the chain or backend consumes.
 - Read a runtime fact (an account size, a rent value, an IDL field name, a program id) from the artifact or the chain, never from memory.
 - A failing check is a defect in your change until its output shows otherwise. Calling it a flake needs the same check failing on the group branch.
 - Save every verification command's full output to the scratchpad path given, one file per command.

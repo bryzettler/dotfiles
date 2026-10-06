@@ -26,7 +26,7 @@ Return one verdict per hit id, with the `file:line` that settles it quoted, and 
 ## Rules for every verdict
 
 - **Two reasons never dismiss a traced wrong outcome:** that the spec asks for the behaviour (that is CONFIRMED `spec`), and that the flaw predates the diff.
-- **Pre-existing is a finding when the diff leans on it:** the diff calls it, widens who reaches it, or makes an outcome depend on it. When no path in the diff reaches it, quote the `file:line` that shows that. In `review` that is DISMISSED as pre-existing. In `address-review` it is CONFIRMED `defect` with `scope: out`, because a reviewer raised it.
+- **Pre-existing is a finding when the diff leans on it:** the diff calls it, moves or extracts it, widens who reaches it, or makes an outcome depend on it. When no path in the diff reaches it, quote the `file:line` that shows that. In `review` that is DISMISSED as pre-existing. In `address-review` it is CONFIRMED `defect` with `scope: out`, because a reviewer raised it.
 - **The spec is a claim, not a verdict.** A spec that accepts a failure path ("keep the old value and warn", a listed known gap) is checked for its end state: what the next run, retry, or restart does with that state. An end state the spec did not name is a new finding.
 
 ## The +EV bar
