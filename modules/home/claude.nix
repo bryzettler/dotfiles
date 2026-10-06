@@ -17,6 +17,7 @@ in
   home.file.".claude/agents/implementer-deep.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/agents/implementer-deep.md";
   home.file.".claude/agents/fixer.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/agents/fixer.md";
   home.file.".claude/agents/tracer.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/agents/tracer.md";
+  home.file.".claude/agents/verifier.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/agents/verifier.md";
   home.file.".claude/skills/review".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/review";
   home.file.".claude/skills/implement-tickets".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/implement-tickets";
   home.file.".claude/skills/address-review".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/address-review";
