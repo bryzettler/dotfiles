@@ -10,6 +10,9 @@ in
   # Sync it into the repo with the `claude-sync` fish function.
   home.file.".claude/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/CLAUDE.md";
   home.file.".claude/RTK.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/RTK.md";
+  home.file.".claude/CODING_STANDARDS.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/CODING_STANDARDS.md";
+  home.file.".claude/MODEL_ROUTING.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/MODEL_ROUTING.md";
+  home.file.".claude/AGENT_SKILLS_SETUP.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/AGENT_SKILLS_SETUP.md";
   home.file.".claude/agents/implementer.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/agents/implementer.md";
   home.file.".claude/agents/implementer-deep.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/agents/implementer-deep.md";
   home.file.".claude/agents/fixer.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/agents/fixer.md";
