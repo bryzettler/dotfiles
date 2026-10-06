@@ -47,7 +47,7 @@ Branch mode's output is edits in the working tree. PR mode's output is a GitHub 
 3. **Triage** — per `triage.md` in this folder. Done per its done line.
 
 4. **Gate** — zero confirmed findings and zero open Value suspicions is a clean diff. The gate also needs the **execution evidence** from the manifest and the test runs from step 2. Wait for their completion notifications, never with a sleep loop, and read only the tail of each output. A failing or missing test run is a confirmed finding.
-   - Branch, clean, test run passed: write the report and stop. An open Value suspicion or a failing test is a reason to continue: the report leads with it.
+   - Branch, zero confirmed findings, test run passed: write the report and stop. When open Value suspicions remain, the report leads with them. A failing test is a confirmed finding, so the run continues to step 5 and the report leads with the failing lines.
    - PR: per "Gate" in `pr-mode.md`.
 
 5. **Fix** — one `fixer` run carrying every code and claim resolution. It starts with no context and cannot ask, so settle every judgement call first and state the change, not the reasoning. Per item: file and line, what is wrong, and the minimal edit. Add the project's **lint and test commands**, the **backend commands**, and a scratchpad path for their output. Done when every item has an edit or a reported mismatch, and lint and tests pass or the failures are shown to pre-exist on `<base>`. PR mode: Draft, per `pr-mode.md`.
