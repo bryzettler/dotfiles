@@ -1,6 +1,6 @@
 # implement-tickets: apply answers
 
-Run with `--answers` before step 1, and from step 5's Record. Read `<issues-folder>/../spec-questions.md`, the file step 5 writes. Each entry has a `Ticket:`, a `PR group:`, a `Kind:` (`spec`, `mismatch`, or `followup`), the question and its spec line, and an `Answer:` line that the user fills in.
+Run before step 1 of every run, and from `ask.md`'s Record. Read `<issues-folder>/../spec-questions.md`, the file `ask.md` writes. Each entry has a `Ticket:`, a `PR group:`, a `Kind:` (`spec`, `mismatch`, or `followup`), the question and its spec line, and an `Answer:` line that the user fills in.
 
 Skip an entry that already has an `Applied:` line, so a rerun applies each answer once. Act on the others by kind and answer:
 

@@ -17,3 +17,9 @@ One scout, explorers only on the scout's recommendation, one implementer per tic
 - Every frontier ticket dispatches at once, whatever its repo: blockers encode the real ordering.
 - Before a stacked group's first round, the lower group's final tip merges in, so the lower group's review fixes reach it.
 - Ask keeps the return's recommendation because the agent that read the spec and the code made it.
+
+## Asking
+
+- A question is asked when it arises, not after every ticket and round has finished: a batch at the end found the user gone, and the answers then needed a rerun with a flag.
+- The agent never answers a spec question for the user. Running to resolution means running around a question while it waits, not guessing it.
+- Answers on file apply at the start of every run, so a headless run or a `Decide later` resumes with the same command and no flag.

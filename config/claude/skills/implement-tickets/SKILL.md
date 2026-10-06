@@ -8,15 +8,17 @@ disable-model-invocation: true
 
 Work a folder of ticket markdown files to done. Tickets are a **task graph**: `Blocked by:` edges define a **frontier** of tickets ready to run. One fresh-context implementer per ticket, routed to the cheapest tier the ticket allows. State lives in each ticket's `Status:` field, so a rerun after a usage-limit stop, crash, or `/clear` resumes where it left off.
 
-Keep the main loop's context for decisions. Ticket bodies, spec text, verification output, and review reports go to sub-agents and scratchpad files and reach the main loop as paths and short returns. `briefs.md` in this folder holds the sub-agent briefs; pass its path, and keep its text out of the main loop. The main loop writes only these: `Status:` edits and `## Agent result` sections in ticket files it dispatched, `spec-questions.md`, the tickets that `answers.md` and step 5 create, and the PR bodies that step 6 drafts. Nothing is pushed and no PR is opened.
+Keep the main loop's context for decisions. Ticket bodies, spec text, verification output, and review reports go to sub-agents and scratchpad files and reach the main loop as paths and short returns. `briefs.md` in this folder holds the sub-agent briefs; pass its path, and keep its text out of the main loop. The main loop writes only these: `Status:` edits and `## Agent result` sections in ticket files it dispatched, `spec-questions.md`, the tickets that `answers.md` and `ask.md` create, and the PR bodies that step 6 drafts. Nothing is pushed and no PR is opened.
 
-**Invocation:** `/implement-tickets [issues-folder] [--dry-run] [--only NN,NN] [--max N] [--answers]`
+**Invocation:** `/implement-tickets [issues-folder] [--dry-run] [--only NN,NN] [--max N]`
 
 Folder given: use it. None: glob `.scratch/*/issues` from the current directory. One match: use it and say which. Several: list them and ask. None: ask for the path.
 
 **Model:** when the system prompt names a model other than opus, stop before anything else and say to relaunch with `claude --model opus`. `--dry-run` is the one exception.
 
-**`--answers` given:** first apply the answers per `answers.md` in this folder, then continue at step 1.
+**Answers on file:** before step 1, apply every answered entry in `spec-questions.md` that has no `Applied:` line, per `answers.md` in this folder. That picks up answers written by hand after a headless run or a `Decide later`. No flag is needed.
+
+**Run to resolution:** the run ends only when every ticket is `done`, is waiting on a human, or hangs on a question the user deferred. A question is asked when it arises, per `ask.md`, while the other tickets keep running; an answer that creates or resets a ticket puts it on the frontier in the same run.
 
 ## Steps
 
@@ -35,9 +37,9 @@ Folder given: use it. None: glob `.scratch/*/issues` from the current directory.
    3. **Record** — by the return's outcome:
       - `done` → land it, per Landing below. Then `Status: done`, tick only the acceptance-criteria boxes the return lists as verified, and append the Agent result below, with the group tip after the fast-forward as the head sha.
       - `mismatch` from a standard run (the ticket or spec leaves a design decision open, the plan conflicts with the code, or the spec contradicts the real system) → escalate once: leave `in-progress`, keep the partial branch per Partial work below, cut a fresh ticket branch and worktree from the group tip as in Claim, re-dispatch at deep with the same pointers plus the standard return's mismatch text, and note the escalation in the Agent result. Escalation is the only main-loop override of a tier, and only upward.
-      - `mismatch` from a deep run → `Status: failed`; its question goes to step 5.
-      - `blocked` (a missing tool, broken test infrastructure, a dependency that does not build) → `Status: failed`, no retry; its dependents become waiting.
-   4. Stop when the frontier is empty or `--max` is reached.
+      - `mismatch` from a deep run → `Status: failed`; ask its question now per `ask.md`. Dispatch the frontier first, so the other tickets run while the question waits.
+      - `blocked` (a missing tool, broken test infrastructure, a dependency that does not build) → `Status: failed`; its dependents become waiting. Ask the user now, with `AskUserQuestion`: `Retry` (after they fix the named cause) or `Leave`. `Retry` sets `Status: ready-for-agent` and re-dispatches at the same tier, keeping the partial branch per Partial work.
+   4. Stop when the frontier is empty, no ticket is running, and no question is waiting on the user, or when `--max` is reached.
 
 4. **Harden** — always run: it reviews what landed. Name a waiting, failed, or unrun ticket in the report and continue. Per PR group, one reviewer (`general-purpose`, `model: "opus"`) round at a time, on the group's tip, against the base its PR will target: the previous group's tip when groups stack, else the fork point on the default branch. Groups in different repos run concurrently. Groups in one stack run bottom up; before a stacked group's first round, merge the lower group's final tip into its branch.
    - **Reviewer prompt:** the repo path, the worktree path when there is one, the branch, the base ref, the follow-ups, the spec files (the group's ticket paths and the spec), the round number, the scratchpad path, and the path of `briefs.md`. A delta round adds the sha the previous round reviewed, that round's report path, and its scout manifest path when the same run produced it.
@@ -47,20 +49,20 @@ Folder given: use it. None: glob `.scratch/*/issues` from the current directory.
    - **Group already hardened** (a ticket has a `Hardened:` line): skip the group when its tip sha has a `Hardened:` line. When the tip moved, read `re-harden.md` in this folder.
    - A fix earns no round of its own: the fix re-review inside the round already read its diff, and the round runs the full lint and test suite on the head after the fix commit.
 
-   Append `Hardened: <tip sha> · <rounds> rounds · <clean|cap|carried> (<report path>)` to the Agent result of the group's tip ticket. Carry each spec question and follow-up to step 5. A failing lint or test run in a round's return leaves the group with no `Hardened:` line, and the report leads with it. Done when every `done` ticket's head sha is an ancestor of a tip with a `Hardened:` line (`git merge-base --is-ancestor`), and each group's last round either confirmed nothing of medium or higher severity or was the last its rules allow. Then remove the group worktrees (`git worktree remove`) and keep the branches.
+   Append `Hardened: <tip sha> · <rounds> rounds · <clean|cap|carried> (<report path>)` to the Agent result of the group's tip ticket. When a group's last round returns, sort its follow-ups and ask its questions per `ask.md` at once, while the other groups harden. A failing lint or test run in a round's return leaves the group with no `Hardened:` line, and the report leads with it. Done when every `done` ticket's head sha is an ancestor of a tip with a `Hardened:` line (`git merge-base --is-ancestor`), and each group's last round either confirmed nothing of medium or higher severity or was the last its rules allow. Then remove the group worktrees (`git worktree remove`) and keep the branches.
 
-5. **Ask** — **follow-ups or open questions from this run:** read `ask.md` in this folder and do it. None: go to step 6.
+5. **Loop** — when an answer this run created or reset a ticket, go back to step 1: the scout tiers the new tickets, step 3 runs them, and step 4 hardens only the groups whose tip moved. Repeat until a pass creates or resets nothing. Then go to step 6.
 
 6. **Report** — first draft each PR body, then the report.
    - **PR body:** per PR group with a `Hardened:` line, call the Skill tool with `pr` and write `<issues-folder>/../pr-body-<group>.md` in its shape. Its sources are the group's Agent results, `pr-notes-<group>.md`, the pre-deploy checklist, and the last round's report. Evidence names the verification commands and their results, and the pr notes go next to the claims they support. Each claim in the body traces to a verification output file or a `file:line`; cut a claim with neither. A ticket with Value as its tier reason makes the door a question: an on-chain upgrade, a migration, or anything that moves funds or authority is one-way unless the ticket names a rollback. Blast Radius names every consumer that the checklist or the report names. Write the body per `~/.claude/skills/review/public-text.md`. Overwrite the file on each run, so it follows the group tip.
    - **Report**, in this order:
      1. The questions that still have an empty `Answer:`, and the path of `spec-questions.md`.
      2. The answers applied this run, one line each: ticket, answer, and the ticket it created or reset.
-     3. The follow-ups sorted in step 5: per group, the count added to each of the checklist, `pr-notes-<group>.md`, and `followups-<group>.md`, with their paths.
+     3. The follow-ups sorted per `ask.md`: per group, the count added to each of the checklist, `pr-notes-<group>.md`, and `followups-<group>.md`, with their paths.
      4. A table: ticket · outcome · tier · repo · branch · head sha · one-line note.
      5. Per PR group: rounds run this run and over its life, each round's confirmed count and whether it was full or delta, the tickets a `carried` line names, the last round's severity table, open suspicions, lint and test results, and whether it ended clean or at the cap.
      6. The path of each PR body.
-     7. Waiting tickets with what unblocks each, escalations, and the reminder that branches are unpushed and the same command resumes safely.
+     7. Waiting tickets with what unblocks each, escalations, and the reminder that branches are unpushed and the same command resumes safely, applying any answers written into `spec-questions.md` by then.
 
 ## Landing
 
