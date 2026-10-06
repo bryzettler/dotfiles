@@ -1,10 +1,8 @@
 # Domain: EVM
 
-Loaded when the diff touches Solidity, Vyper, or a client that sends transactions to an EVM chain.
-
 ## Tooling
 
-`forge build`, `forge test` as a test run per `review-core.md` (or the Hardhat equivalents), `slither .` when installed, and the **external-call grep** over the changed contracts, saved by the scout and passed to the Value agent as a path:
+`forge build`, `forge test` as a test run per `scout.md` (or the Hardhat equivalents), `slither .` when installed, and the **external-call grep** over the changed contracts:
 
 ```
 rg -n '\.call\{?|\.delegatecall|\.staticcall|selfdestruct|ecrecover|tx\.origin|block\.timestamp|block\.number|msg\.value|transfer\(|transferFrom\(|safeTransfer|approve\(|_mint\(|_burn\(|initializer|_disableInitializers|onlyOwner|onlyRole|unchecked|assembly|receive\(\)|fallback\(\)|balanceOf\(address\(this\)\)|latestRoundData|getReserves|slot0'

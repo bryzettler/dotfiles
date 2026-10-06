@@ -1,23 +1,18 @@
 # Review brief: Value
 
-The Value sub-agent brief for `review`, with the Universal Value lenses. The main loop never reads this file: it names the path in the dispatch prompt, and the agent reads it. Everything the main loop acts on lives in `review-core.md`.
+Loss of funds, authority, or data. Before starting, read the Universal Value lenses below, plus the entry map and Value lenses of each domain file your prompt names. Deliver per "Review hits" in `~/.claude/skills/review/return-rule.md`.
 
-## Return rule
+## Steps
 
-The agent's final message is the full report: the per-item coverage list, every hit, and the suspicions list, in this shape, and nothing else. The harness refuses report-file writes from sub-agents, so the agent writes no report file. That message is the return itself: never send it by `SendMessage`, a handback, or another channel, and never end with a pointer such as "I sent the report" or with a placeholder.
+1. **Entry map** — build the map each domain file asks for: Solana, the raw-input map; EVM, the external-call map; web, the trust-boundary map; database, the schema-change map; CI, the secret-scope map and the trigger map.
+2. **Value-flow map** — every path where lamports, tokens, ETH, NFTs, rent, fees, credits, or authority move or change hands, and every path where rows are deleted, overwritten, or exposed. For each path: source, destination, amount, and who controls each of the three.
+3. **Inputs** — list every changed instruction, function, handler, endpoint, or job, and for each one enumerate every account, address, or input it takes.
+4. **Constraints before arithmetic** — work the entry map and the input constraints first. Check every constraint on those inputs whether or not the constraint line changed: a new caller of an unchanged helper inherits every check the helper lacks.
+5. **Report** every hit as `file:line`, the lens name, the attacker or failure (who, holding what, sends what), the outcome (what they gain or the protocol loses), and the minimal fix.
+6. **Prove** a critical or high hit with a run. A medium or low hit stands on its quoted `file:line`.
+7. **Rank** — critical (funds, authority, or data lost), high (funds stuck, wrong amount, or a table locked for the deploy), medium, low. Hits have no length cap; the suspicions list stays under 300 words. List every suspicion, whatever the space: a verifier reads each hit after you, so a suspicion costs less than a missed path.
 
-- Per hit: `file:line`, lens, severity, the scenario in one sentence, the fix in one sentence, then an **evidence packet**: the exact lines traced with ten lines of context, and the caller, callee, constant, or schema line the trace relied on, each quoted with its `file:line`. The packet is what the main loop confirms from; a hit without one is treated as unverified.
-- Per suspicion: one line.
-
-No coverage lines, no "checked, nothing" entries, no preamble. Those are in the file.
-
-## Value sub-agent
-
-Loss of funds, authority, or data. The prompt carries: the diff command and commit list, the spec file path, the path of this file, the path of each matched `domain-*.md` (read the Universal Value lenses below plus every matched domain file's entry map and Value lenses before starting), the tooling output paths, and this brief:
-
-> Start with the entry map each domain file asks for (Solana: the raw-input map; EVM: the external-call map; web: the trust-boundary map; database: the schema-change map; CI: the secret-scope map and the trigger map). Then a value-flow map: every path where lamports, tokens, ETH, NFTs, rent, fees, credits, or authority move or change hands, and every path where rows are deleted, overwritten, or exposed. For each path: source, destination, amount, and who controls each of the three. Then list every changed instruction, function, handler, endpoint, or job, and for each one enumerate every account, address, or input it takes. Work the entry map and the input constraints before any arithmetic: a math error costs a share, a forwarded authority costs the vault. Check every constraint on those inputs whether or not the constraint line changed; a new caller of an unchanged helper inherits every check the helper lacks. Report every hit as: `file:line`, the lens name, the attacker or failure (who, holding what, sends what), the outcome (what they gain or the protocol loses), and the minimal fix. Read the program, the contract, the IDL or ABI, the schema, and the callers; the diff alone answers no lens here. Run a proof for a critical or high hit; a medium or low hit stands on its quoted `file:line`, because Defects runs the failures that lose nothing. Report only what you traced to an outcome; list unverified suspicions in one line each at the end, labelled as such. Never omit a suspicion for lack of space. Budget: about 40 tool calls for the trace, then return what is traced and list the rest as suspicions; a verifier reads each hit after you, so a suspicion costs less than a missed path. Rank: critical (funds, authority, or data lost), high (funds stuck, wrong amount, or a table locked for the deploy), medium, low. No length cap on hits; the suspicions list stays under 300 words. Deliver per the Return rule in this file.
-
-### Universal Value lenses
+## Universal Value lenses
 
 These apply in every domain. The domain files add the lenses for the chain or the web stack.
 
@@ -26,6 +21,6 @@ These apply in every domain. The domain files add the lenses for the chain or th
 - **Replay** — every action with a side effect. → What happens when it runs twice: a retried transaction, a duplicate job, two bot instances, a partial success followed by a resend, a webhook delivered again. A nonce, an idempotency key, or an on-chain state check must make the second run a no-op.
 - **Price** — every price, quote, or rate the code consumes. → Its source can be stale (check the timestamp, slot, or round guard) or manipulable within one transaction or block (a pool spot price, an LP token priced from reserves). A swap or transfer built from it carries a non-zero minimum-out or slippage bound that the caller cannot zero.
 - **Griefing** — every loop, list, or account the public can grow. → An attacker can make the instruction, function, or job fail, stall, or exceed compute or gas for everyone else by adding entries, dusting accounts, or front-running an init.
-- **Secrets** — every key, keypair, token, or seed the code touches. → It is not logged, not in a fixture, not committed, not in an error message, and not sent to any host other than the intended one. New env vars for secrets have no default.
+- **Secrets** — every key, keypair, token, or seed the code touches. → It stays out of logs, fixtures, commits, and error messages, and goes to no host other than the intended one. New env vars for secrets have no default.
 - **Dependencies** — every change to a manifest or lockfile. → Name each new or upgraded package and what it pulls in. Flag install scripts, a package newer than a week, a floor lowered, or a lockfile change with no manifest change.
 - **Legit path** — every guard the diff adds. → Name a legitimate caller and confirm the guard admits them. A guard that blocks the protocol's own crank, keeper, migration, or admin flow is a stuck-funds bug.

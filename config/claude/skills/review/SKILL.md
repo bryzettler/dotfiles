@@ -6,7 +6,11 @@ disable-model-invocation: true
 
 # review
 
-One review, two inputs, two outputs. Read `review-core.md` in this folder first: it holds the domain table, the tooling list, the triage rules, the fix re-review, and the report shape. `brief-standards.md`, `brief-spec.md`, `brief-defects.md`, and `brief-value.md` hold one sub-agent brief each with its lenses, and the `domain-*.md` files hold the chain, CI, web, and database lenses; the sub-agents read those by path and the main loop never opens them. Everything below is what differs by mode.
+One review, two inputs, two outputs. Four axes are the whole review: **Standards** (repo standards plus a smell baseline), **Spec** (does the diff do what the spec says), **Defects** (logic), and **Value** (loss of funds, authority, or data). Invoke no plugin skill.
+
+Keep the main loop's context for verdicts. Tool output, spec text, lens text, and full reports go to scratchpad files and reach the main loop as paths. Read a source range or a report file only when a specific verdict needs it. Run `git diff` only with `--shortstat` (size) or `--name-only` (classification). The `brief-*.md`, `domain-*.md`, `scout.md`, and `return-rule.md` files in this folder are for the sub-agents: pass their paths, and keep their text out of the main loop.
+
+`fixer` is the only agent that edits. In PR mode it edits the checkout only. Nothing is pushed.
 
 ## Mode
 
@@ -19,42 +23,55 @@ Resolve the mode from the argument before anything else:
 | `pr`                                      | pr     | the PR open for the current branch (`gh pr view --json number`)                                                                                                                                    |
 | `pr <n>`, `#<n>`, a bare number, a PR URL | pr     | that PR                                                                                                                                                                                            |
 
-Branch mode's output is edits in the working tree. PR mode's output is a GitHub review on the PR; the checkout is scratch and the PR branch stays as the author left it. In PR mode, read `pr-mode.md` in this folder now: it holds the prior-round and delta-round rules, the PR gate, the steps after the gate, and the public-text and anchoring standards.
+Branch mode's output is edits in the working tree. PR mode's output is a GitHub review on the PR; the checkout is scratch and the PR branch stays as the author left it.
 
-## Shared steps
+**PR mode:** read `pr-mode.md` in this folder now. It holds the PR gate and steps 5 to 9.
 
-1. **Pin** — one `scout` agent (`general-purpose`, `model: "opus"`), so no tool output, spec text, or PR body enters the main loop. Its prompt carries the mode, the target, the scratchpad path, the domain table from `review-core.md`, and the tooling list from `review-core.md` plus the instruction to read the Tooling section of each matched `domain-*.md` in this folder. It resolves the fixed point, confirms the diff is non-empty, writes the spec to `<scratchpad>/spec.md`, classifies every changed file by the domain table, runs every supported tool with one output file per tool, and returns a manifest under 300 words: fixed point sha, checkout path, spec path, diff line count from `git diff --shortstat`, one line per changed file with its domains, tooling output paths, tools unavailable, the standards-source paths, the **Value scope** (run or skip per "Four axes" in `review-core.md`, with the one reason), the project's lint and test commands, the **backend command** per matched database or chain domain (how to start a disposable instance with the schema or program loaded: a docker Postgres plus the repo's migrate command, a local validator, the repo's bankrun or litesvm script), or "none" when it cannot start (`docker info` fails, no validator binary), and the **execution evidence**: in PR mode the `gh pr checks <n>` result (every check named with pass, fail, or pending, or "no CI"); and, when there is no CI or no check runs the tests, and always in branch mode, the test runs per "Test runs" in `review-core.md`, each as command, working directory, and output path, not yet run. Done when the manifest names all of those and every changed file has a domain.
-   - _branch_: `git rev-parse <base>` succeeds. Spec: the `.scratch/<feature>/` `SPEC.md` or `PRD.md` and issue files that match the branch when they exist, else the full commit messages from `git log <base>..HEAD`. When the caller names a follow-ups file (claims the author left unverified), the scout copies it to `<scratchpad>/prior.md` and the Defects prompt carries that path. When the caller names spec files (tickets, a PRD), the scout writes those into the spec file instead of searching.
-   - _branch, delta round_: when the caller names a last-reviewed sha `<last>` and the previous round's report, the review is a delta round. The review diff is `git diff <last> HEAD` plus uncommitted changes, the fixed point for the axes is `<last>`, and the full `git diff <base>...HEAD` is named in every prompt as context, never as the target. When the caller also names the previous round's scout manifest, the scout starts from it: the spec, the standards sources, the test commands, and the domains of unchanged files carry forward, and it derives only the delta's line count and file list, the domains of files new to the delta, the tooling on the delta, and `prior.md`. The scout appends the previous round's fixes, open suspicions, and dismissals to `<scratchpad>/prior.md`. Only Defects and Value run: the delta is the previous round's fixes, and Standards and Spec covered the branch in round 1; the report names both as skipped. Defects confirms each prior fix does what the report says, and works the Neighbours lens on it: a sibling call, guard, or path the fix left unchanged is a hit.
-   - _pr_: `gh pr view <n> --json baseRefName,headRefOid,body`. Review from a checkout at the PR head: the current worktree when `HEAD` is that sha, else a throwaway worktree in the scratchpad from `git fetch origin pull/<n>/head`. A throwaway worktree gets a `node_modules` symlink from the main checkout for the root and for every workspace package that has one, so tests resolve cross-package imports. Fetch the base and take `origin/<base>` as the fixed point. Spec: the PR body, then the full commit messages from `git log origin/<base>..HEAD`. The PR body is the strongest spec a PR has, since every sentence in it is a claim the Spec and Contract lenses can test. Done when the checkout is at `headRefOid`.
-   - _pr, prior round_: per "Prior round" in `pr-mode.md`.
+**Delta round** (the caller names a last-reviewed sha `<last>`, or the scout's manifest returns one): read `delta-round.md` in this folder after step 1. It changes steps 2 and 3.
 
-2. **Review** — in one message, start the scout's test runs in the background and dispatch the four sub-agents: Standards and Spec (`general-purpose`, `model: "opus"`), Defects and Value (`tracer`). Each prompt carries the diff command and commit list, the spec path, the path of its `brief-<axis>.md`, the tooling output paths, and a scratchpad path for proof-run output; Standards adds the standards-source paths, Defects and Value add the matched `domain-*.md` paths. No lens, smell, or standards text is pasted. Done when every dispatched axis has a return in the shape of the Return rule in its brief file.
-   - _branch, delta round_: Defects and Value only, per step 1.
-   - _pr, delta round_: per "Delta round" in `pr-mode.md`.
+## Steps
 
-3. **Triage** — per `review-core.md`: fold duplicates, settle Defects hits from their packets and proof runs, dispatch verifiers for Value hits and contradictions, then resolve. Done when every finding across the four reports is confirmed, dismissed with a reason, or held as an open Value suspicion, and each confirmed finding has a resolution, and the revert check has returned a line per guard.
+1. **Pin** — one scout (`general-purpose`, `model: "opus"`). Its prompt carries the mode, the target, the scratchpad path, and the path of `scout.md` in this folder, plus whatever the caller named: follow-ups file, spec files, `<last>`, the previous report, the previous manifest. Done when the manifest names every field in `scout.md` and every changed file has a domain. A manifest that says "nothing new since `<last>`" ends the run: report that and stop.
 
-4. **Gate** — zero confirmed findings and zero open Value suspicions is a clean diff. A clean diff is not yet a proven one: reading is not running. The axes run only narrow proofs, never the test suite, so the gate also needs the execution evidence from the scout's manifest and the test runs started in step 2 (wait for their completion notifications here, never with a sleep loop; read only the tail of each output), and a failing or missing test run is a confirmed finding in its own right.
-   - _branch_: the test run passed. Write the report and stop. Silence is the deliverable. An open Value suspicion is not silence: the report leads with it. A failing test is not silence either: it is a finding, and the report leads with the failing lines.
-   - _pr_: per "Gate" in `pr-mode.md`.
+2. **Review** — in one message:
+   - Start each **test run** from the manifest in the background (`run_in_background`).
+   - Dispatch the axes: Standards and Spec (`general-purpose`, `model: "opus"`), Defects and Value (`tracer`).
+   - Every prompt carries the diff command and commit list, the spec path, the path of its `brief-<axis>.md`, the tooling output paths, and a scratchpad path for proof-run output. Standards adds the **standards sources**. Defects and Value add the matched `domain-*.md` paths. Defects adds the `prior.md` path when there is one. Paste no lens, smell, or standards text.
+   - **Standards scope** skip: dispatch no Standards agent. The Spec prompt also names `brief-standards.md` for its End state and Public repo lenses.
+   - **Value scope** skip: dispatch no Value agent.
+   - Spec path "no spec": dispatch no Spec agent.
+   - Diff line count over about 1500: split Defects and Value by package or top-level directory, one agent per slice. Each slice's prompt names the files it owns.
 
-Then continue with the steps for the mode. Both modes dispatch `fixer` once: it starts with no context and cannot ask, so every judgement call is settled before dispatch and the prompt states the change, not the reasoning. Per item: file and line, what is wrong, and the specific minimal edit. Plus the project's lint and test commands, the backend commands from the manifest, and a scratchpad path for their output.
+   Done when every dispatched axis has a return per "Review hits" in `return-rule.md` in this folder.
 
-## Branch mode
+3. **Triage** — per `triage.md` in this folder. Done per its done line.
 
-5. **Fix** — one `fixer` run carrying every code and claim resolution. Done when every item has an edit or a reported mismatch, and lint and tests pass or the failures are shown to pre-exist on `<base>`.
+4. **Gate** — zero confirmed findings and zero open Value suspicions is a clean diff. The gate also needs the **execution evidence** from the manifest and the test runs from step 2. Wait for their completion notifications, never with a sleep loop, and read only the tail of each output. A failing or missing test run is a confirmed finding.
+   - Branch, clean, test run passed: write the report and stop. An open Value suspicion or a failing test is a reason to continue: the report leads with it.
+   - PR: per "Gate" in `pr-mode.md`.
 
-6. **Re-review the fix** — per `review-core.md`. Done per "Fix re-review" in `review-core.md`.
+5. **Fix** — one `fixer` run carrying every code and claim resolution. It starts with no context and cannot ask, so settle every judgement call first and state the change, not the reasoning. Per item: file and line, what is wrong, and the minimal edit. Add the project's **lint and test commands**, the **backend commands**, and a scratchpad path for their output. Done when every item has an edit or a reported mismatch, and lint and tests pass or the failures are shown to pre-exist on `<base>`. PR mode: Draft, per `pr-mode.md`.
 
-## PR mode
-
-Steps 5 to 9 (Draft, Re-review the fix, Redact, Post, Persist) are under "Steps after the gate" in `pr-mode.md`.
-
-## Cost budget
-
-One `scout`, four review sub-agents (more only when the diff is split by size per `review-core.md`, fewer in a delta round or when Standards or Value is skipped), verifiers only for a Value hit or a contradiction, at most two, plus one revert-check verifier at triage and one at the fix re-review, one `fixer`, at most one follow-up `fixer`. A delta round reviews the change since the last round, not the PR, and re-verifies a carried suspicion only when the delta touches the files it names. Model per agent: Defects and Value run as `tracer` (fable, effort high), because their job is to trace a change to its second- and third-order consequences; a Value verifier runs as `verifier` (fable, effort medium), because the packet narrows the read; a Defects hit gets no verifier, because the tracer proved it by a run or a quoted `file:line`, and a second fable read of the same lines adds cost, not evidence; the scout, Standards, Spec, the revert-check verifier, and `fixer` run on `opus`, because their job is execution against a fixed procedure. The main loop does the resolutions, the +EV bar, the fix re-review, and redaction, and those work from returns and scratchpad paths: the main loop reads a source range or a report file only when a specific verdict needs it. No plugin skill is invoked. `fixer` is the only agent that edits; in PR mode it edits the checkout only, and nothing is pushed. The four axes are the whole review.
+6. **Fix re-review** — per "Fix re-review" in `review-rules.md` in this folder, using the manifest's **backend commands**. Done per that section.
 
 ## Report
 
-The shape in `review-core.md`. PR mode adds the fields under "Report additions" in `pr-mode.md`.
+A severity table first: one row per confirmed finding with file, axis or lens, severity. Then seven lists:
+
+1. redesign, with the scenario and the smaller design
+2. fixed in code
+3. fixed in the claim
+4. left as is, with the reasoning
+5. follow-ups
+6. open suspicions (Value only), each with what was checked, what was not, and whether it was carried from a prior round
+7. dismissed, with the reason
+
+Then the execution evidence: CI checks per name as pass, fail, pending, or "no CI"; the test runs as pass or fail, with the failing lines when any; lint and test results per command from the fixer's return, with the failing lines when any; and the entries marked `unproven`.
+
+Then the spec questions from every "Fix the spec" resolution. Then the revert check: targets mutated, red, green.
+
+Then a coverage line: the head sha reviewed and the base, round (full or delta since `<last>`), domains, files read, files not read, axes skipped (Value with the scout's reason), tools run, tools unavailable or skipped.
+
+On the zero path: the open suspicions and dismissed lists, the execution evidence, the revert check, and the coverage line.
+
+PR mode adds the fields under "Report additions" in `pr-mode.md`.

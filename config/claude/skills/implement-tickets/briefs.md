@@ -1,75 +1,83 @@
 # implement-tickets briefs
 
-The sub-agent briefs for `implement-tickets`: scout, explorer, implementer, reviewer, plus the ticket grammar and the tier rubric. The main loop never reads this file: it names the path in each dispatch prompt, and the agent reads it. Everything the main loop acts on lives in `SKILL.md`.
-
-## Return rule
-
-Every agent writes its full output to the scratchpad path it was given and returns a final message in the shape its brief names, under the word cap, with nothing else: no preamble, no coverage narration, no quoted tool output. The main loop works from returns and paths; a return that exceeds its shape is context spent for nothing. The final message is the return itself. The main loop reads that message and nothing else, so never send the return by `SendMessage`, a handback, or another channel, and never end with a pointer such as "I sent the report" or with a placeholder.
-
-## Ticket grammar
-
-A ticket is `NN-slug.md` with a header the scout parses:
-
-- `# NN — title`
-- `**Type:**` free text (feature, bug, spec, chore).
-- `**Status:**` one of `ready-for-agent`, `needs-triage`, `in-progress`, `done`, `failed`, `claimed`, `resolved`, `ready-for-human`, `wontfix`. A file with no parseable `Status:` is a planning or map ticket.
-- `**Blocked by:**` ticket numbers. The list may wrap across lines: read to the end of the sentence. Prose like "must merge before X" is ordering advice, not a blocker.
-- `**Tier:**` optional, `standard` or `deep`, set by a human; it wins over the rubric.
-- `**PR:**` optional, the name of the PR the ticket ships in, set by a human; it wins over the scout's grouping. The name is also the branch name, so it follows the Branch names rule below.
-
-## PR groups
-
-Fewer PRs are better. One PR per ticket is wrong, and so is one PR per spec issue. Put tickets in one group when they are in the same repo and ship or deploy together. Split a group only for one of these reasons: the tickets are in different repos; a spec gives a reason that the parts must roll out apart (not only "one PR each"); or the diff is too large for one review. Name the reason for each split in the plan.
-
-## Branch names
-
-A group's name is its branch name. Use the repo's convention: read `git branch -r` and the repo's `CLAUDE.md`. With no convention, use `<type>/<slug>`: the type is `feat`, `fix`, or `chore`, and the slug says what the change does in 3–6 words (`fix/sink-refresh-stall-publisher-cursor-bound`). Do not put ticket numbers, `pr-NN`, or a sequence number in the name; they tell a reviewer nothing and go stale when groups merge.
-
-- Acceptance criteria as `- [ ]` checkboxes. They are the definition of done.
-- Relative links (`../spec.md`, prototypes) resolve against the ticket's own directory.
-
-State classes the scout assigns:
-
-| Status                                                                                              | Class                               |
-| --------------------------------------------------------------------------------------------------- | ----------------------------------- |
-| none, `resolved`, `needs-triage`, `ready-for-human`, `wontfix`                                      | skipped: not agent-actionable       |
-| `claimed`                                                                                           | skipped: owned elsewhere            |
-| `in-progress`                                                                                       | skipped: died mid-run, user decides |
-| `done`, `failed`                                                                                    | skipped                             |
-| `ready-for-agent`, every blocker `done`, `resolved`, or a non-actionable ticket whose output exists | **frontier**                        |
-| `ready-for-agent`, any blocker `claimed`, `in-progress`, `failed`, or `ready-for-agent`             | **waiting**                         |
-
-## Tier rubric
-
-The scout proposes one tier per candidate ticket. Standard is the default and needs no reason. Deep is proposed when any of these holds, and the manifest names which:
-
-- **Value** — the change touches funds, authority, keys, an on-chain program or contract, a database migration, or a concurrency or scheduling path.
-- **Open design** — an acceptance criterion needs a decision the spec does not make: a data model, a public interface, an algorithm choice.
-- **Depth** — the ticket asks for a root-cause fix of a bug with no reproduction, or a performance change with a numeric target.
-- **Pinned** — `**Tier:** deep` in the header. `**Tier:** standard` pins the other way and overrides every signal above.
-
-A ticket that is many small mechanical edits, a cut across several modules or repos, a rename, a config change, a test backfill, or a straight port of a described function is standard even when it is long.
+Find your section by the role your prompt names. Return per `~/.claude/skills/review/return-rule.md`, under your word cap. Write your full output to the scratchpad path you were given; the return carries the shape below.
 
 ## Scout
 
-`general-purpose`, opus. The prompt carries: the issues folder path, the `--only` list, the scratchpad path, and the path of this file.
+1. Read every `*.md` in the issues folder and parse each per "Ticket grammar" in `~/.claude/skills/implement-tickets/tickets.md`.
+2. Read the spec the tickets reference (usually `../spec.md`); its section structure names the target repo per ticket.
+3. Resolve repo names to absolute paths against, in order: explicit paths in the spec or ticket, the current directory, and the parent of the directory containing `.scratch`. Verify each path exists with `ls`.
+4. Classify every ticket by the State classes table in `tickets.md`, compute the topological order from `Blocked by:`, mark the frontier, and propose a tier per frontier and waiting ticket by its Tier rubric.
+5. Assign every candidate ticket a PR group by the PR groups and Branch names rules below: its `**PR:**` header, else one group per repo. A spec or map that splits the work into more PRs (a "part 1", a PR list, one PR per issue) counts only when it gives a split reason those rules accept. When a `**PR:**` header breaks the Branch names rule, keep the header and flag the name in the manifest. Record for each group which group it stacks on, if any.
+6. Apply `--only` as a filter on candidates, not on blockers.
+7. Write the full plan to `<scratchpad>/plan.md`: the table, the spec section numbers per ticket, the repo paths, and the PR groups.
+8. Recommend exploration only when two or more tickets would repeat the same codebase or external research, and name the topic.
 
-> Read every `*.md` in the issues folder and parse each by the Ticket grammar in this file. Read the spec the tickets reference (usually `../spec.md`); its section structure names the target repo per ticket. Resolve repo names to absolute paths against, in order: explicit paths in the spec or ticket, the current directory, and the parent of the directory containing `.scratch`. Verify each path exists with `ls`. Classify every ticket by the State classes table, compute the topological order from `Blocked by:`, mark the frontier, and propose a tier per frontier and waiting ticket by the Tier rubric. Assign every candidate ticket a PR group by the PR groups and Branch names rules in this file: its `**PR:**` header, else one group per repo; a spec or map that splits the work into more PRs (a "part 1", a PR list, one PR per issue) counts only when it gives a split reason those rules accept. When a `**PR:**` header breaks the Branch names rule, keep the header and flag the name in the manifest. Record for each group which group it stacks on, if any. Apply `--only` as a filter on candidates, not on blockers. Write the full plan to `<scratchpad>/plan.md`: the table, the spec section numbers per ticket, the repo paths, and the PR groups. Recommend exploration only when two or more tickets would repeat the same codebase or external research, and name the topic. Return under 300 words: one row per file (number, title, state, repo paths, blockers, tier with a one-phrase reason, PR group, or the skip reason), the spec path, unresolved repo names, and the exploration recommendation.
+Return under 300 words: one row per file (number, title, state, repo paths, blockers, tier with a one-phrase reason, PR group, or the skip reason), the spec path, unresolved repo names, and the exploration recommendation.
+
+### PR groups
+
+Fewer PRs are better. One PR per ticket is wrong, and so is one PR per spec issue. Put tickets in one group when they are in the same repo and ship or deploy together. Split a group only for one of these reasons: the tickets are in different repos; a spec gives a reason that the parts must roll out apart (not only "one PR each"); or the diff is too large for one review. Name the reason for each split in the plan.
+
+### Branch names
+
+A group's name is its branch name, and a `**PR:**` header name follows this rule. Use the repo's convention: read `git branch -r` and the repo's `CLAUDE.md`. With no convention, use `<type>/<slug>`: the type is `feat`, `fix`, or `chore`, and the slug says what the change does in 3–6 words (`fix/sink-refresh-stall-publisher-cursor-bound`). Keep ticket numbers, `pr-NN`, and sequence numbers out of the name: they tell a reviewer nothing and go stale when groups merge.
 
 ## Explorer
 
-`general-purpose`, opus. The prompt carries: the research topic, the spec path, the repo paths, the notes folder path, and the path of this file.
+Research the topic against the repos and the spec: the existing code paths, conventions, interfaces, and external facts an implementer would otherwise rediscover. Write markdown notes to the notes folder, one file per topic, each note leading with the file paths and symbols an implementer should open. When the topic has more than one design (where a write lands, one transaction or two, which layer holds a guard), write each option with the failure paths it opens and what repairs each one, and leave the choice to the implementer and the spec. Write only in the notes folder, which sits outside every repo.
 
-> Research the topic against the repos and the spec: the existing code paths, conventions, interfaces, and external facts an implementer would otherwise rediscover. Write markdown notes to the notes folder, one file per topic, each note leading with the file paths and symbols an implementer should open. When the topic has more than one design (where a write lands, one transaction or two, which layer holds a guard), write each option with the failure paths it opens and what repairs each one, and leave the choice to the implementer and the spec. The notes folder sits outside every repo; write nothing inside a repo. Return the list of note paths written and one line per note saying what it covers.
+Return the list of note paths written and one line per note saying what it covers.
 
 ## Implementer
 
-`implementer` agent for the standard tier, `implementer-deep` for the deep tier. The prompt carries: the ticket path, the spec path with section numbers, the notes folder when exploration ran, the repo path(s), the group branch, the ticket branch and its worktree path, the scratchpad path for this ticket, and the path of this file. On an escalation it also carries the standard run's mismatch text.
+**Before writing code:** read the ticket at the path given (its relative links resolve against its own directory), the spec sections named, the notes folder if given, and the target repo's `CLAUDE.md`.
 
-> Read the ticket at the path given; its relative links resolve against its own directory. Read the spec sections named, the notes folder if given, and the target repo's `CLAUDE.md` before writing code. All work happens in the repo, and the tickets folder stays untouched. Work in the worktree given, on the ticket branch given, which was cut from the group branch's tip; create no branch or worktree of your own. Other tickets of the PR group land on the group branch while you work, so before you return `done`: `git merge <group>` into your branch, resolve any conflict (the `mattpocock-skills:resolving-merge-conflicts` skill), rerun verification, and commit. The orchestrator fast-forwards the group branch to your head. Implement per your agent definition, with one change: skip its code-review step, since the orchestrator reviews the whole group when its tickets land. Budget: about 120 tool calls. Past it with criteria still unmet, commit `wip(NN): partial` and return `blocked` with `budget` as the reason and the criteria met and unmet, so the user decides instead of the run drifting. Commit locally, with messages that name the ticket number; the branch stays unpushed and no PR is opened. On `mismatch` or `blocked`, commit whatever you changed as `wip(NN): partial` before you return, so the worktree is clean. The acceptance criteria are the definition of done: run the repo's verification (tests, lint, typecheck) and check each criterion. A test's expected value comes from the spec or from an independent calculation, never from a run of the code under test, and an assertion is never loosened or a throw turned into a skip to reach green. A new test file runs in CI: add it where its siblings are wired, such as a hand-written matrix. Read a runtime fact (an account size, a rent value, an IDL field name, a program id) from the artifact or the chain, never from memory. A failing check is a defect in your change until its output shows otherwise, and calling it a flake needs the same check failing on the group branch. Save every verification command's full output to the scratchpad path given, one file per command. Return under 250 words in this shape: `outcome:` one of `done` (every criterion verified or the unverified ones named with why), `mismatch` (the ticket or spec leaves a decision open, conflicts with the code, or contradicts the real system it describes: a dependency graph, an API, an on-chain account; state the question in one sentence, then two or three answers, one marked `recommended:` with a one-line reason drawn from the spec or the code, and stop without implementing any of them), or `blocked` (an environmental failure: name the tool, infrastructure, or dependency); then repo, branch, worktree path, commit hashes, the group sha you merged, the head sha, per verification command its pass or fail with the output file path and on failure the failing lines only, the acceptance criteria as met or unmet, and under `unverified:` every claim in the ticket or your commits that no command you ran proves, one line each with the reason. The reviewer closes each one, so a claim missing from that list ships unchecked.
+**Where:** all work happens in the repo; leave the tickets folder untouched. Work in the worktree given, on the ticket branch given, which was cut from the group branch's tip; create no branch or worktree of your own. Commit locally, with messages that name the ticket number; the branch stays unpushed and no PR is opened.
+
+**How:** implement per your agent definition, with one change: skip its code-review step, since the orchestrator reviews the whole group when its tickets land.
+
+- The acceptance criteria are the definition of done: run the repo's verification (tests, lint, typecheck) and check each criterion.
+- A test's expected value comes from the spec or from an independent calculation, never from a run of the code under test. Reach green with every assertion at full strength: never loosen an assertion or turn a throw into a skip.
+- A new test file runs in CI: add it where its siblings are wired, such as a hand-written matrix.
+- Read a runtime fact (an account size, a rent value, an IDL field name, a program id) from the artifact or the chain, never from memory.
+- A failing check is a defect in your change until its output shows otherwise. Calling it a flake needs the same check failing on the group branch.
+- Save every verification command's full output to the scratchpad path given, one file per command.
+
+**Budget:** about 120 tool calls. Past it with criteria still unmet, commit `wip(NN): partial` and return `blocked` with `budget` as the reason and the criteria met and unmet, so the user decides instead of the run drifting.
+
+**Before you return `done`:** other tickets of the PR group land on the group branch while you work. `git merge <group>` into your branch, resolve any conflict (the `mattpocock-skills:resolving-merge-conflicts` skill), rerun verification, and commit. The orchestrator fast-forwards the group branch to your head.
+
+**Before you return `mismatch` or `blocked`:** commit whatever you changed as `wip(NN): partial`, so the worktree is clean.
+
+Return under 250 words in this shape:
+
+- `outcome:` one of:
+  - `done` — every criterion verified, or the unverified ones named with why.
+  - `mismatch` — the ticket or spec leaves a decision open, conflicts with the code, or contradicts the real system it describes (a dependency graph, an API, an on-chain account). State the question in one sentence, then two or three answers, one marked `recommended:` with a one-line reason drawn from the spec or the code, and stop without implementing any of them.
+  - `blocked` — an environmental failure: name the tool, infrastructure, or dependency.
+- repo, branch, worktree path, commit hashes, the group sha you merged, the head sha
+- per verification command: pass or fail, the output file path, and on failure the failing lines only
+- the acceptance criteria as met or unmet
+- `unverified:` every claim in the ticket or your commits that no command you ran proves, one line each with the reason. The reviewer closes each one, so a claim missing from this list ships unchecked.
 
 ## Reviewer
 
-`general-purpose`, opus. The prompt carries: the repo path, the worktree path when there is one, the branch, the base ref, the follow-ups, the spec files (the group's ticket paths and the spec), the round number, for a delta round the sha the previous round reviewed, that round's report path, and its scout manifest path when the same run produced it, the scratchpad path, and the path of this file.
+**Run the review skill.** It lives at `~/.claude/skills/review/`. Read its `SKILL.md` and follow its branch-mode pointers (`triage.md`, `verdicts.md`, `review-rules.md`, `delta-round.md`). The `scout.md`, `brief-*.md`, `domain-*.md`, `return-rule.md`, and `pr-mode.md` files are for its sub-agents and PR mode. Run it once in branch mode, from the worktree (else the repo with the branch checked out), with `<base>` set to the base ref given.
 
-> The review skill lives at `~/.claude/skills/review/`. Read its `SKILL.md` and `review-core.md`, and nothing else in that folder (the brief, domain, and PR-mode files are for its sub-agents and PR mode), and run it once in branch mode, from the worktree (else the repo with the branch checked out), with `<base>` set to the base ref given. Write the follow-ups to `<scratchpad>/followups-<round>.md` and name that file to the skill as its follow-ups file, and name the spec files to it. In a full round the whole of `git diff <base>...HEAD` is in scope. In a delta round, name the previous round's sha, report, and scout manifest to the skill, so it runs a delta round: the diff since that sha is the target, the full diff is context, only Defects and Value run, and the scout starts from the manifest. A report or manifest path that no longer exists is left out, and the round still runs as a delta. Wait for background runs by their notifications, never a sleep loop. When the skill's fixer has landed, commit its edits on the branch as `fix: review round <round>`, then run the repo's full lint and test suite on that head, one output file per command in the scratchpad. A suite run before the fix does not count. Write the report to `<scratchpad>/review-<branch>-<round>.md`. Return under 300 words: the sha the skill reviewed, the head sha after that commit, the base sha, the severity table, the confirmed count, counts fixed in code, fixed in the claim, and left as is, each spec question verbatim with its spec line, the confirmed finding in one sentence, its **blast radius** (every job, table, and consumer the finding reaches, beyond the one the spec names), and two answers: `keep` and `change: <the outcome the finding calls for>`, one marked `recommended:` with a one-line reason drawn from the finding's blast radius and the spec. A `change:` answer names the outcome ("a stuck sink pages someone within an hour", "no row keeps a stale stamp"), and leaves the mechanism to the implementer. A spec non-goal ("no new alert") backs `keep` only when the spec's authors weighed this blast radius. Then each follow-up from the report verbatim, tagged with its severity and one kind: `live-check` (the claim was never run live, in staging, or in production), `pr-note` (a line the PR body or a README owes a reviewer), or `code`. A `code` follow-up of medium or higher severity also carries its blast radius and two answers, `fix: <the outcome the finding calls for>` and `wontfix: <reason>`, one marked `recommended:` with a one-line reason. Then open Value suspicions verbatim, the revert check as targets mutated, red, and green, lint and test pass or fail per command on the post-fix head with the failing lines when any, and the report path.
+- Write the follow-ups to `<scratchpad>/followups-<round>.md` and name that file to the skill as its follow-ups file. Name the spec files to it.
+- **Full round:** the whole of `git diff <base>...HEAD` is in scope.
+- **Delta round:** name the previous round's sha, report, and scout manifest to the skill, so it runs a delta round. Leave out a report or manifest path that no longer exists; the round still runs as a delta.
+- When the skill's fixer has landed, commit its edits on the branch as `fix: review round <round>`, then run the repo's full lint and test suite on that head, one output file per command in the scratchpad. A suite run before the fix does not count.
+- Write the report to `<scratchpad>/review-<branch>-<round>.md`.
+
+Return under 300 words:
+
+1. The sha the skill reviewed, the head sha after that commit, the base sha.
+2. The severity table, the confirmed count, and the counts fixed in code, fixed in the claim, and left as is.
+3. Each spec question verbatim with its spec line, the confirmed finding in one sentence, its **blast radius** (every job, table, and consumer the finding reaches, beyond the one the spec names), and two answers: `keep` and `change: <the outcome the finding calls for>`, one marked `recommended:` with a one-line reason drawn from the finding's blast radius and the spec. A `change:` answer names the outcome ("a stuck sink pages someone within an hour", "no row keeps a stale stamp") and leaves the mechanism to the implementer. A spec non-goal ("no new alert") backs `keep` only when the spec's authors weighed this blast radius.
+4. Each follow-up from the report verbatim, tagged with its severity and one kind: `live-check` (the claim was never run live, in staging, or in production), `pr-note` (a line the PR body or a README owes a reviewer), or `code`. A `code` follow-up of medium or higher severity also carries its blast radius and two answers, `fix: <the outcome the finding calls for>` and `wontfix: <reason>`, one marked `recommended:` with a one-line reason.
+5. Open Value suspicions verbatim.
+6. The revert check as targets mutated, red, and green.
+7. Lint and test pass or fail per command on the post-fix head, with the failing lines when any.
+8. The report path.

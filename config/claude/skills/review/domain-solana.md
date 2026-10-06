@@ -1,10 +1,8 @@
 # Domain: Solana
 
-Loaded when the diff touches a Solana program, a client that builds its transactions, or a script or workflow that decodes, verifies, or deploys it. Sources: the sealevel-attacks catalogue, the Neodyme pitfalls, and the Cashio, Wormhole, Jet, Solend, Candy Machine, and SPL lending post-mortems collected at github.com/sannykim/solsec, and the Token-2022 checklist in the solana-foundation/solana-dev-skill security reference.
-
 ## Tooling
 
-Run the **raw-input grep** over the changed Rust files and save every match; the scout passes the file to the Value agent as a path:
+Run the **raw-input grep** over the changed Rust files:
 
 ```
 rg -n 'invoke(_signed)?|CpiContext::new|new_with_signer|remaining_accounts|Instructions|load_(current_index|instruction_at)_checked|get_instruction_relative|ed25519|secp256(k1|r1)|UncheckedAccount|AccountInfo|try_from_unchecked|try_from_slice|try_borrow(_mut)?_data|init(_if_needed)?|close\s*=|realloc|create_program_address|bump\s*=|lamports|\.round\(|as u(8|16|32|64)|#\[account\(mut\)\]|token::transfer\b|transfer_checked|token_interface|\.amount\b|\.reload\(\)|is_signer|is_writable|owned_by|unsafe|as_ptr|transmute|from_bytes'
@@ -12,7 +10,7 @@ rg -n 'invoke(_signed)?|CpiContext::new|new_with_signer|remaining_accounts|Instr
 
 Every match is a place the program does a security-critical check by hand instead of through Anchor's account validation, or moves or reads a token balance, and each one is a required stop for the Value agent. `cargo geiger` when installed, for `unsafe` blocks.
 
-The program's own tests are tooling too, as `forge test` is for EVM: `cargo test` for the unit tests, and `anchor test` (or `cargo test-sbf`, or the repo's litesvm or bankrun script, whichever the manifest or `Anchor.toml` names) for the instruction tests. When no CI check already runs them, they run once as test runs per `review-core.md`: the scout returns the commands, and the main loop starts them in the background. A program change with no instruction test to run is itself a Pinned hit.
+The program's own tests are tooling too, as `forge test` is for EVM: `cargo test` for the unit tests, and `anchor test` (or `cargo test-sbf`, or the repo's litesvm or bankrun script, whichever the manifest or `Anchor.toml` names) for the instruction tests. When no CI check already runs them, they are test runs per `scout.md`. A program change with no instruction test to run is itself a Pinned hit.
 
 ## Entry map
 
