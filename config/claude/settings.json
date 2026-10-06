@@ -126,7 +126,7 @@
     "rust-analyzer-lsp@claude-plugins-official": true,
     "plannotator@plannotator": false,
     "claude-hud@claude-hud": true,
-    "mattpocock-skills@claude-plugins-official": true
+    "mattpocock-skills@mattpocock": true
   },
   "extraKnownMarketplaces": {
     "plannotator": {
@@ -145,6 +145,12 @@
       "source": {
         "source": "github",
         "repo": "ChromeDevTools/chrome-devtools-mcp"
+      }
+    },
+    "mattpocock": {
+      "source": {
+        "source": "github",
+        "repo": "mattpocock/skills"
       }
     }
   },
