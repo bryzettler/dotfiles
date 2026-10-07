@@ -19,7 +19,7 @@ For open-ended requests ("Improve", "Refactor", "Add feature"), assess whether e
 Transform tasks into verifiable goals before starting:
 
 - "Add validation" → "Name the E2E flow that proves invalid inputs are rejected, then make it pass"
-- "Fix the bug" → "Reproduce it in an E2E flow, then make that flow pass"
+- "Fix the bug" → "Reproduce it (a throwaway repro is fine), then make the repro pass"
 - "Refactor X" → "Ensure tests pass before and after"
 
 For multi-step tasks, state a brief plan:
@@ -51,6 +51,7 @@ Keep the code in a working state, and debug one hypothesis at a time.
 - Write tests **first**, then the code. When you must test a system in isolation, first write all the ways it could fail.
 - Prefer E2E tests as the sole testing mechanism; use them to verify complex features. End each E2E test with a verifiable, repeatable artifact.
 - Each test proves real **behaviour**: it fails when behaviour breaks, passes against the real system rather than its mocks, and survives refactors.
+- Tautological and change-detector tests are harmful.
 - Add a regression test for a bug fix only when it closes a genuine gap in behaviour testing.
 - Keep every failing test until it passes.
 
