@@ -8,10 +8,10 @@ One scout, at most three verifiers, one revert-check verifier for the fix re-rev
 
 ## Reruns
 
-A rerun needs no section of its own:
+A rerun is a delta: it collects only what arrived after the earlier run's marks. The rule lives in "Delta" in the Scout brief.
 
-- The scout skips a thread whose newest comment carries `<!-- address-review -->`, and a PR comment already quoted by a later `<!-- address-review -->` comment (Scout brief).
-- A reviewer reply after that comment reopens the thread: the newest comment is then the reviewer's, so the scout's finding rule collects it.
+- Review bodies had no skip rule, and a body item lost its covering thread once that thread was answered, so a rerun collected both again. Hence the items line in the summary: the item key is exact, where "a later comment quoting it" had no checkable bound. A summary older than the items line names no keys, so the first rerun after it collects its body items once more.
+- The run resolves each thread it replies to, so the PR shows only what is still open. The scout does not count on a reply to reopen a resolved thread: it collects any thread whose newest comment follows our reply. The cost is that a reviewer's "thanks" becomes a finding with an ANSWER verdict.
 - A rerun after the user stopped at the gate finds the earlier commit ahead of the remote head. The verifiers check `git log <headRefOid>..HEAD` and return FIXED with its sha, so nothing is fixed twice.
 - The new summary covers only the findings this run answered (step 6).
 
