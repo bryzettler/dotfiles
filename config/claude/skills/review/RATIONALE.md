@@ -66,6 +66,12 @@ A third blind round on #1345 (head `1d50617e8`) ran with every rule above in pla
 - The round approved nothing and posted nothing, so Persist never ran and `address-review` would have logged "returns not kept". The main loop also condensed returns after a compaction. Hence persist on every gate path, and each axis writes its own return file.
 - CI tails were sampled (3 of 23 failing lanes). Hence one tail per failing check in the scout.
 
+## Fix rounds
+
+- PR #1345, round 5979983: 7 of the reviewer's 10 findings sat on lines our own `fix: address review` commit wrote. The Fix re-review mutated guards and call sites only, so a narrowed predicate (`&& k.isSigner`), a sync-to-async export, and a test no workflow ran all passed. Hence revert-check targets for predicate terms, changed signatures, and cited tests, and "a test no workflow runs is green".
+- The same round left a changeset sentence false and replied "fixed" to a partial fix. Hence the Claims and Remainder steps in the Fix re-review, and the Contract rule that a changeset sentence holds at the head, not at the commit that wrote it.
+- The audit rejected 160 of 288 lines and the main loop then skipped the audit tracers; a real reject (a cache-lag amount line) went with them. Many rejects were noise: a `.changeset/` path matched the forbidden word "changeset", and agents put free text in `sig:` on changesets and workflows. Hence the audit reads only the reason, a non-code item's `sig:` and a `probe:` with no `admits` are WARN, and "no step is skipped for volume". On that round the audit now gives 128 REJECT and 31 WARN. A missing `lenses:` stays REJECT: the field is the check.
+
 ## Domains
 
 - CI: a release or deploy workflow is where a key, a token, or an upgrade authority meets code the public can influence, so it gets the same scrutiny as the program it ships.

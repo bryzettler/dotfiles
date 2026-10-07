@@ -13,4 +13,4 @@ One run, in order:
 2. Make the edit for every item. If an item's fix conflicts with what you find in the code, skip that item and report the mismatch; you cannot ask questions mid-run.
 3. Run the lint and test commands you were given, once, at the end, and save each command's full output to the output path you were given, one file per command. Do not commit.
 
-Your final report lists every item as done or skipped with the reason, then per command: pass or fail, the output file path, and on failure the failing lines only, quoted from the output. Never a bare claim that it passed, and never the full output.
+Your final report lists every item as done or skipped with the reason, then per command: pass or fail, the output file path, and on failure the failing lines only, quoted from the output. Then, for each test file an item added or changed, the workflow file and line whose command runs it (`grep -rn` in `.github/workflows/`), or "no job runs it". Never a bare claim that it passed, and never the full output.

@@ -5,9 +5,12 @@ Usage: python3 -I ~/.claude/skills/review/tools/audit-coverage.py <scratchpad>/r
 
 Audits every coverage line: a cleared line for missing fields and forbidden
 reasons, and every line (a hit line too) for fields that show another hit.
-Prints one line per rejected line:
+Prints one line per rejected line, and one per line with only format faults:
   REJECT <return file>:<line> <reason> | <the coverage line>
-and a last line with the counts. Exit status 0 always; the caller reads the output.
+  WARN <return file>:<line> <reason> | <the coverage line>
+and a last line with the counts. A REJECT is a clearance the line did not earn
+or a field that shows a hit; a WARN is a format fault on a line whose fields
+show nothing, and needs no tracer. Exit status 0 always; the caller reads the output.
 See "Coverage line format" in return-rule.md for the fields.
 """
 import re
@@ -32,15 +35,19 @@ TIER = re.compile(r"\b(major|breaking tier|minor)\b", re.I)
 AMOUNT = re.compile(r"(lamport|fee|rent|fund|amount|price|quote|cost|balance|reward)", re.I)
 EARLY = re.compile(r"(env|override|rpc|fetch|get\w*Info|detect|fallback|default)", re.I)
 GATE = re.compile(r"(signer|capabilit|auth|owner|permission|guard)", re.I)
+# items with no exported signature: docs, changesets, config, lockfiles, workflows
+NON_CODE = re.compile(r"^\s*-\s*`?\S*\.(md|ya?ml|json|toml|lock)\b", re.I)
 
 
 def audit(path, n, line, cleared):
-    reasons = []
+    reasons, warns = [], []
     if cleared:
         if not re.search(r"\blenses:", line, re.I):
             reasons.append("no lenses: field")
+        # the reason follows the item name, which may itself be a changeset path;
         # the sig: field may name the changeset that admits a break
-        m = BAD_REASON.search(SIG.sub("", line.split("lenses:")[0]))
+        reason = line.split("—", 1)[-1].split("lenses:")[0]
+        m = BAD_REASON.search(SIG.sub("", reason))
         if m:
             reasons.append(f"forbidden reason '{m.group(0)}'")
     m = SIG.search(line)
@@ -53,7 +60,10 @@ def audit(path, n, line, cleared):
             if cleared and not TIER.search(v):
                 reasons.append(f"sig changed with no breaking-tier changeset named ({v})")
         else:
-            reasons.append(f"sig not in 'unchanged | new | removed | old → new' form ({v})")
+            # an unexported item has no signature to change; any other free text hides one
+            no_sig = NON_CODE.search(line) or re.search(r"\b(internal|not exported)\b", low)
+            bucket = warns if no_sig else reasons
+            bucket.append(f"sig not in 'unchanged | new | removed | old → new' form ({v})")
     arms, examples = ARMS.search(line), EXAMPLES.search(line)
     item = re.sub(r"^\s*-\s*\S+:\d+\s*", "", line.split("—")[0])
     if cleared and AMOUNT.search(item) and not (arms and examples):
@@ -62,7 +72,7 @@ def audit(path, n, line, cleared):
         reasons.append(f"examples {examples.group(1)} < arms {arms.group(1)}")
     for m in PROBE.finditer(line):
         if "admits" not in m.group(1):
-            reasons.append(f"probe names no admitted types ({m.group(1).strip()})")
+            warns.append(f"probe names no admitted types ({m.group(1).strip()})")
         else:
             # a parenthetical explains a type; it does not add one
             admitted = re.sub(r"\([^()]*\)", "", m.group(1).split("admits", 1)[1])
@@ -83,11 +93,11 @@ def audit(path, n, line, cleared):
         nones = [c.strip() for c in m.group(1).split("|") if re.search(r"\bnone\b", c, re.I)]
         if nones:
             reasons.append(f"parity cell none ({' | '.join(nones)})")
-    return reasons
+    return reasons, warns
 
 
 def main(paths):
-    total = rejected = 0
+    total = rejected = warned = 0
     for path in paths:
         try:
             lines = open(path, encoding="utf8").read().splitlines()
@@ -100,11 +110,14 @@ def main(paths):
             if not cleared and not re.search(r"\b(lenses|sig|probe|order|parity):", line, re.I):
                 continue
             total += 1
-            reasons = audit(path, n, line, cleared)
+            reasons, warns = audit(path, n, line, cleared)
             if reasons:
                 rejected += 1
-                print(f"REJECT {path}:{n} {'; '.join(reasons)} | {line.strip()}")
-    print(f"AUDIT {total} coverage lines, {rejected} rejected")
+                print(f"REJECT {path}:{n} {'; '.join(reasons + warns)} | {line.strip()}")
+            elif warns:
+                warned += 1
+                print(f"WARN {path}:{n} {'; '.join(warns)} | {line.strip()}")
+    print(f"AUDIT {total} coverage lines, {rejected} rejected, {warned} format warnings")
 
 
 if __name__ == "__main__":

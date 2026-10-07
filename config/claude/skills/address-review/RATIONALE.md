@@ -18,3 +18,7 @@ A rerun needs no section of its own:
 ## Misses
 
 A human finding that a `review` round could have seen is the cheapest lens test there is: the code was in front of the round, and it did not fire. The log records the class and the lens, never the instance, because a lens names a class. `review/RATIONALE.md` says where lens edits start. The log lives under `~/.claude/`, beside `review-state/`, because runs in any repo append to it.
+
+## Fix rounds
+
+Each review round on PR #1345 found defects in the previous round's fix commit, and the reviewer could not see our deferred tickets. Hence a blind Delta review on the fix diff before the commit, a Follow-ups section in the PR body for every defer, and a fix reply that names its pinning test and any part that remains.

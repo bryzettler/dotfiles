@@ -26,7 +26,7 @@ Every item carries `lenses:` and each field its class requires:
 | Item class                                               | Field                   | Value                                                                                                              |
 | -------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | every item                                               | `lenses:`               | each lens that applies → its result, e.g. `Reorder → env read before signer check, hit H2`                         |
-| an exported function, type, or constant                  | `sig:`                  | `unchanged`, `new`, `removed`, or `<old> → <new>` from base to head; a changed one also names the changeset tier |
+| an exported function, type, or constant                  | `sig:`                  | starts with `unchanged`, `new`, `removed`, or `<old> → <new>` from base to head; a changed one also names the changeset tier. Free text before the form is a REJECT. A changeset, workflow, config, or doc item carries no `sig:` |
 | an amount, fee, rent, or funding expression              | `arms:` and `examples:` | the count of conditional arms in the expression, and one worked example with numbers per arm; the counts are equal |
 | a truthy or property probe (`if (x.y)`, `x?.y`, `!!x`)   | `probe:`                | `<expr> admits <every type or value that passes>`, the word `admits` included |
 | a function that runs two or more checks, reads, or calls | `order:`                | the checks in the order the code runs them, `a > b > c`                                                            |

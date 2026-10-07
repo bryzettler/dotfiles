@@ -1,7 +1,6 @@
 ---
 name: review
 description: Four-axis review of a branch against develop (fixes applied) or of a PR (inline suggestions, or an LGTM approval when clean).
-disable-model-invocation: true
 ---
 
 # review
