@@ -9,6 +9,8 @@ One review, two inputs, two outputs. Four axes are the whole review: **Standards
 
 Keep the main loop's context for verdicts. Tool output, spec text, lens text, and full reports go to scratchpad files and reach the main loop as paths. Read a source range or a report file only when a specific verdict needs it. Run `git diff` only with `--shortstat` (size) or `--name-only` (classification). The `brief-*.md`, `domain-*.md`, `scout.md`, and `return-rule.md` files in this folder are for the sub-agents: pass their paths, and keep their text out of the main loop.
 
+Every `general-purpose` prompt this skill sends ends with: "Do not call the advisor." Those agents orchestrate, and an advisor call resends their whole context to Fable uncached.
+
 `fixer` is the only agent that edits. In PR mode it edits the checkout only. Nothing is pushed.
 
 ## Mode

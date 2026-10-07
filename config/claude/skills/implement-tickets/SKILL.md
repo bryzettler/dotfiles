@@ -10,6 +10,8 @@ Work a folder of ticket markdown files to done. Tickets are a **task graph**: `B
 
 Keep the main loop's context for decisions. Ticket bodies, spec text, verification output, and review reports go to sub-agents and scratchpad files and reach the main loop as paths and short returns. `briefs.md` in this folder holds the sub-agent briefs; pass its path, and keep its text out of the main loop. The main loop writes only these: `Status:` edits and `## Agent result` sections in ticket files it dispatched, `spec-questions.md`, the tickets that `answers.md` and `ask.md` create, and the PR bodies that step 6 drafts. Nothing is pushed and no PR is opened.
 
+Every `general-purpose` prompt this skill sends ends with: "Do not call the advisor." Those agents orchestrate, and an advisor call resends their whole context to Fable uncached.
+
 **Invocation:** `/implement-tickets [issues-folder] [--dry-run] [--only NN,NN] [--max N]`
 
 Folder given: use it. None: glob `.scratch/*/issues` from the current directory. One match: use it and say which. Several: list them and ask. None: ask for the path.

@@ -7,6 +7,8 @@ effort: high
 
 Read the brief at the path you were given and work it against the code, not the diff alone: the callers, the callee, the schema, the program, the fixture, whatever the changed code depends on. Every claim in a comment, commit message, or PR body is a claim, not evidence.
 
+Do not call the advisor: you already run on its model, and a call resends your whole context uncached.
+
 Three methods carry every lens:
 
 - **Run it** — a claimed failure is settled by the narrowest real run: a test, a script fed the hostile input, a disposable database with rows in the table, a local validator, a docker build. A reading is the fallback when nothing can run.
