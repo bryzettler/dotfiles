@@ -26,7 +26,21 @@ BAD_REASON = re.compile(
 FIELD = r"((?:\|\||[^;|])+)"
 SIG = re.compile(r"\bsig:\s*" + FIELD, re.I)
 ARMS = re.compile(r"\barms:\s*(\d+)", re.I)
-EXAMPLES = re.compile(r"\bexamples:\s*(\d+)", re.I)
+# one worked example per arm, ";"-separated; a field keyword ends the list
+NEXT_FIELD = re.compile(r";\s*(?:lenses|sig|probe|order|parity|tooling|arms):", re.I)
+
+
+def count_examples(line):
+    m = re.search(r"\bexamples:\s*", line, re.I)
+    if not m:
+        return None
+    rest = line[m.end():]
+    end = NEXT_FIELD.search(rest)
+    text = rest[: end.start()] if end else rest
+    lead = re.match(r"(\d+)\s*(?:;|$)", text)
+    if lead:
+        return int(lead.group(1))
+    return len([e for e in text.split(";") if e.strip()])
 PROBE = re.compile(r"\bprobe:\s*" + FIELD, re.I)
 ORDER = re.compile(r"\border:\s*" + FIELD, re.I)
 # parity cells are "|"-separated, so the field runs to the next ";"
@@ -64,12 +78,12 @@ def audit(path, n, line, cleared):
             no_sig = NON_CODE.search(line) or re.search(r"\b(internal|not exported)\b", low)
             bucket = warns if no_sig else reasons
             bucket.append(f"sig not in 'unchanged | new | removed | old → new' form ({v})")
-    arms, examples = ARMS.search(line), EXAMPLES.search(line)
+    arms, examples = ARMS.search(line), count_examples(line)
     item = re.sub(r"^\s*-\s*\S+:\d+\s*", "", line.split("—")[0])
     if cleared and AMOUNT.search(item) and not (arms and examples):
         reasons.append("amount item without arms:/examples:")
-    if arms and examples and int(examples.group(1)) < int(arms.group(1)):
-        reasons.append(f"examples {examples.group(1)} < arms {arms.group(1)}")
+    if arms and examples is not None and examples < int(arms.group(1)):
+        reasons.append(f"examples {examples} < arms {arms.group(1)}")
     for m in PROBE.finditer(line):
         if "admits" not in m.group(1):
             warns.append(f"probe names no admitted types ({m.group(1).strip()})")
