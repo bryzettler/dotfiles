@@ -4,6 +4,8 @@ Find your section by the role your prompt names. Return per `~/.claude/skills/re
 
 ## Scout
 
+Start with `python3 -I ~/.claude/skills/address-review/tools/collect.py <scratchpad> <target>`, run in the checkout. It does Branch check, Collect, and the thread half of Delta, and writes `pr-body-original.md`, `findings.md` with one entry per open thread, `bodies.md` with every review body and PR comment, and `collect.md` with the PR fields, the review rounds, the answered item keys, and the skip counts. A `FAIL` line is the branch-check failure: return it. What stays with you: split `bodies.md` into items, append the item findings to `findings.md`, write each covering item key on its thread's `Item:` line, and find the commands. The sections below are the rules the script follows and the ones you apply to the bodies.
+
 **Branch check.** Resolve the PR: `gh pr view <target> --json number,url,author,headRefName,headRefOid,baseRefName,body`. Write the body to `<scratchpad>/pr-body-original.md`. The run edits your working tree and pushes to the PR branch, so all of these must hold, and the first that fails ends the run with that failure as the return:
 
 - The current branch is `headRefName`.
@@ -43,10 +45,10 @@ Thread: <later comments in the thread, author: first line each, or "none">
 
 **Review rounds.** List each review whose inline comments start with `<!-- review -->` (a `review` skill round), with its `commit{oid}`, or "none".
 
-Also find the project's lint and test commands (package scripts, `Makefile`, `Cargo.toml`, CI workflow steps), and the backend command for any database or chain code the findings touch (how to start a disposable instance with the schema or program loaded), or "none".
+Also find the project's lint and test commands (package scripts, `Makefile`, `Cargo.toml`, CI workflow steps), and the backend command for any database or chain code the findings touch (how to start a disposable instance with the schema or program loaded), or "none". Also list the **dependency sources**, per that entry in `~/.claude/skills/review/scout.md`, for the packages the findings' files import.
 
-**Return** a manifest under 300 words: PR number and URL, `headRefName`, `headRefOid`, local commits ahead of it (sha and subject), the `findings.md` path, the PR body path, the lint and test commands, the backend commands, the review rounds with their commit shas, one row per finding (id, item, reviewer, anchor, a ten-word gist), each body item that threads cover with their finding ids, and the count of skipped threads and items per reason. Done when every item of every source review body and comment is a finding or names the findings that cover it.
+**Return** a manifest under 300 words, and write the same text to `<scratchpad>/manifest.md`: PR number and URL, `headRefName`, `headRefOid`, local commits ahead of it (sha and subject), the `findings.md` path, the PR body path, the lint and test commands, the backend commands, the dependency sources, the review rounds with their commit shas, one row per finding (id, item, reviewer, anchor, a ten-word gist), each body item that threads cover with their finding ids, and the count of skipped threads and items per reason. Done when every item of every source review body and comment is a finding or names the findings that cover it.
 
 ## Verifier
 
-Read `~/.claude/skills/review/verdicts.md` and follow its verifier brief. The prompt carries your finding ids, the `findings.md` path, the PR body path, and the head sha from the manifest. Each finding is a hit; its `Suggestion:` line is the `suggestion` fence the verdict checks. All five verdicts apply.
+Read `~/.claude/skills/review/verdicts.md` and follow its verifier brief. The prompt carries your finding ids, the `findings.md` path, the PR body path, and the head sha and dependency sources from the manifest. Each finding is a hit; its `Suggestion:` line is the `suggestion` fence the verdict checks. All five verdicts apply.

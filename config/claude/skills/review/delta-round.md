@@ -4,7 +4,9 @@ A delta round reviews the change since `<last>`, not the whole branch or PR. The
 
 ## Pin (the scout)
 
-**Branch.** The caller names `<last>` and the previous round's report. `<last>` may be a snapshot with no ref: when `git rev-parse <last>^{commit}` fails, run a full review and say so in the manifest. When the caller also names the previous round's manifest, start from it: the spec, the standards sources, the test commands, and the domains of unchanged files carry forward. Derive only the delta's line count and file list, the domains of files new to the delta, the tooling on the delta, and `prior.md`. Append the previous round's fixes, open suspicions, and dismissals to `<scratchpad>/prior.md`.
+**Branch.** The caller names `<last>`, and the previous round's report when there is one. `<last>` may be a snapshot with no ref: when `git rev-parse <last>^{commit}` fails, run a full review and say so in the manifest. Append the previous round's fixes, open suspicions, and dismissals to `<scratchpad>/prior.md`; with no report named there is no `prior.md`.
+
+**Branch, manifest named** (`since <sha> <manifest path>`). Dispatch no scout. The main loop runs `python3 -I ~/.claude/skills/review/tools/pin.py <scratchpad> branch --since <sha>` and reads `<scratchpad>/pin.md`: the head, the delta's size, files, and domains, and the tooling output paths. The lint and test commands, the backend commands, and the dependency sources come from the named manifest, and its test command is the one test run. The spec path is `pin.md`'s spec draft. Value scope: skip only when every file in `pin.md` has the one domain `web` and `grep-web.txt` is empty. A `nothing new since` line ends the run. A `FAIL` line in `pin.md` means pin with the scout instead. Done when `pin.md` names the head and a domain per changed file.
 
 **PR.** Write `<scratchpad>/prior.md`:
 

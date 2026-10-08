@@ -4,7 +4,7 @@ Why the skill is shaped this way. No step reads this file. Read it before you ch
 
 ## Models and cost budget
 
-One scout, at most three verifiers, one revert-check verifier for the fix re-review, one `fixer` plus at most one follow-up. Verifiers run as `verifier` (fable, medium): a verdict is a trace of consequences, and the finding already narrows the read. The scout and `fixer` run on `opus`: they execute a fixed procedure. Routing lives in `~/.claude/MODEL_ROUTING.md`.
+One scout, at most six verifiers, one revert-check verifier for the fix re-review, one `fixer` plus at most one follow-up, and a Delta review of two tracers and its triage. Verifiers run as `verifier` (opus, medium): the finding already narrows the read. The verifier wave is as slow as its largest group, and directory groups were uneven (3.9 minutes on wallet-app #1055, 6.2 on #1345), so groups are sized by count. The scout starts from `tools/collect.py`: the branch check, the fetch, and the thread rules need no judgement, and splitting a review body into items does. `fixer` runs on `opus`: it executes a fixed procedure. The scout runs as `scout` (sonnet, medium), for the reason in `review/RATIONALE.md`. Routing lives in `~/.claude/MODEL_ROUTING.md`.
 
 ## Reruns
 
@@ -21,4 +21,4 @@ A human finding that a `review` round could have seen is the cheapest lens test 
 
 ## Fix rounds
 
-Each review round on PR #1345 found defects in the previous round's fix commit, and the reviewer could not see our deferred tickets. Hence a blind Delta review on the fix diff before the commit, a Follow-ups section in the PR body for every defer, and a fix reply that names its pinning test and any part that remains.
+Each review round on PR #1345 found defects in the previous round's fix commit, and the reviewer could not see our deferred tickets. Hence a blind Delta review on the fix diff before the commit (a delta round through `since`, skipped for a prose-only fix diff: see Fix rounds in `review/RATIONALE.md`), a Follow-ups section in the PR body for every defer, and a fix reply that names its pinning test and any part that remains.

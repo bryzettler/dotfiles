@@ -4,11 +4,13 @@ You pin the review so the axes start from files, not from a search. Ask the user
 
 ## Steps
 
+Start with `python3 -I ~/.claude/skills/review/tools/pin.py <scratchpad> <branch [<base>] [--since <last>] | pr <n>>`, run in the checkout, and read `<scratchpad>/pin.md`. It does the mechanical part of steps 1 to 4: the fixed point, the head, the checkout, a spec draft from the PR body and commit log, a first domain per file, the domain greps, `signatures.txt`, and in PR mode the checks, their tails, and the prior round. The steps below then cover only what it leaves: each `FAIL` line, by hand per By mode; the spec sources it cannot see; a domain the Domain table contradicts (it classifies by path and import text); and the tools it does not run.
+
 1. **Fixed point and checkout** — by mode, below. Confirm the diff is non-empty.
 2. **Spec** — write it to `<scratchpad>/spec.md`, by mode, below. Resolve issue references in the commit messages (`#123`, `Closes #45`) through `docs/agents/issue-tracker.md` when that file exists, and fold the issue text into the spec file.
 3. **Classify** — give every changed file one or more domains from the Domain table.
 4. **Tooling** — run the Tooling below, one output file per tool in the scratchpad.
-5. **Scopes and commands** — decide the Standards and Value scopes, find the standards sources, the lint and test commands, and the backend commands.
+5. **Scopes and commands** — decide the Standards and Value scopes, find the standards sources, the lint and test commands, the backend commands, and the dependency sources.
 6. **Flows** — when the diff is over about 1500 lines and the Value scope runs, write `<scratchpad>/flows.md` per Flows below.
 7. **Return** the manifest.
 
@@ -56,6 +58,7 @@ Run whichever of these the repo supports:
 - **Standards scope** — run when a `CODING_STANDARDS.md`, `CONTRIBUTING.md`, `.cursorrules`, or `.cursor/rules/*` covers the language of a changed file; else skip.
 - **Standards sources** — `CODING_STANDARDS.md` and every file it points to, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.cursor/rules/*`, `docs/agents/*`.
 - **Value scope** — run when the diff can reach funds, keys, authority, or stored data: a chain or database domain, web code on a trust-boundary grep hit, or a CI file that reads `secrets.*`, runs on `pull_request_target` or `workflow_run`, or grants a write `permissions:` scope. Else skip, with the one reason.
+- **Dependency sources** — one line per external package whose behaviour a lens may need to read: a chain SDK, a program crate, an ORM, or an action that a changed file imports or calls. Each line is the package and the absolute path of the version the repo resolves: `node_modules/<pkg>` in the checkout, the crate directory from `cargo metadata --format-version 1 --offline` (the folder of its `manifest_path`), or a sibling checkout the repo's config points to. At most ten. The axes search inside the repo and these paths only, so a path left out is a dependency read from memory.
 - **Backend command** — per matched database or chain domain: how to start a disposable instance with the schema or program loaded (a docker Postgres plus the repo's migrate command, a local validator, the repo's bankrun or litesvm script). "none" when it cannot start (`docker info` fails, no validator binary).
 
 ## Flows
@@ -75,6 +78,7 @@ Under 300 words:
 - Standards scope and the standards-source paths
 - Value scope, run or skip, with the one reason
 - the project's lint and test commands, and the backend commands
+- the dependency sources, or "none"
 - execution evidence: in PR mode the `gh pr checks <n>` result, every check named with pass, fail, or pending, or "no CI", and each failing check with its tail path; and the test runs, each as command, working directory, and output path
 - the `flows.md` path with its flow and group counts, when Flows ran
 - `prior.md` path when there is one, and the delta-round fields `delta-round.md` adds

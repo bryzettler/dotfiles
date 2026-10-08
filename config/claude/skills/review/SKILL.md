@@ -21,6 +21,7 @@ Resolve the mode from the argument before anything else:
 | ----------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | none                                      | branch | `git diff <base>...<head>`, `<head>` = the scout's snapshot of the working tree (HEAD plus uncommitted and untracked files), `<base>` = `origin/develop`, else `develop`, else the base of the open PR for this branch (`gh pr view --json baseRefName`), else `origin/HEAD` |
 | a ref (`main`, `origin/release`, a sha)   | branch | as above with `<base>` = the ref                                                                                                                                                                                                                                             |
+| `since <sha> [<manifest path>]`           | branch | a **delta round**: `<base>` as for no argument, `<last>` = the sha, and the path names the caller's manifest                                                                                                                                                                 |
 | `pr`                                      | pr     | the PR open for the current branch (`gh pr view --json number`)                                                                                                                                                                                                              |
 | `pr <n>`, `#<n>`, a bare number, a PR URL | pr     | that PR                                                                                                                                                                                                                                                                      |
 
@@ -28,22 +29,24 @@ Branch mode's output is edits in the working tree. PR mode's output is a GitHub 
 
 **PR mode:** read `pr-mode.md` in this folder now. It holds the PR gate and steps 5 to 9.
 
-**Delta round** (the caller names a last-reviewed sha `<last>`, or the scout's manifest returns one): read `delta-round.md` in this folder after step 1. It changes steps 2 and 3.
+**Delta round** (the caller names a last-reviewed sha `<last>`, or the scout's manifest returns one): read `delta-round.md` in this folder after step 1, or before it when the argument is `since`. It changes steps 2 and 3, and step 1 for `since` with a manifest.
 
 ## Steps
 
-1. **Pin** — one scout (`general-purpose`, `model: "opus"`). Its prompt carries the mode, the target, the scratchpad path, and the path of `scout.md` in this folder, plus whatever the caller named: follow-ups file, spec files, `<last>`, the previous report, the previous manifest. Done when the manifest names every field in `scout.md` and every changed file has a domain. A manifest that says "nothing new since `<last>`" ends the run: report that and stop.
+1. **Pin** — one `scout`. Its prompt carries the mode, the target, the scratchpad path, and the path of `scout.md` in this folder, plus whatever the caller named: follow-ups file, spec files, `<last>`, the previous report, the previous manifest. Done when the manifest names every field in `scout.md` and every changed file has a domain. A manifest that says "nothing new since `<last>`" ends the run: report that and stop. A `since` argument that names a manifest pins without a scout, per "Pin" in `delta-round.md`.
 
 2. **Review** — in one message:
    - Start each **test run** from the manifest in the background (`run_in_background`).
    - Dispatch the axes: Standards and Spec (`general-purpose`, `model: "opus"`), Defects and Value (`tracer`).
-   - Every prompt carries its return path (`<scratchpad>/return-<axis>[-<slice>].md`), the diff command and commit list, the spec path, the path of its `brief-<axis>.md`, the tooling output paths, and a scratchpad path for proof-run output. Standards adds the **standards sources**. Defects and Value add the matched `domain-*.md` paths. Defects adds the `prior.md` path when there is one. In PR mode, Spec and Defects add the `pr-body.md` path. Paste no lens, smell, or standards text, and name no focus or priority: the prompt carries only these pointers, so each agent covers every path its brief lists.
+   - Every prompt carries its return path (`<scratchpad>/return-<axis>[-<slice>].md`), the diff command and commit list, the spec path, the path of its `brief-<axis>.md`, the tooling output paths, the manifest's **dependency sources**, and a scratchpad path for proof-run output. Standards adds the **standards sources**. Defects and Value add the matched `domain-*.md` paths. Defects adds the `prior.md` path when there is one. In PR mode, Spec and Defects add the `pr-body.md` path. Paste no lens, smell, or standards text, and name no focus or priority: the prompt carries only these pointers, so each agent covers every path its brief lists.
    - **Standards scope** skip: dispatch no Standards agent. The Spec prompt also names `brief-standards.md` for its End state and Public repo lenses.
    - **Value scope** skip: dispatch no Value agent.
    - Spec path "no spec": dispatch no Spec agent.
    - Diff line count over about 1500: split Defects by package or top-level directory, one agent per slice; each slice's prompt names the files it owns. Split Value by the scout's `flows.md`: one agent per flow group, each prompt naming its flows and every file on them, whatever the package. Changed files on no flow form one more Value slice, by directory.
 
    Each axis writes its own return file before its final message, per `return-rule.md`. When a file is missing, save the final message to that path verbatim as it arrives; summarise none, and never rewrite a return from memory after a compaction. Triage reads the summary it needs from the file; the misses log needs the coverage lists whole.
+
+   When a Value return lands, dispatch its verifiers per step 6 of `triage.md` in that same turn, while the other axes still run.
 
    Done when every dispatched axis has a return per "Review hits" in `return-rule.md` in this folder.
 

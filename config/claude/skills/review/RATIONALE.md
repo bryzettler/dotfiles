@@ -5,7 +5,7 @@ Why the skill is shaped this way. No step reads this file. Read it before you ch
 ## Agents and models
 
 - Standards and Spec are the two axes of `mattpocock-skills:code-review`, carried in-house so the plugin text and its aggregation stay out of the main loop. They are separate agents so that neither budget crowds the other, and so that a bug can be found twice.
-- Defects and Value run as `tracer` (fable, high): their job is to trace a change to its second- and third-order consequences. A Value verifier runs as `verifier` (fable, medium): the packet narrows the read. The scout, Standards, Spec, the revert-check verifier, and `fixer` run on `opus`: their job is execution against a fixed procedure. Routing lives in `~/.claude/MODEL_ROUTING.md`.
+- Defects and Value run as `tracer` (fable, high): their job is to trace a change to its second- and third-order consequences. A Value verifier and an audit recheck run as `verifier` (opus, medium): the packet or the rejected line narrows the read, and across two `address-review` runs Opus returned a tool call in 7 to 12 seconds against 9 to 18 for Fable at medium and 11 to 22 at high. Standards, Spec, the revert-check verifier, and `fixer` run on `opus`: their job is execution against a fixed procedure. The scout runs as `scout` (sonnet, medium): `tools/pin.py` does the mechanical half, the scout is serial on the critical path, and the models page rates Sonnet faster than Opus at half the price. `fixer` and the revert check stay on Opus until a run shows the Sonnet scout is clean: a bad fix costs a round. Routing lives in `~/.claude/MODEL_ROUTING.md`.
 - A Defects hit gets no verifier: the tracer proved it by a run or a quoted `file:line`, and a second fable read of the same lines adds cost, not evidence.
 - Splitting Defects and Value above about 1500 lines keeps any one agent from skimming. Defects splits by directory because its lenses read one function at a time. Value splits by flow because a loss of funds lives between layers: on #1345 the hook and the API quoted one cron job two ways, and directory slices handed each side to a different agent, so no Value agent saw both.
 
@@ -13,7 +13,7 @@ Why the skill is shaped this way. No step reads this file. Read it before you ch
 
 ## Cost budget
 
-One scout, four axes (more when split by size, fewer in a delta round or when an axis is skipped), at most two Value verifiers, one revert-check verifier at triage and one at the fix re-review, one `fixer`, at most one follow-up `fixer`. A delta round reviews the change since the last round, not the PR.
+One scout (none in a `since` round that names a manifest), four axes (more when split by size, fewer in a delta round or when an axis is skipped), at most two Value verifiers per wave over two waves, one audit verifier per 25 rejected lines, one revert-check verifier at triage and one at the fix re-review, one `fixer`, at most one follow-up `fixer`. A delta round reviews the change since the last round, not the PR.
 
 ## Execution
 
@@ -22,7 +22,9 @@ One scout, four axes (more when split by size, fewer in a delta round or when an
 - The revert check exists because reading a test is not running it.
 - A fix that flips a default, adds a guard, or adds a test is where a second round with a human reviewer usually starts, so the fix re-review runs the fix, not only reads it.
 - An audit on an unchanged dependency tree repeats the base's result, and a workspace audit can take minutes: hence audits only on a manifest or lockfile change.
-- The scout's tooling is deterministic and near free.
+- The scout's tooling is deterministic and near free. Hence `tools/pin.py`: the fixed point, the checkout, the domains, the greps, and the checks are a script's work (5 seconds on wallet-app #1055), and the scout keeps only the judgement.
+- Triage waited for every axis before any verifier started, so the Value verifier (4.2 minutes on wallet-app #1055) began after the slowest tracer (9.4 minutes on #1345). Hence the first verifier wave at the Value return.
+- On #1345 single commands ran 44 to 126 seconds: searches from `~/.cargo/registry`, sibling checkouts, and `find` from a parent directory. Hence dependency sources in the manifest, and the bounded-search rule in `tracer` and `verifier`.
 - Branch mode reviewed "HEAD plus uncommitted changes", a state with no sha. `ts-signatures.mjs` reads both sides with `git show`, so it saw none of the uncommitted work: on the Delta review of an `address-review` fix diff it compared HEAD with HEAD. Hence `tools/snapshot.py`: the scout names the working tree as a commit, and the revert check builds its worktree from one in place of applying a diff by hand.
 
 ## Spec
@@ -72,6 +74,7 @@ A third blind round on #1345 (head `1d50617e8`) ran with every rule above in pla
 - PR #1345, round 5979983: 7 of the reviewer's 10 findings sat on lines our own `fix: address review` commit wrote. The Fix re-review mutated guards and call sites only, so a narrowed predicate (`&& k.isSigner`), a sync-to-async export, and a test no workflow ran all passed. Hence revert-check targets for predicate terms, changed signatures, and cited tests, and "a test no workflow runs is green".
 - The same round left a changeset sentence false and replied "fixed" to a partial fix. Hence the Claims and Remainder steps in the Fix re-review, and the Contract rule that a changeset sentence holds at the head, not at the commit that wrote it.
 - The audit rejected 160 of 288 lines and the main loop then skipped the audit tracers; a real reject (a cache-lag amount line) went with them. Many rejects were noise: a `.changeset/` path matched the forbidden word "changeset", and agents put free text in `sig:` on changesets and workflows. Hence the audit reads only the reason, a non-code item's `sig:` and a `probe:` with no `admits` are WARN, and "no step is skipped for volume". On that round the audit now gives 128 REJECT and 31 WARN. A missing `lenses:` stays REJECT: the field is the check.
+- The Delta review of an `address-review` run took 16.7 of 26.5 minutes on wallet-app #1055 and about 13 of 30.5 on #1345. `review <sha>` resolved to a full branch review with that base: a scout, and four axes when the scopes ran. Hence the `since` argument: the caller's manifest replaces the scout, and the delta round runs Defects and Value only.
 
 ## Domains
 
