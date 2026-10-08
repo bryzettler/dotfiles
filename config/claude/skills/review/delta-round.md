@@ -1,6 +1,6 @@
 # Review: delta round
 
-A delta round reviews the change since `<last>`, not the whole branch or PR. The review diff is `git diff <last> HEAD` (branch mode: plus uncommitted changes), and the fixed point for the axes is `<last>`. Name the full diff (`git diff <base>...HEAD`, or the full-PR diff) in every prompt as context, never as the target.
+A delta round reviews the change since `<last>`, not the whole branch or PR. The review diff is `git diff <last> <head>`, with `<head>` from the manifest (branch mode: the scout's snapshot, so uncommitted changes count), and the fixed point for the axes is `<last>`. Name the full diff (`git diff <base>...<head>`, or the full-PR diff) in every prompt as context, never as the target.
 
 ## Pin (the scout)
 

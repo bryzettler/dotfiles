@@ -13,7 +13,7 @@ One verifier (`general-purpose`, `model: "opus"`) each time a step calls for it.
 5. Every test that a fixer item, a report, or a reply in this or a prior round names as the proof of a fix: revert that fix and run the named test.
 6. The revert-check targets the Defects report lists.
 
-It works in a throwaway worktree at the reviewed head, with `node_modules` symlinked from the main checkout for the root and for every workspace package that has one. In branch mode it applies the uncommitted changes. Per target: apply the mutant, run that one test file, record red or green, restore.
+It works in a throwaway worktree at a snapshot of the checkout as it is when the check starts (`python3 -I ~/.claude/skills/review/tools/snapshot.py`, run in the checkout: the head plus every uncommitted edit, a fixer's included), with `node_modules` symlinked from the main checkout for the root and for every workspace package that has one. Per target: apply the mutant, run that one test file, record red or green, restore.
 
 It returns one line per target: `file:line`, the mutant, the test file, red or green, and the output path. A target that stays green is a confirmed Pinned finding, with the missing test as its fix. A test file no workflow runs is green for this check, whatever it does locally: name the workflow file and line whose command runs it, or report "no job". Targets past 40 go to the report's coverage line as not mutated.
 

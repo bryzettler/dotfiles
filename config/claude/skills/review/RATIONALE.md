@@ -23,6 +23,7 @@ One scout, four axes (more when split by size, fewer in a delta round or when an
 - A fix that flips a default, adds a guard, or adds a test is where a second round with a human reviewer usually starts, so the fix re-review runs the fix, not only reads it.
 - An audit on an unchanged dependency tree repeats the base's result, and a workspace audit can take minutes: hence audits only on a manifest or lockfile change.
 - The scout's tooling is deterministic and near free.
+- Branch mode reviewed "HEAD plus uncommitted changes", a state with no sha. `ts-signatures.mjs` reads both sides with `git show`, so it saw none of the uncommitted work: on the Delta review of an `address-review` fix diff it compared HEAD with HEAD. Hence `tools/snapshot.py`: the scout names the working tree as a commit, and the revert check builds its worktree from one in place of applying a diff by hand.
 
 ## Spec
 
