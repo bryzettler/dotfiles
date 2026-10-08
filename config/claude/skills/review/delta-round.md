@@ -4,7 +4,7 @@ A delta round reviews the change since `<last>`, not the whole branch or PR. The
 
 ## Pin (the scout)
 
-**Branch.** The caller names `<last>` and the previous round's report. When the caller also names the previous round's manifest, start from it: the spec, the standards sources, the test commands, and the domains of unchanged files carry forward. Derive only the delta's line count and file list, the domains of files new to the delta, the tooling on the delta, and `prior.md`. Append the previous round's fixes, open suspicions, and dismissals to `<scratchpad>/prior.md`.
+**Branch.** The caller names `<last>` and the previous round's report. `<last>` may be a snapshot with no ref: when `git rev-parse <last>^{commit}` fails, run a full review and say so in the manifest. When the caller also names the previous round's manifest, start from it: the spec, the standards sources, the test commands, and the domains of unchanged files carry forward. Derive only the delta's line count and file list, the domains of files new to the delta, the tooling on the delta, and `prior.md`. Append the previous round's fixes, open suspicions, and dismissals to `<scratchpad>/prior.md`.
 
 **PR.** Write `<scratchpad>/prior.md`:
 
