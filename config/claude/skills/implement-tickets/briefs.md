@@ -41,6 +41,7 @@ Return the list of note paths written and one line per note saying what it cover
 - A test's expected value comes from the spec or from an independent calculation, never from a run of the code under test. Reach green with every assertion at full strength: never loosen an assertion or turn a throw into a skip.
 - A new test file runs in CI: add it where its siblings are wired, such as a hand-written matrix.
 - A test fixture is a state the setup path produces.
+- A unit test does not wait in real time: give the code a clock or timer the test can replace, and step it. A test file that runs for more than 5 seconds needs its reason in the return.
 - An export of a published package keeps its signature (sync stays sync), or the changeset bumps major.
 - A quote, estimate, or funding helper gets a test across the entity's whole life: create, re-apply with unchanged input, change one input, each checked against what the chain or backend consumes.
 - Read a runtime fact (an account size, a rent value, an IDL field name, a program id) from the artifact or the chain, never from memory.
@@ -77,7 +78,7 @@ Return under 250 words in this shape:
 Return under 300 words:
 
 1. The sha the skill reviewed, the head sha after that commit, the base sha.
-2. The severity table, the confirmed count, and the counts fixed in code, fixed in the claim, and left as is.
+2. The severity table, the confirmed count, and the counts fixed in code, fixed in the claim, and left as is. Per confirmed finding of medium or higher severity: its axes, and whether its fix changed a file outside the test tree.
 3. Each spec question verbatim with its spec line, the confirmed finding in one sentence, its **blast radius** (every job, table, and consumer the finding reaches, beyond the one the spec names), and two answers: `keep` and `change: <the outcome the finding calls for>`, one marked `recommended:` with a one-line reason drawn from the finding's blast radius and the spec. A `change:` answer names the outcome ("a stuck sink pages someone within an hour", "no row keeps a stale stamp") and leaves the mechanism to the implementer. A spec non-goal ("no new alert") backs `keep` only when the spec's authors weighed this blast radius.
 4. Each follow-up from the report verbatim, tagged with its severity and one kind: `live-check` (the claim was never run live, in staging, or in production), `pr-note` (a line the PR body or a README owes a reviewer), or `code`. A `code` follow-up of medium or higher severity also carries its blast radius and two answers, `fix: <the outcome the finding calls for>` and `wontfix: <reason>`, one marked `recommended:` with a one-line reason.
 5. Open Value suspicions verbatim.

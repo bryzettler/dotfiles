@@ -15,6 +15,7 @@ One scout, explorers only on the scout's recommendation, one implementer per tic
 - The group branch only ever holds finished tickets: a ticket lands by fast-forward on `done`.
 - No ticket is reviewed on its own: the group review also finds the bugs that sit between tickets. The implementer skips its own code-review step for the same reason.
 - Every frontier ticket dispatches at once, whatever its repo: blockers encode the real ordering.
+- Round 2 once ran 34.5 minutes for one medium whose fix changed a single test assertion, and found three lows (helium-program-library, 2026-10-09). Hence round 2 runs for a Defects or Value medium, or one fixed outside the test tree; the fix re-review inside round 1 covers a test-only fix.
 - Before a stacked group's first round, the lower group's final tip merges in, so the lower group's review fixes reach it.
 - Ask keeps the return's recommendation because the agent that read the spec and the code made it.
 

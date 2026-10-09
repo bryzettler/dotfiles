@@ -8,12 +8,14 @@ One verifier (`general-purpose`, `model: "opus"`) each time a step calls for it.
 
 1. Every guard the diff adds: a `require!`, a `revert`, a thrown error, an early return, a validation branch.
 2. Every changed call site whose data the fix depends on: a return value or an argument replaced by `[]`, `null`, or `0`.
-3. Every predicate, regex, or filter term the diff adds or narrows (`&& k.isSigner`, a `match` arm, a pattern): drop the term, or widen it to always true.
+3. Every predicate, regex, or filter term the diff adds or narrows (`&& k.isSigner`, a `match` arm, a pattern): drop the term, or widen it to always true. Every row of a lookup table or map the diff adds or changes: mutate it once to a narrower value and once to a wider one.
 4. Every exported signature the diff changes: restore the base form (`async` back to sync, a removed export restored, a parameter dropped), then run the tests that call it. A test that stays green under the restore pins nothing about the change.
-5. Every test that a fixer item, a report, or a reply in this or a prior round names as the proof of a fix: revert that fix and run the named test.
+5. Every test that a fixer item, a report, or a reply in this or a prior round names as the proof of a fix: revert that fix and run the named test. In a delta round, only this round's fixer items count.
 6. The revert-check targets the Defects report lists.
 
-It works in a throwaway worktree at a snapshot of the checkout as it is when the check starts (`python3 -I ~/.claude/skills/review/tools/snapshot.py`, run in the checkout: the head plus every uncommitted edit, a fixer's included), with `node_modules` symlinked from the main checkout for the root and for every workspace package that has one. Per target: apply the mutant, run that one test file, record red or green, restore.
+One mutant per guard, term, or call site, and a second only when the first stays green; a table row gets both of its mutants. In a delta round, skip a target the previous round's report lists as red, unless the delta changed its line or its test; name the skipped count in the coverage line.
+
+It works in a throwaway worktree at a snapshot of the checkout as it is when the check starts (`python3 -I ~/.claude/skills/review/tools/snapshot.py`, run in the checkout: the head plus every uncommitted edit, a fixer's included), with `node_modules` symlinked from the main checkout for the root and for every workspace package that has one. Per target: apply the mutant, run that one test file, record red or green, restore. With more than 4 targets, split them across up to 6 worktrees of the same snapshot and run the worktrees at the same time, each one working through its own targets in turn. When the whole check would still pass 5 minutes, add worktrees before dropping targets.
 
 It returns one line per target: `file:line`, the mutant, the test file, red or green, and the output path. A target that stays green is a confirmed Pinned finding, with the missing test as its fix. A test file no workflow runs is green for this check, whatever it does locally: name the workflow file and line whose command runs it, or report "no job". Targets past 40 go to the report's coverage line as not mutated.
 

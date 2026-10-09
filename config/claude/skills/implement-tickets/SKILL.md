@@ -47,7 +47,7 @@ Folder given: use it. None: glob `.scratch/*/issues` from the current directory.
    - **Reviewer prompt:** the repo path, the worktree path when there is one, the branch, the base ref, the follow-ups, the spec files (the group's ticket paths and the spec), the round number, the scratchpad path, and the path of `briefs.md`. A delta round adds the sha the previous round reviewed, that round's report path, and its scout manifest path when the same run produced it.
    - **First hardening** (no `Hardened:` line on any ticket of the group):
      - Round 1 is a full review of the group's diff. Its follow-ups are the `Unverified:` lines of the group's `done` tickets, each tagged with its ticket number.
-     - Round 2 is a delta round on round 1's fixes. Run it only when round 1 confirmed a finding of medium or higher severity.
+     - Round 2 is a delta round on round 1's fixes. Run it only when round 1 confirmed a finding of medium or higher severity that Defects or Value raised, or whose fix changed a file outside the test tree. A medium whose fix changed only tests buys no round: the fix re-review inside round 1 already mutated it.
    - **Group already hardened** (a ticket has a `Hardened:` line): skip the group when its tip sha has a `Hardened:` line. When the tip moved, read `re-harden.md` in this folder.
    - A fix earns no round of its own: the fix re-review inside the round already read its diff, and the round runs the full lint and test suite on the head after the fix commit.
 
