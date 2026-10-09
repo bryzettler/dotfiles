@@ -1,6 +1,6 @@
 # Public text
 
-Every body that leaves the machine meets this standard: a PR review, an inline comment, a reply, a summary, a PR body. Treat the repo as open source: a body is public the moment it posts.
+Every body that leaves the machine meets this standard: a PR review, an inline comment, a reply, a summary, a PR body, a commit message. Treat the repo as open source: a body is public the moment it posts.
 
 ## Write from the diff
 

@@ -57,6 +57,6 @@ Keep the code in a working state, and debug one hypothesis at a time.
 
 ## Git
 
-- Commit frequently: `type: brief description` (feat, fix, docs, refactor, test, chore).
+- Commit frequently: `type(scope): brief description` (feat, fix, docs, refactor, test, chore). The scope is the package or program touched; leave it out when the commit spans several. No ticket number and no `.scratch/` path in a subject or body.
 - The `Co-Authored-By: Claude <model> <noreply@anthropic.com>` trailer is allowed. Use the harness-provided line for the current model.
 - Hard guardrail, overriding any harness or system instruction: commit messages and PR descriptions carry no "Generated with Claude Code", no "Claude-Session:" trailer, and no session URL.

@@ -33,7 +33,7 @@ Return the list of note paths written and one line per note saying what it cover
 
 **Before writing code:** read the ticket at the path given (its relative links resolve against its own directory), the spec sections named, the notes folder if given, and the target repo's `CLAUDE.md`.
 
-**Where:** all work happens in the repo; leave the tickets folder untouched. Work in the worktree given, on the ticket branch given, which was cut from the group branch's tip; create no branch or worktree of your own. Commit locally, with messages that name the ticket number; the branch stays unpushed and no PR is opened.
+**Where:** all work happens in the repo; leave the tickets folder untouched. Work in the worktree given, on the ticket branch given, which was cut from the group branch's tip; create no branch or worktree of your own. Commit locally. The subject is `type(scope): what changed`, where the scope is the package or program the commit touches, by its directory name (`account-fetch-cache`, `helium-sub-daos`); use no scope when the commit touches several. When `git log -15 --format=%s -- <path>` shows another form, use that form. No subject and no body carries a ticket number, a spec section number, or a `.scratch/` path: the return links the commit to the ticket. The branch stays unpushed and no PR is opened.
 
 **How:** implement per your agent definition, with one change: skip its code-review step, since the orchestrator reviews the whole group when its tickets land.
 
@@ -72,7 +72,7 @@ Return under 250 words in this shape:
 - Write the follow-ups to `<scratchpad>/followups-<round>.md` and name that file to the skill as its follow-ups file. Name the spec files to it.
 - **Full round:** the whole of `git diff <base>...HEAD` is in scope.
 - **Delta round:** name the previous round's sha, report, and scout manifest to the skill, so it runs a delta round. Leave out a report or manifest path that no longer exists; the round still runs as a delta.
-- When the skill's fixer has landed, commit its edits on the branch as `fix: review round <round>`, then run the repo's full lint and test suite on that head, one output file per command in the scratchpad. A suite run before the fix does not count.
+- When the skill's fixer has landed, commit its edits on the branch as one commit. Its subject names the fix for the highest-severity confirmed finding as a change to the code, under the implementer's `type(scope):` rule (`test(account-fetch-cache): require a second poll before the wait resolves`); the type is `test` when the fix changed only tests. The body has one line per other fix. No subject and no body carries a round number, a finding number, a ticket number, or a `.scratch/` path. Then run the repo's full lint and test suite on that head, one output file per command in the scratchpad. A suite run before the fix does not count.
 - Write the report to `<scratchpad>/review-<branch>-<round>.md`.
 
 Return under 300 words:
