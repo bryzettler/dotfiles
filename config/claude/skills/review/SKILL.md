@@ -44,7 +44,7 @@ Branch mode's output is edits in the working tree. PR mode's output is a GitHub 
    - Spec path "no spec": dispatch no Spec agent.
    - Diff line count over about 1500: split Defects by package or top-level directory, one agent per slice; each slice's prompt names the files it owns. Split Value by the scout's `flows.md`: one agent per flow group, each prompt naming its flows and every file on them, whatever the package. Changed files on no flow form one more Value slice, by directory.
 
-   Each axis writes its own return file before its final message, per `return-rule.md`. When a file is missing, save the final message to that path verbatim as it arrives; summarise none, and never rewrite a return from memory after a compaction. Triage reads the summary it needs from the file; the misses log needs the coverage lists whole.
+   Each axis writes its own return file before its final message, per `return-rule.md`. The final message carries the hits and suspicions, not the coverage list. When a file is missing, send the agent back once (`SendMessage`) to write it; summarise none, and never rewrite a return from memory after a compaction. Triage reads the summary it needs from the file; the misses log needs the coverage lists whole.
 
    When a Value return lands, dispatch its verifiers per step 6 of `triage.md` in that same turn, while the other axes still run.
 

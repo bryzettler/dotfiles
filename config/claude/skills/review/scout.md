@@ -4,7 +4,7 @@ You pin the review so the axes start from files, not from a search. Ask the user
 
 ## Steps
 
-Start with `python3 -I ~/.claude/skills/review/tools/pin.py <scratchpad> <branch [<base>] [--since <last>] | pr <n>>`, run in the checkout, and read `<scratchpad>/pin.md`. It does the mechanical part of steps 1 to 4: the fixed point, the head, the checkout, a spec draft from the PR body and commit log, a first domain per file, the domain greps, `signatures.txt`, and in PR mode the checks, their tails, and the prior round. The steps below then cover only what it leaves: each `FAIL` line, by hand per By mode; the spec sources it cannot see; a domain the Domain table contradicts (it classifies by path and import text); and the tools it does not run.
+Start with `python3 -I ~/.claude/skills/review/tools/pin.py <scratchpad> <branch [<base>] | pr <n>> [--since <last>]`, run in the checkout, and read `<scratchpad>/pin.md`. It does the mechanical part of steps 1 to 4: the fixed point, the head, the checkout, a spec draft from the PR body and commit log, a first domain per file, the domain greps, `signatures.txt`, and in PR mode the checks, their tails, and the prior round. The steps below then cover only what it leaves: each `FAIL` line, by hand per By mode; the spec sources it cannot see; a domain the Domain table contradicts (it classifies by path and import text); and the tools it does not run.
 
 1. **Fixed point and checkout** — by mode, below. Confirm the diff is non-empty.
 2. **Spec** — write it to `<scratchpad>/spec.md`, by mode, below. Resolve issue references in the commit messages (`#123`, `Closes #45`) through `docs/agents/issue-tracker.md` when that file exists, and fold the issue text into the spec file.
@@ -22,10 +22,10 @@ When the prompt names `<last>`, or Prior round below finds one, this is a delta 
 
 **PR.** `gh pr view <n> --json baseRefName,headRefOid,body`. Check out the PR head: the current worktree when `HEAD` is that sha, else a throwaway worktree in the scratchpad from `git fetch origin pull/<n>/head`. Give a throwaway worktree a `node_modules` symlink from the main checkout for the root and for every workspace package that has one, so tests resolve cross-package imports. Fetch the base and take `origin/<base>` as the fixed point. The spec is the PR body, then the full commit messages from `git log origin/<base>..HEAD`. Also write the PR body alone to `<scratchpad>/pr-body.md`: in a long spec file the body's claims drown in commit messages. Done when the checkout is at `headRefOid`.
 
-**PR, prior round.** Look for an earlier round on this PR: the newest review by the current user (`gh api user --jq .login`) whose inline comments start with `<!-- review -->`, and the state file `~/.claude/review-state/<owner>__<repo>__<n>.md`.
+**PR, prior round.** Look for an earlier round on this PR: the newest review by the current user (`gh api user --jq .login`) that approves or whose inline comments start with `<!-- review -->`, and the state file `~/.claude/review-state/<owner>__<repo>__<n>.md`.
 
 - Neither exists: this is round one.
-- A prior review exists: its `commit_id` is `<last>`. When `<last>` equals `headRefOid` and the PR body is unchanged, return only "nothing new since `<last>`".
+- A prior review exists: its `commit_id` is `<last>`. When the state file names a later head with a posted review (a comment review with no inline comment), that head is `<last>`: pass it to `pin.py` as `--since`. When `<last>` equals `headRefOid` and the PR body is unchanged, return only "nothing new since `<last>`".
 - `git fetch origin <last>` (a force-pushed head is still fetchable by sha). When that fails, run a full review and say so in the manifest. Otherwise it is a delta round.
 
 ## Domain

@@ -22,7 +22,7 @@ Every prompt carries the `prior.md` path and says the target is the delta diff. 
 
 **Branch.** Dispatch Defects and Value only: the delta is the previous round's fixes, and Standards and Spec covered the branch in round 1. Defects confirms each prior fix does what the report says, and works the Neighbours lens on it: a sibling call, guard, or path the fix left unchanged is a hit.
 
-**PR.** Defects and Value always run. Standards runs when the delta touches a file outside the test tree. Spec runs when the PR body changed or the delta touches a file outside the test tree. Defects also owns the follow-up check in `prior.md`: for each prior comment the author replied to, confirm the delta does what the reply says. A reply the code does not back is a hit.
+**PR.** Defects always runs. Value runs when the delta touches a file outside the test tree. Standards runs when the delta touches a file outside the test tree. Spec runs when the PR body changed or the delta touches a file outside the test tree. Defects also owns the follow-up check in `prior.md`: for each prior comment the author replied to, confirm the delta does what the reply says. A reply the code does not back is a hit.
 
 ## Triage (step 3)
 

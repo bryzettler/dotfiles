@@ -7,7 +7,7 @@ Your final message is your return. The caller reads that message and nothing els
 
 ## Review hits
 
-The shape for the four `review` axes. Before your final message, write the same text to the return path your prompt names (`<scratchpad>/return-<axis>[-<slice>].md`). The file is the kept copy; the final message is the full report, not a pointer to the file.
+The shape for the four `review` axes. Before your final message, write the full report to the return path your prompt names (`<scratchpad>/return-<axis>[-<slice>].md`). The file is the kept copy and holds all three parts. The final message holds parts 2 and 3 and the return path: the coverage list stays in the file, where the audit reads it.
 
 1. The per-item coverage list, when your brief asks for one, in the format below.
 2. Every hit: `file:line`, lens, severity, the scenario in one sentence, the fix in one sentence, then an **evidence packet**: the exact lines traced with ten lines of context, and the caller, callee, constant, or schema line the trace relied on, each quoted with its `file:line`. The main loop confirms from the packet and treats a hit without one as unverified.
@@ -26,8 +26,8 @@ Every item carries `lenses:` and each field its class requires:
 | Item class                                               | Field                   | Value                                                                                                              |
 | -------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | every item                                               | `lenses:`               | each lens that applies → its result, e.g. `Reorder → env read before signer check, hit H2`                         |
-| an exported function, type, or constant                  | `sig:`                  | starts with `unchanged`, `new`, `removed`, or `<old> → <new>` from base to head; a changed one also names the changeset tier. Free text before the form is a REJECT. A changeset, workflow, config, or doc item carries no `sig:` |
-| an amount, fee, rent, or funding expression              | `arms:` and `examples:` | the count of conditional arms in the expression, and one worked example with numbers per arm; the counts are equal |
+| an exported function, type, or constant                  | `sig:`                  | starts with `unchanged`, `new`, `removed`, or `<old> → <new>` from base to head; a changed one also names the changeset tier. Free text before the form is a REJECT. A changeset, workflow, config, doc, or test-file item carries no `sig:`, and neither does an item that is not exported |
+| an amount, fee, rent, or funding expression outside a test file | `arms:` and `examples:` | the count of conditional arms in the expression, and one worked example with numbers per arm, separated by `;`; the counts are equal |
 | a truthy or property probe (`if (x.y)`, `x?.y`, `!!x`)   | `probe:`                | `<expr> admits <every type or value that passes>`, the word `admits` included |
 | a function that runs two or more checks, reads, or calls | `order:`                | the checks in the order the code runs them, `a > b > c`                                                            |
 | an item in a parity table                                | `parity:`               | its row's cells, and `same` or `differs: <cell>` against its siblings                                              |

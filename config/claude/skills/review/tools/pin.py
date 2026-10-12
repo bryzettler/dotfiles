@@ -3,7 +3,7 @@
 
 Usage (from the checkout):
   python3 -I ~/.claude/skills/review/tools/pin.py <scratchpad> branch [<base>] [--since <last>]
-  python3 -I ~/.claude/skills/review/tools/pin.py <scratchpad> pr <n>
+  python3 -I ~/.claude/skills/review/tools/pin.py <scratchpad> pr <n> [--since <last>]
 
 Pins the fixed point, the head, and the checkout; drafts spec.md (and pr-body.md);
 gives every changed file its domains; runs the domain greps and ts-signatures.mjs;
@@ -98,7 +98,7 @@ def pr_checkout(scratch, n, oid):
 
 
 def prior_round(n, oid, slug):
-    """The newest review by the current user whose inline comments carry the marker."""
+    """The newest review by the current user that approves or whose inline comments carry the marker."""
     login = run("gh", "api", "user", "--jq", ".login")
     marked = set(run(
         "gh", "api", "--paginate", f"repos/{slug}/pulls/{n}/comments", "--jq",
@@ -106,9 +106,9 @@ def prior_round(n, oid, slug):
     ).split())
     reviews = run(
         "gh", "api", "--paginate", f"repos/{slug}/pulls/{n}/reviews", "--jq",
-        f'.[] | select(.user.login == "{login}") | "\\(.id) \\(.commit_id)"',
+        f'.[] | select(.user.login == "{login}") | "\\(.id) \\(.commit_id) \\(.state)"',
     ).splitlines()
-    rounds = [line.split()[1] for line in reviews if line.split()[0] in marked]
+    rounds = [commit for rid, commit, state in map(str.split, reviews) if rid in marked or state == "APPROVED"]
     return rounds[-1] if rounds else None
 
 
@@ -208,7 +208,7 @@ def main():
         out += [f"pr: {slug}#{n}", f"pr-body: {scratch}/pr-body.md",
                 f"state file: ~/.claude/review-state/{slug.replace('/', '__')}__{n}.md"]
         tip = head
-        since = prior_round(n, head, slug)
+        since = since or prior_round(n, head, slug)
         if since and since != head and subprocess.run(["git", "fetch", "origin", since], capture_output=True).returncode:
             fails.append(f"git fetch origin {since}: prior round not fetchable, run a full review")
             since = None

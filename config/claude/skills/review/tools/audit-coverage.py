@@ -40,7 +40,8 @@ def count_examples(line):
     lead = re.match(r"(\d+)\s*(?:;|$)", text)
     if lead:
         return int(lead.group(1))
-    return len([e for e in text.split(";") if e.strip()])
+    # "(1) … (2) …" numbers the examples inside one ";" part
+    return max(len([e for e in text.split(";") if e.strip()]), len(re.findall(r"\(\d+\)", text)))
 PROBE = re.compile(r"\bprobe:\s*" + FIELD, re.I)
 ORDER = re.compile(r"\border:\s*" + FIELD, re.I)
 # parity cells are "|"-separated, so the field runs to the next ";"
@@ -51,6 +52,8 @@ EARLY = re.compile(r"(env|override|rpc|fetch|get\w*Info|detect|fallback|default)
 GATE = re.compile(r"(signer|capabilit|auth|owner|permission|guard)", re.I)
 # items with no exported signature: docs, changesets, config, lockfiles, workflows
 NON_CODE = re.compile(r"^\s*-\s*`?\S*\.(md|ya?ml|json|toml|lock)\b", re.I)
+# a test file exports nothing and holds no amount expression of the product
+TEST_PATH = re.compile(r"^\s*-\s*`?(\S*/)?(tests?|__tests__)/|^\s*-\s*`?\S*\.(test|spec)\.", re.I)
 
 
 def audit(path, n, line, cleared):
@@ -64,6 +67,7 @@ def audit(path, n, line, cleared):
         m = BAD_REASON.search(SIG.sub("", reason))
         if m:
             reasons.append(f"forbidden reason '{m.group(0)}'")
+    no_export = NON_CODE.search(line) or TEST_PATH.search(line)
     m = SIG.search(line)
     if m:
         v = m.group(1).strip()
@@ -71,16 +75,16 @@ def audit(path, n, line, cleared):
         if low.startswith("unchanged") or low.startswith("new"):
             pass
         elif low.startswith("removed") or re.search(r"→|->", v):
-            if cleared and not TIER.search(v):
+            if cleared and not TIER.search(v) and not no_export:
                 reasons.append(f"sig changed with no breaking-tier changeset named ({v})")
         else:
             # an unexported item has no signature to change; any other free text hides one
-            no_sig = NON_CODE.search(line) or re.search(r"\b(internal|not exported)\b", low)
+            no_sig = no_export or re.search(r"\b(internal|not exported|n/a)\b", low)
             bucket = warns if no_sig else reasons
             bucket.append(f"sig not in 'unchanged | new | removed | old → new' form ({v})")
     arms, examples = ARMS.search(line), count_examples(line)
     item = re.sub(r"^\s*-\s*\S+:\d+\s*", "", line.split("—")[0])
-    if cleared and AMOUNT.search(item) and not (arms and examples):
+    if cleared and not no_export and AMOUNT.search(item) and not (arms and examples):
         reasons.append("amount item without arms:/examples:")
     if arms and examples is not None and examples < int(arms.group(1)):
         reasons.append(f"examples {examples} < arms {arms.group(1)}")
@@ -90,6 +94,9 @@ def audit(path, n, line, cleared):
         else:
             # a parenthetical explains a type; it does not add one
             admitted = re.sub(r"\([^()]*\)", "", m.group(1).split("admits", 1)[1])
+            # "admits only <type>, <why>": the text after the comma is the reason
+            if admitted.lstrip().lower().startswith("only "):
+                admitted = admitted.split(",", 1)[0]
             if len(re.split(r",|\band\b|\bor\b|/", admitted)) > 1:
                 reasons.append(f"probe admits several types ({admitted.strip()})")
     m = ORDER.search(line)
@@ -120,8 +127,8 @@ def main(paths):
             continue
         for n, line in enumerate(lines, 1):
             cleared = bool(CLEARED.search(line))
-            # every coverage line: cleared, or a hit line that carries fields
-            if not cleared and not re.search(r"\b(lenses|sig|probe|order|parity):", line, re.I):
+            # every coverage line: cleared, or a hit item ("- …") that carries fields
+            if not cleared and not re.search(r"^\s*-\s.*\b(lenses|sig|probe|order|parity):", line, re.I):
                 continue
             total += 1
             reasons, warns = audit(path, n, line, cleared)
