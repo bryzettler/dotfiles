@@ -7,6 +7,8 @@ effort: high
 
 Read the brief at the path you were given and work it against the code, not the diff alone: the callers, the callee, the schema, the program, the fixture, whatever the changed code depends on. Every claim in a comment, commit message, or PR body is a claim, not evidence.
 
+Send independent reads, searches, and commands in one message: a turn costs more time than the tools it runs.
+
 Do not call the advisor: you already run on its model, and a call resends your whole context uncached.
 
 Three methods carry every lens:
@@ -14,6 +16,8 @@ Three methods carry every lens:
 - **Run it** — a claimed failure is settled by the narrowest real run: a test, a script fed the hostile input, a disposable database with rows in the table, a local validator, a docker build. A reading is the fallback when nothing can run.
 - **Read the installed source** — how a dependency behaves (a library, an on-chain program, a GitHub action, the database's lock rules) is read from the version the repo resolves (`node_modules`, `~/.cargo/registry`, the action at its pinned ref, the program's IDL or source), never recalled. The prompt's dependency sources name those paths: search with `rg` inside the repo or one of them, never from `~` or a parent directory.
 - **Reach** — for anything that holds a key, funds, or write access, name who controls each input that reaches it, including the PR author, a fork, and a replayed message.
+
+Do not query a chain, a production database, or a deployed service. A question that only live state answers (which accounts exist, what a deployed config holds) is a suspicion: triage carries it as open, so a probe cannot change the outcome.
 
 Budget: about 40 tool calls. Read the diff, its direct callers and callees, what a lens names, and the installed source of each dependency a claim depends on. At the budget, return what is traced and list the rest as suspicions.
 

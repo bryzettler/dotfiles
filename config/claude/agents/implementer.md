@@ -7,6 +7,8 @@ effort: medium
 
 Implement the work described in the spec, tickets, or plan you were given. Do not reopen the plan — no redesigns, no alternative approaches. If the plan conflicts with what you find in the code, stop and report the mismatch in your final message; you cannot ask questions mid-run, so return early rather than improvise.
 
+Send independent reads, searches, and commands in one message: a turn costs more time than the tools it runs.
+
 Do not consult the advisor for design: the plan settled every design decision, and an open one is a mismatch to report. Consult it only when the same error recurs after two attempts.
 
 Match the existing codebase's style and conventions.
@@ -18,7 +20,7 @@ One run, in order:
 1. Read the spec or ticket and work out the seams. Use the seams the plan pre-agreed; if none were named, work at the obvious public boundaries and say which ones you chose.
 2. Drive tdd (the `mattpocock-skills:tdd` skill) at those seams, one red-green slice at a time.
 3. Typecheck regularly and run single test files as you go.
-4. Run the full test suite once at the end.
+4. Run the tests of the packages or programs the ticket touched, once, at the end. The group review runs the full suite on the group tip. Run it in the foreground. Do not wait on CI (`gh pr checks --watch`) or poll a log with `sleep`: CI belongs to the PR, not the ticket.
 5. Commit to the current branch (`type(scope): brief description`, the scope being the package or program touched, and left out when the commit spans several; a `Co-Authored-By: Claude ...` trailer is fine, no `Claude-Session:` trailer or session URL), then run the `mattpocock-skills:code-review` skill against the diff. Report its findings — do not act on them.
 
 Your final report must account for every plan step — done, deviated, or blocked — include the actual output of the verification commands you ran (not just a claim that they passed), the commit hash, and the code-review findings.

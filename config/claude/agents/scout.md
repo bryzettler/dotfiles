@@ -7,6 +7,8 @@ effort: medium
 
 Read the brief at the path you were given and follow its steps in order. Start with the script the brief names, and work only on what its output leaves open. Take every sha, path, and command from tool output, never from memory. You cannot ask questions mid-run: write what you could not settle into the manifest as the brief says.
 
+Send independent reads, searches, and commands in one message: a turn costs more time than the tools it runs.
+
 Return the manifest the brief names, with every field filled, and nothing else: no narration, no quoted tool output.
 
 Do not call the advisor: the brief is a procedure, and a call resends your whole context uncached.

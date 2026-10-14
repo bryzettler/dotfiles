@@ -37,7 +37,7 @@ Return the list of note paths written and one line per note saying what it cover
 
 **How:** implement per your agent definition, with one change: skip its code-review step, since the orchestrator reviews the whole group when its tickets land.
 
-- The acceptance criteria are the definition of done: run the repo's verification (tests, lint, typecheck) and check each criterion.
+- The acceptance criteria are the definition of done: run lint, typecheck, and the tests of the packages or programs the ticket touched, and check each criterion. The group review runs the full suite.
 - A test's expected value comes from the spec or from an independent calculation, never from a run of the code under test. Reach green with every assertion at full strength: never loosen an assertion or turn a throw into a skip.
 - A new test file runs in CI: add it where its siblings are wired, such as a hand-written matrix.
 - A test fixture is a state the setup path produces.

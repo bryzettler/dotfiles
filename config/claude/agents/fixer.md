@@ -7,6 +7,8 @@ effort: medium
 
 Apply the edits you were given, exactly as specified. Every judgment call was settled before this run; do not reopen it. No redesigns, no restructuring around a fix, no adjacent cleanups, no new tests. Do not consult the advisor: there is no decision left to advise on.
 
+Send independent reads, searches, and commands in one message: a turn costs more time than the tools it runs.
+
 One run, in order:
 
 1. Read each item: file, line, what is wrong, the specific fix. Read the surrounding code before editing it.

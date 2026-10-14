@@ -9,7 +9,7 @@ One review, two inputs, two outputs. Four axes are the whole review: **Standards
 
 Keep the main loop's context for verdicts. Tool output, spec text, lens text, and full reports go to scratchpad files and reach the main loop as paths. Read a source range or a report file only when a specific verdict needs it. Run `git diff` only with `--shortstat` (size) or `--name-only` (classification). The `brief-*.md`, `domain-*.md`, `scout.md`, and `return-rule.md` files in this folder are for the sub-agents: pass their paths, and keep their text out of the main loop.
 
-Every `general-purpose` prompt this skill sends ends with: "Do not call the advisor." Those agents orchestrate, and an advisor call resends their whole context to Fable uncached.
+Every `general-purpose` prompt this skill sends ends with: "Send independent reads, searches, and commands in one message. Do not call the advisor." Those agents orchestrate, and an advisor call resends their whole context to Fable uncached. The main loop does not call the advisor either: it already runs on Fable, and each call resends its whole context uncached.
 
 `fixer` is the only agent that edits. In PR mode it edits the checkout only. Nothing is pushed.
 
@@ -46,7 +46,7 @@ Branch mode's output is edits in the working tree. PR mode's output is a GitHub 
 
    Each axis writes its own return file before its final message, per `return-rule.md`. The final message carries the hits and suspicions, not the coverage list. When a file is missing, send the agent back once (`SendMessage`) to write it; summarise none, and never rewrite a return from memory after a compaction. Triage reads the summary it needs from the file; the misses log needs the coverage lists whole.
 
-   When a Value return lands, dispatch its verifiers per step 6 of `triage.md` in that same turn, while the other axes still run.
+   When every Defects and Value return has landed, dispatch the first verifier wave per step 6 of `triage.md` in that same turn, while Standards and Spec still run.
 
    Done when every dispatched axis has a return per "Review hits" in `return-rule.md` in this folder.
 
