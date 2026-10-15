@@ -121,27 +121,10 @@ def precondition_warning(text: str, file_path: str) -> list:
     return lines
 
 def main():
-    # Debug logging to file
-    import os
-    debug_log = os.path.expanduser("~/.claude/hooks/debug.log")
-
     try:
-        raw_input = sys.stdin.read()
-        with open(debug_log, "a") as f:
-            f.write(f"\n=== check-comments.py called ===\n")
-            f.write(f"Raw input: {raw_input[:2000]}\n")
-        input_data = json.loads(raw_input)
-    except json.JSONDecodeError as e:
-        with open(debug_log, "a") as f:
-            f.write(f"JSON decode error: {e}\n")
+        input_data = json.loads(sys.stdin.read())
+    except Exception:
         sys.exit(0)
-    except Exception as e:
-        with open(debug_log, "a") as f:
-            f.write(f"Error reading stdin: {e}\n")
-        sys.exit(0)
-
-    with open(debug_log, "a") as f:
-        f.write(f"Parsed input keys: {list(input_data.keys())}\n")
 
     tool_name = input_data.get("tool_name", "")
     tool_input = input_data.get("tool_input", {})
@@ -158,21 +141,13 @@ def main():
         if file_path and Path(file_path).exists():
             try:
                 content = Path(file_path).read_text()
-            except Exception as e:
-                with open(debug_log, "a") as f:
-                    f.write(f"Error reading file: {e}\n")
+            except Exception:
                 sys.exit(0)
-
-    with open(debug_log, "a") as f:
-        f.write(f"Tool: {tool_name}, File: {file_path}, Content length: {len(content)}\n")
 
     if not file_path or not content:
         sys.exit(0)
 
     result = analyze_content(content, file_path)
-
-    with open(debug_log, "a") as f:
-        f.write(f"Analysis result: {result}\n")
 
     warning_lines = precondition_warning(added_text(tool_name, tool_input), file_path)
 
@@ -209,10 +184,7 @@ def main():
                 "additionalContext": "\n".join(warning_lines)
             }
         }
-        output_json = json.dumps(output)
-        with open(debug_log, "a") as f:
-            f.write(f"Outputting: {output_json}\n")
-        print(output_json)
+        print(json.dumps(output))
 
     sys.exit(0)
 
