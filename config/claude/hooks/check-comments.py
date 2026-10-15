@@ -128,7 +128,6 @@ def main():
 
     tool_name = input_data.get("tool_name", "")
     tool_input = input_data.get("tool_input", {})
-    tool_response = input_data.get("tool_response", {})
 
     file_path = tool_input.get("file_path") or tool_input.get("filePath") or tool_input.get("path", "")
 
