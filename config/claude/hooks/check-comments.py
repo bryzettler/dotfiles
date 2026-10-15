@@ -92,6 +92,34 @@ def analyze_content(content: str, file_path: str) -> dict:
         "excessive": comment_ratio > MAX_COMMENT_RATIO and len(flagged_comments) > 0
     }
 
+PRECONDITION = re.compile(r'(//|#|/\*|\*).*\bcallers? (must|should|is responsible)', re.IGNORECASE)
+
+def added_text(tool_name: str, tool_input: dict) -> str:
+    """Text the tool call adds, so a precondition already in the file is not flagged again"""
+    if tool_name == "Write":
+        return tool_input.get("content", "")
+    if tool_name == "Edit":
+        return tool_input.get("new_string", "")
+    if tool_name == "MultiEdit":
+        return "\n".join(e.get("new_string", "") for e in tool_input.get("edits", []))
+    return ""
+
+def precondition_warning(text: str, file_path: str) -> list:
+    """Flag comments that state a precondition nothing enforces"""
+    if Path(file_path).suffix.lower() not in CODE_EXTENSIONS:
+        return []
+    hits = [line.strip() for line in text.split('\n') if PRECONDITION.search(line)]
+    if not hits:
+        return []
+    lines = ["", "---", "**Precondition Check Warning**: a comment puts a precondition on the caller:"]
+    lines += [f"  `{h[:80]}`" for h in hits[:5]]
+    lines += [
+        "",
+        "Per CODING_STANDARDS.md (Invariants), make the type carry it, or add a compile-time assertion, or pin it with a test.",
+        "---",
+    ]
+    return lines
+
 def main():
     # Debug logging to file
     import os
@@ -146,14 +174,12 @@ def main():
     with open(debug_log, "a") as f:
         f.write(f"Analysis result: {result}\n")
 
-    if result.get("skip"):
-        sys.exit(0)
+    warning_lines = precondition_warning(added_text(tool_name, tool_input), file_path)
 
     if result.get("excessive"):
         ratio_pct = f"{result['comment_ratio']:.0%}"
 
-        # Build warning message
-        warning_lines = [
+        warning_lines += [
             "",
             "---",
             f"**Comment Check Warning**: {ratio_pct} of lines are comments ({result['comment_lines']}/{result['total_lines']})",
@@ -176,9 +202,10 @@ def main():
             "---",
         ])
 
-        # Output warning to be appended to tool output
+    if warning_lines:
         output = {
             "hookSpecificOutput": {
+                "hookEventName": "PostToolUse",
                 "additionalContext": "\n".join(warning_lines)
             }
         }

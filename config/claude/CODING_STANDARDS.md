@@ -10,6 +10,17 @@
 - JS/TS: prefer `const x = () => {}` over `function x() {}` for new function definitions.
 - Mention unrelated dead code you notice and leave it in place. Remove imports, variables, and functions that your changes made unused.
 
+## Invariants
+
+Make wrong code fail to compile, not fail at runtime. Apply this to code you write; leave untouched code in its shape.
+
+- Parse raw input once at the trust boundary into a typed value. Downstream code does not check it again.
+- A value with a unit or scale gets its own type, not a bare integer with the unit in its name.
+- A precondition goes into the type, then a compile-time assertion, then a test. A runtime check belongs only at a trust boundary. Never write "caller must ensure".
+- Model states as an enum or a discriminated union, not as bool flags that interact. Match your own enums exhaustively, with no wildcard arm.
+- Put the rounding direction in the function name (`divFloor`, `div_ceil`), not in a comment.
+- When you add a safe form of a function, remove or hide the unsafe form.
+
 ## Codebase Assessment
 
 For open-ended requests ("Improve", "Refactor", "Add feature"), assess whether existing patterns are worth following before you follow them. Disciplined → match it strictly; transitional → ask which pattern; legacy/chaotic → propose conventions first; greenfield → modern best practices.
