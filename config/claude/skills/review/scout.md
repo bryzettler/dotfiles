@@ -20,7 +20,7 @@ When the prompt names `<last>`, or Prior round below finds one, this is a delta 
 
 **Branch.** `git rev-parse <base>` succeeds. Take the head from `python3 -I ~/.claude/skills/review/tools/snapshot.py`, run in the checkout: a sha that holds HEAD plus every uncommitted and untracked file, or HEAD itself on a clean tree. Every diff range and every tool that takes a ref uses `<base>...<head>` with that sha. File reads and test runs use the checkout, whose files match the snapshot. The spec is the `.scratch/<feature>/` `SPEC.md` or `PRD.md` and the issue files that match the branch, else the full commit messages from `git log <base>..HEAD`. When the prompt names spec files (tickets, a PRD), write those into the spec file instead of searching. When the prompt names a follow-ups file (claims the author left unverified), copy it to `<scratchpad>/prior.md`.
 
-**PR.** `gh pr view <n> --json baseRefName,headRefOid,body`. Check out the PR head: the current worktree when `HEAD` is that sha, else a throwaway worktree in the scratchpad from `git fetch origin pull/<n>/head`. Give a throwaway worktree a `node_modules` symlink from the main checkout for the root and for every workspace package that has one, so tests resolve cross-package imports. Fetch the base and take `origin/<base>` as the fixed point. The spec is the PR body, then the full commit messages from `git log origin/<base>..HEAD`. Also write the PR body alone to `<scratchpad>/pr-body.md`: in a long spec file the body's claims drown in commit messages. Done when the checkout is at `headRefOid`.
+**PR.** `gh pr view <n> --json baseRefName,headRefOid,headRefName,headRepository,headRepositoryOwner,author,body`. The PR is `author: self` when `author.login` equals `gh api user --jq .login`, else `author: other`. The **head branch** is `<headRepositoryOwner.login>/<headRepository.name>:<headRefName>`. Check out the PR head: the current worktree when `HEAD` is that sha, else a throwaway worktree in the scratchpad from `git fetch origin pull/<n>/head`. Give a throwaway worktree a `node_modules` symlink from the main checkout for the root and for every workspace package that has one, so tests resolve cross-package imports. Fetch the base and take `origin/<base>` as the fixed point. The spec is the PR body, then the full commit messages from `git log origin/<base>..HEAD`. Also write the PR body alone to `<scratchpad>/pr-body.md`: in a long spec file the body's claims drown in commit messages. Done when the checkout is at `headRefOid`.
 
 **PR, prior round.** Look for an earlier round on this PR: the newest review by the current user (`gh api user --jq .login`) that approves or whose inline comments start with `<!-- review -->`, and the state file `~/.claude/review-state/<owner>__<repo>__<n>.md`.
 
@@ -71,7 +71,7 @@ Write `flows.md` as one section per flow: its name, its entry point, and every f
 
 Under 300 words:
 
-- fixed point sha, head sha (branch mode: the snapshot), checkout path, spec path ("no spec" when there is none), and in PR mode the `pr-body.md` path
+- fixed point sha, head sha (branch mode: the snapshot), checkout path, spec path ("no spec" when there is none), and in PR mode the `pr-body.md` path, `author: self` or `author: other`, and the head branch
 - diff line count from `git diff --shortstat`
 - one line per changed file with its domains
 - tooling output paths, and tools unavailable

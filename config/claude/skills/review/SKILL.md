@@ -1,6 +1,6 @@
 ---
 name: review
-description: Four-axis review of a branch against develop (fixes applied) or of a PR (inline suggestions, or an LGTM approval when clean).
+description: Four-axis review of a branch against develop (fixes applied) or of a PR (inline suggestions, or an LGTM approval when clean; on the user's own PR, fixes committed and pushed).
 ---
 
 # review
@@ -11,7 +11,7 @@ Keep the main loop's context for verdicts. Tool output, spec text, lens text, an
 
 Every `general-purpose` prompt this skill sends ends with: "Send independent reads, searches, and commands in one message. Do not call the advisor." Those agents orchestrate, and an advisor call resends their whole context to Fable uncached. The main loop does not call the advisor either: it already runs on Fable, and each call resends its whole context uncached.
 
-`fixer` is the only agent that edits. In PR mode it edits the checkout only. Nothing is pushed.
+`fixer` is the only agent that edits. In PR mode it edits the checkout only. Only an own PR (`author: self` in the manifest) is pushed, per "Own PR" in `pr-mode.md`.
 
 ## Mode
 
@@ -25,7 +25,7 @@ Resolve the mode from the argument before anything else:
 | `pr`                                      | pr     | the PR open for the current branch (`gh pr view --json number`)                                                                                                                                                                                                              |
 | `pr <n>`, `#<n>`, a bare number, a PR URL | pr     | that PR                                                                                                                                                                                                                                                                      |
 
-Branch mode's output is edits in the working tree. PR mode's output is a GitHub review on the PR; the checkout is scratch and the PR branch stays as the author left it.
+Branch mode's output is edits in the working tree. PR mode's output is a GitHub review on the PR; the checkout is scratch and the PR branch stays as the author left it. On the user's own PR, the output is a fix commit pushed to the PR branch, and no review is posted.
 
 **PR mode:** read `pr-mode.md` in this folder now. It holds the PR gate and steps 5 to 9.
 

@@ -2,6 +2,8 @@
 
 What PR mode adds to the steps in `SKILL.md`: the gate, steps 5 to 9, anchoring, and the report additions. Every body this mode posts follows `public-text.md` in this folder.
 
+When the manifest says `author: self`, the PR is the user's own: follow "Own PR" at the end of this file. It replaces the Gate and steps 5 to 8. Step 9, Persist, still runs.
+
 ## Gate (step 4)
 
 Every branch below ends with step 9, Persist, before the report: a round that approves or posts nothing still keeps its returns.
@@ -66,3 +68,27 @@ Before posting, count fences: every entry without a `suggestion` fence has a sta
 ## Report additions
 
 The review URL and whether it was an approval or a comment review. Per posted comment: `file:line`, a one-line summary, and `suggestion` or `plain: <reason>`.
+
+## Own PR
+
+The user wrote this PR, so the review fixes it the way branch mode does, then pushes. It posts no review, no comment, and no suggestion. GitHub also refuses an approval from the PR's author.
+
+**Gate (step 4).**
+- Zero confirmed findings and green execution evidence: persist, write the report, and stop.
+- Open Value suspicions: the report leads with them, each with the question that would close it. Post nothing.
+- Pending check: report it. Wait on none.
+- A failing test run or a red check is a confirmed finding. Its tail goes to the fixer as the item.
+- Confirmed findings: continue.
+
+**Fix (step 5).** Step 5 in `SKILL.md`: one `fixer` run in the checkout with plain edits, no JSON and no suggestion fences. Redesign gets no item; it goes in the report.
+
+**Fix re-review (step 6).** As in `SKILL.md`, against the fixer's diff in the checkout.
+
+**Push (step 7).** Only when lint and tests pass, or their failures pre-exist at the PR head:
+1. `git fetch origin pull/<n>/head` and confirm the PR head is still the head sha reviewed. When it moved, commit nothing, push nothing, and report the new sha.
+2. Commit the fixer's edits in the checkout as one commit, subject `fix: address review findings` with a scope per `~/.claude/CODING_STANDARDS.md`. The body lists each fixed finding in one line.
+3. Push to the manifest's **head branch**, never with force: `git push origin HEAD:<branch>` when its owner and repo match the PR's repo, else `git push https://github.com/<owner>/<repo>.git HEAD:<branch>`. A rejected push ends the step: report it.
+
+Done when the push returns the new head sha, or the report says why nothing was pushed.
+
+**Report additions.** The pushed sha and branch, or the reason nothing was pushed. No review URL.

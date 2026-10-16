@@ -7,7 +7,8 @@ Usage (from the checkout):
 
 Pins the fixed point, the head, and the checkout; drafts spec.md (and pr-body.md);
 gives every changed file its domains; runs the domain greps and ts-signatures.mjs;
-and in PR mode fetches the checks, one tail per failing check, and the prior round.
+and in PR mode fetches the checks, one tail per failing check, the prior round,
+and whether the current user authored the PR.
 It implements "By mode", "Domain", and the grep and signature lines of "Tooling"
 in scout.md: change both together. The greps themselves are read from the
 Tooling section of each domain-*.md.
@@ -97,9 +98,8 @@ def pr_checkout(scratch, n, oid):
     return tree
 
 
-def prior_round(n, oid, slug):
+def prior_round(n, slug, login):
     """The newest review by the current user that approves or whose inline comments carry the marker."""
-    login = run("gh", "api", "user", "--jq", ".login")
     marked = set(run(
         "gh", "api", "--paginate", f"repos/{slug}/pulls/{n}/comments", "--jq",
         f'.[] | select(.body | startswith("{MARKER}")) | .pull_request_review_id',
@@ -198,17 +198,23 @@ def main():
 
     if mode == "pr":
         slug = run("gh", "repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner")
-        pr = json.loads(run("gh", "pr", "view", target, "--json", "number,baseRefName,headRefOid,body"))
+        pr = json.loads(run(
+            "gh", "pr", "view", target, "--json",
+            "number,baseRefName,headRefOid,headRefName,headRepository,headRepositoryOwner,author,body",
+        ))
         n, head = pr["number"], pr["headRefOid"]
+        login = run("gh", "api", "user", "--jq", ".login")
         tree = pr_checkout(scratch, n, head)
         run("git", "fetch", "origin", pr["baseRefName"])
         base = "origin/" + pr["baseRefName"]
         write(os.path.join(scratch, "pr-body.md"), pr["body"] + "\n")
         spec = "# PR body\n\n" + pr["body"] + "\n\n# Commits\n\n"
         out += [f"pr: {slug}#{n}", f"pr-body: {scratch}/pr-body.md",
-                f"state file: ~/.claude/review-state/{slug.replace('/', '__')}__{n}.md"]
+                f"state file: ~/.claude/review-state/{slug.replace('/', '__')}__{n}.md",
+                f"author: {'self' if pr['author']['login'] == login else 'other'} ({pr['author']['login']})",
+                f"head branch: {pr['headRepositoryOwner']['login']}/{pr['headRepository']['name']}:{pr['headRefName']}"]
         tip = head
-        since = since or prior_round(n, head, slug)
+        since = since or prior_round(n, slug, login)
         if since and since != head and subprocess.run(["git", "fetch", "origin", since], capture_output=True).returncode:
             fails.append(f"git fetch origin {since}: prior round not fetchable, run a full review")
             since = None
