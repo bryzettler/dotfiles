@@ -12,7 +12,7 @@ A rerun is a delta: it collects only what arrived after the earlier run's marks.
 
 - Review bodies had no skip rule, and a body item lost its covering thread once that thread was answered, so a rerun collected both again. Hence the items line in the summary: the item key is exact, where "a later comment quoting it" had no checkable bound. A summary older than the items line names no keys, so the first rerun after it collects its body items once more.
 - The run resolves each thread it replies to, so the PR shows only what is still open. The scout does not count on a reply to reopen a resolved thread: it collects any thread whose newest comment follows our reply. The cost is that a reviewer's "thanks" becomes a finding with an ANSWER verdict.
-- A rerun after the user stopped at the gate finds the earlier commit ahead of the remote head. The verifiers check `git log <headRefOid>..HEAD` and return FIXED with its sha, so nothing is fixed twice.
+- A rerun after a run that committed but did not push (a failed push, or lint or tests that failed) finds the earlier commit ahead of the remote head. The verifiers check `git log <headRefOid>..HEAD` and return FIXED with its sha, so nothing is fixed twice.
 - The new summary covers only the findings this run answered (step 6).
 
 ## Misses
@@ -22,3 +22,5 @@ A human finding that a `review` round could have seen is the cheapest lens test 
 ## Fix rounds
 
 Each review round on PR #1345 found defects in the previous round's fix commit, and the reviewer could not see our deferred tickets. Hence a blind Delta review on the fix diff before the commit (a delta round through `since`, skipped for a prose-only fix diff: see Fix rounds in `review/RATIONALE.md`), a Follow-ups section in the PR body for every defer, and a fix reply that names its pinning test and any part that remains.
+
+- The user wants a run to push and post without a final confirmation. Hence no gate before step 7. The user still rules on each **ask**, at Rule with a recommended answer, because only the user can settle those.
