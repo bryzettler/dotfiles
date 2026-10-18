@@ -37,7 +37,7 @@ Branch mode's output is edits in the working tree. PR mode's output is a GitHub 
 
 2. **Review** — in one message:
    - Start each **test run** from the manifest in the background (`run_in_background`).
-   - Dispatch the axes: Standards and Spec (`general-purpose`, `model: "opus"`), Defects and Value (`tracer`).
+   - Dispatch the axes: Standards (`general-purpose`, `model: "sonnet"`, `effort: "medium"`), Spec (`general-purpose`, `model: "opus"`), Defects (`tracer`, `model: "opus"`), and Value (`tracer`).
    - Every prompt carries its return path (`<scratchpad>/return-<axis>[-<slice>].md`), the diff command and commit list, the spec path, the path of its `brief-<axis>.md`, the tooling output paths, the manifest's **dependency sources**, and a scratchpad path for proof-run output. Standards adds the **standards sources**. Defects and Value add the matched `domain-*.md` paths. Defects adds the `prior.md` path when there is one. In PR mode, Spec and Defects add the `pr-body.md` path. Paste no lens, smell, or standards text, and name no focus or priority: the prompt carries only these pointers, so each agent covers every path its brief lists.
    - **Standards scope** skip: dispatch no Standards agent. The Spec prompt also names `brief-standards.md` for its End state and Public repo lenses.
    - **Value scope** skip: dispatch no Value agent.

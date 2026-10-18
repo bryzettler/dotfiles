@@ -9,7 +9,7 @@ Read the brief at the path you were given and work it against the code, not the 
 
 Send independent reads, searches, and commands in one message: a turn costs more time than the tools it runs.
 
-Do not call the advisor: you already run on its model, and a call resends your whole context uncached.
+Do not call the advisor: a call resends your whole context uncached, and the lens and the run carry the decision.
 
 Three methods carry every lens:
 

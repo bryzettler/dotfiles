@@ -4,7 +4,7 @@ Why the skill is shaped this way. No step reads this file. Read it before you ch
 
 ## Models
 
-The skill runs on opus (`claude --model opus`): the main loop executes a procedure, and the fable advisor carries the hard decisions. Every agent it dispatches runs on opus: the scout, explorers, both implementer tiers, and the reviewer wrapper, because each executes a procedure, and the wrapper is the review main loop, which works from returns and paths, not code. Fable enters through the advisor, which every opus sub-agent inherits: the deep implementer consults it at each open decision, and the wrapper consults it on a resolution or a spec-question recommendation it cannot settle from the returns. The review skill routes its own sub-agents; its consequence tracers (Defects, Value, and the Value verifiers) are the only agents on fable. Routing lives in `~/.claude/MODEL_ROUTING.md`.
+The skill runs on opus (`claude --model opus`): the main loop executes a procedure, and the fable advisor carries the hard decisions. Every agent it dispatches runs on opus: the scout, both implementer tiers, and the reviewer wrapper, because each executes a procedure, and the wrapper is the review main loop, which works from returns and paths, not code. Explorers run on sonnet at medium: they read code and write notes, and no decision rides on them directly. Fable enters through the advisor, which every opus sub-agent inherits: the deep implementer consults it at each open decision, and the wrapper consults it on a resolution or a spec-question recommendation it cannot settle from the returns. The review skill routes its own sub-agents; its Value tracer is the only agent on fable. Routing lives in `~/.claude/MODEL_ROUTING.md`.
 
 ## Cost budget
 

@@ -26,7 +26,7 @@ Folder given: use it. None: glob `.scratch/*/issues` from the current directory.
 
 1. **Plan** — one scout (`general-purpose`, `model: "opus"`). Its prompt carries the issues folder path, the `--only` list, the scratchpad path, and the path of `briefs.md`. Done when every `*.md` in the folder has a row in the manifest and every repo path is verified or listed as unresolved. Ask the user about unresolved repos. Print the table. `--dry-run` stops here.
 
-2. **Explore** — only when the scout recommends it: one explorer (`general-purpose`, `model: "opus"`) per research topic. Its prompt carries the topic, the spec path, the repo paths, the notes folder `<issues-folder>/../notes/`, and the path of `briefs.md`. Done when it returns the list of note files it wrote.
+2. **Explore** — only when the scout recommends it: one explorer (`general-purpose`, `model: "sonnet"`, `effort: "medium"`) per research topic. Its prompt carries the topic, the spec path, the repo paths, the notes folder `<issues-folder>/../notes/`, and the path of `briefs.md`. Done when it returns the list of note files it wrote.
 
 3. **Execute** — the frontier loop. Each PR group has one branch, named after the group, in one worktree. Each ticket runs in a worktree of its own, on a ticket branch cut from the group tip, and lands on the group branch by fast-forward when it returns `done`. Review no ticket on its own: step 4 reviews each group's tickets together.
    - **Bad group name:** when the scout flags a bad name from a `**PR:**` header, ask the user for a better one before the group's first ticket, and update the headers.

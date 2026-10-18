@@ -29,6 +29,17 @@ Return one verdict per hit id, with the `file:line` that settles it quoted, and 
 - **Pre-existing is a finding when the diff leans on it:** the diff calls it, moves or extracts it, widens who reaches it, or makes an outcome depend on it. When no path in the diff reaches it, quote the `file:line` that shows that. In `review` that is DISMISSED as pre-existing. In `address-review` it is CONFIRMED `defect` with `scope: out`, because a reviewer raised it.
 - **The spec is a claim, not a verdict.** A spec that accepts a failure path ("keep the old value and warn", a listed known gap) is checked for its end state: what the next run, retry, or restart does with that state. An end state the spec did not name is a new finding.
 
+## Security precedents
+
+Each settles a web or backend security hit as DISMISSED, with the precedent named. Each applies only to the class it names: Griefing, Replay, and Dependencies hits keep their rules in `brief-value.md`, and a hit on funds or authority needs a traced reason.
+
+- React, React Native, and Angular escape output. XSS there needs `dangerouslySetInnerHTML`, `innerHTML`, `bypassSecurityTrust*`, or a URL sink with a caller-controlled scheme (`href={userUrl}` admits `javascript:`).
+- Client code without an authorisation check is clear when the server enforces it: quote the server's check. With no server check, the hit stands against the server.
+- A UUIDv4 or other id with 122 random bits cannot be guessed. A sequential, timestamp, or derived id can.
+- An SSRF where the caller controls only the path is clear. Control of the scheme or host is a hit.
+- A runtime env var or CLI flag is operator-controlled. In CI, a value built from `github.event.*`, a branch name, or a PR title is attacker-controlled.
+- A log line with no secret, credential, or PII is clear.
+
 ## The +EV bar
 
 The main loop applies this bar to every finding that is not a defect: a Standards smell, a Spec scope note, a `nit`, a cleanup. The finding holds only when the change makes the logic easier to follow, or measurably more efficient. A stylistic, lateral, or "how I would have written it" change is below the bar. So is a finding whose fix needs code the diff does not touch. So is an error arm for a `checked_div` or `checked_rem` by a nonzero constant, which cannot fail. Value findings are defects, and the bar does not apply to them. A pattern that repeats across files is one finding, and its comment lists every site.

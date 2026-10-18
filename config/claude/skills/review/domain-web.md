@@ -1,13 +1,13 @@
 # Domain: Web
 
-Frontends: Next.js, React Router, React Native.
+Frontends (Next.js, React Router, React Native), and every file no other domain claims: API servers, services, and scripts in any language.
 
 ## Tooling
 
 `tsc --noEmit --noUnusedLocals --noUnusedParameters` (the flags catch what a fix commit leaves behind) and the repo's lint script; `knip` (else `ts-prune`) on each changed package that is published, since `tsc` never flags an unused export: an export the diff adds that nothing outside its tests imports is a tooling hit; and the **trust-boundary grep** over the changed files:
 
 ```
-rg -n 'req\.(body|query|params|headers|cookies)|searchParams|process\.env|exec\(|spawn\(|eval\(|dangerouslySetInnerHTML|innerHTML|redirect\(|fetch\(|axios|cors|Access-Control|webhook|stripe|verify(Signature|Webhook)|jwt|session|cookie|admin|role|isAuthorized|middleware|use server|use client|revalidate(Path|Tag)|AsyncStorage|SecureStore|Linking\.'
+rg -n 'req\.(body|query|params|headers|cookies)|searchParams|process\.env|exec\(|spawn\(|eval\(|dangerouslySetInnerHTML|innerHTML|redirect\(|fetch\(|axios|cors|Access-Control|webhook|stripe|verify(Signature|Webhook)|jwt|session|cookie|admin|role|isAuthorized|middleware|use server|use client|revalidate(Path|Tag)|AsyncStorage|SecureStore|Linking\.|child_process|execSync|subprocess|os\.system|pickle\.loads?|yaml\.load|Marshal\.load|new Function|createHash\(.(md5|sha1)|Math\.random|random\.random|rejectUnauthorized|NODE_TLS_REJECT_UNAUTHORIZED|verify=False|InsecureSkipVerify|xml2js|DOMParser|lxml|\$where|queryRawUnsafe|executeRawUnsafe|\.raw\('
 ```
 
 The scout also records whether the lint config carries `react-hooks` and `jsx-a11y`. A repo on biome alone enforces neither, and the Effect race and States and access lenses then do that work by hand.

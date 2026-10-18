@@ -12,10 +12,11 @@ Fable reasons better about 3rd-, 4th-, and 5th-order consequences. Opus executes
 ## Subagents
 
 - Implementation of an approved plan: `implementer` (Opus, effort medium). Use `implementer-deep` (Opus, effort high, consults the advisor) only for money, authority, on-chain, migration, concurrency, or open-design work. Implementers always run on Opus.
-- Consequence tracing (review Defects, Value): `tracer` (Fable, effort high). The tracer proves Defects hits itself, by a run or a quoted `file:line`, so Defects hits go straight to the report without a verifier.
+- Consequence tracing: `tracer` (effort high). Value runs on Fable: a loss of funds lives three or four layers from the diff. Defects runs on Opus (`model: "opus"`): it proves each hit by a run or a quoted `file:line`, which is execution work, so Defects hits go straight to the report without a verifier.
 - Verifying Value hits, contradictions, audit rejects, and address-review findings: `verifier` (Opus, effort medium). The packet narrows the read, and Opus returns each tool call about 1.5 times faster.
 - Pinning a review or an address-review run: `scout` (Sonnet, effort medium). A script does the mechanical half, and the rest is a fixed procedure. Set the effort on every Sonnet agent: its default is high.
-- Every other subagent runs on Opus, including orchestrating wrappers (the implement-tickets scout, Standards, Spec, fixer, explorer, the implement-tickets reviewer wrapper).
+- Rubric and research work: Standards and the implement-tickets explorer run on Sonnet at effort medium.
+- Every other subagent runs on Opus, including orchestrating wrappers (the implement-tickets scout, Spec, fixer, the implement-tickets reviewer wrapper).
 
 ## Advisor
 
@@ -24,7 +25,7 @@ Fable reasons better about 3rd-, 4th-, and 5th-order consequences. Opus executes
 An advisor call resends the caller's whole context to Fable with no cache, about 100k input tokens per call. Keep it where a decision is made:
 
 - On: the main loop (`/advisor off` for a session that does not need it), `implementer-deep`, and `implementer` after a repeated error.
-- Off: `tracer`, since it already runs on Fable, `verifier`, since its packet already narrows the decision, and `scout`, since its brief is a procedure. Off for `general-purpose` orchestrators too: each skill's prompt to them ends with "Do not call the advisor."
+- Off: `tracer`, since Value already runs on Fable and Defects settles by a run, `verifier`, since its packet already narrows the decision, and `scout`, since its brief is a procedure. Off for `general-purpose` orchestrators too: each skill's prompt to them ends with "Do not call the advisor."
 
 Agent frontmatter cannot remove the advisor: `disallowedTools` and `tools` filter normal tools but not this server tool (tested on 2.1.291). Only a prompt line turns it off for one agent; `implementer` made 1 call in 14 days under such a line.
 
