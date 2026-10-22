@@ -5,9 +5,9 @@ let
 in
 {
   # Claude Code global config via out-of-store symlinks — repo edits apply live.
-  # settings.json is intentionally NOT linked: Claude Code and herdr rewrite it
-  # (plugin toggles, /config, integration updates) and would clobber a symlink.
-  # Sync it into the repo with the `claude-sync` fish function.
+  # settings.json is linked too: Claude Code rewrites (plugin toggles, /config)
+  # land in the repo, so review them in `git diff` before committing.
+  home.file.".claude/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/settings.json";
   home.file.".claude/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/CLAUDE.md";
   home.file.".claude/RTK.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/RTK.md";
   home.file.".claude/CODING_STANDARDS.md".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/CODING_STANDARDS.md";
@@ -23,5 +23,6 @@ in
   home.file.".claude/skills/implement-tickets".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/implement-tickets";
   home.file.".claude/skills/address-review".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/address-review";
   home.file.".claude/hooks/block-destructive-git.sh".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/hooks/block-destructive-git.sh";
+  home.file.".claude/hooks/format-prettier.sh".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/hooks/format-prettier.sh";
   home.file.".claude/hooks/check-comments.py".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/hooks/check-comments.py";
 }

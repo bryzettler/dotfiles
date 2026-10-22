@@ -88,7 +88,7 @@ home.file.".emacs.d/init.el".source = ../../../config/emacs/init.el;
 
 **tmux comma escaping**: Commas inside `#[...]` style attributes (e.g. `#[bg=red,fg=white]`) must be escaped as `#,` when nested inside tmux conditionals (`#{?...}`). Unescaped commas get parsed as conditional branch separators, breaking the format string. This applies to `window-status-format` and any other format using conditionals. The Nix source in `tmux.nix` uses `#,` but when editing `~/.tmux.conf` directly, you must escape manually.
 
-**Deployed vs source configs**: tmux, ghostty, herdr, and Claude configs are hand-made symlinks from home paths into `config/` — repo edits apply live (tmux: reload; ghostty: restart app; herdr: `herdr server reload-config`). Exception: `~/.claude/settings.json` is a real file because Claude Code rewrites it — run `claude-sync` to copy it into the repo.
+**Deployed vs source configs**: tmux, ghostty, herdr, and Claude configs are hand-made symlinks from home paths into `config/` — repo edits apply live (tmux: reload; ghostty: restart app; herdr: `herdr server reload-config`). `~/.claude/settings.json` is a symlink too, so Claude Code's own rewrites (plugin toggles, `/config`) show up in `git diff` — review them before committing.
 
 **Nix layer is aspirational**: Nix/home-manager/fish are declared in this repo but NOT installed on this machine — there is no `/nix`, fish is absent, and the login shell is `/bin/zsh` with a hand-managed `~/.zshrc` (outside this repo). `rebuild` does nothing until `scripts/bootstrap.sh` installs nix-darwin. Keep `.nix` modules in sync as declared intent, but make live changes via the symlinked files in `config/`.
 

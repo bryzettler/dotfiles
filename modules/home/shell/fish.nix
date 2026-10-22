@@ -64,12 +64,6 @@ in
 
     functions = {
       fish_greeting = "";
-      # settings.json isn't symlinked (Claude Code rewrites it) — copy live → repo
-      claude-sync = ''
-        diff -u ~/.dotfiles/config/claude/settings.json ~/.claude/settings.json
-        cp ~/.claude/settings.json ~/.dotfiles/config/claude/settings.json
-        echo "synced ~/.claude/settings.json → dotfiles"
-      '';
       # claude with auto permissions; first non-flag arg becomes the session name
       cc = ''
         if test (count $argv) -gt 0; and not string match -q -- '-*' $argv[1]
