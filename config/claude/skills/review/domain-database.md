@@ -26,7 +26,7 @@ The **schema-change map**: every DDL statement in the diff, every raw SQL string
 ## Value lenses
 
 - **Irreversible** — every `DROP`, `TRUNCATE`, `DELETE`, type narrowing, and migration with no down. → The data is backed up, copied to the new shape, or provably unused. A `DELETE` or `UPDATE` with no `WHERE`, or whose `WHERE` takes a client input, is a hit. A drop that also breaks the live release is reported once, under Expand-contract, with the data question answered here.
-- **Row scope** — every query that reads or writes by id. → The predicate binds the row to the principal (`AND user_id = $1`, `AND org_id = ...`). Web Authorisation checks the handler; this checks the query, since a handler that checks and a query that does not is one refactor from a leak.
+- **Row scope** — every query that reads or writes by id. → The predicate binds the row to the principal (`AND user_id = $1`, `AND org_id = ...`). Web Authorisation checks the handler; this checks the query, since a handler that checks and a query that does not is one refactor from a leak. A derived copy of scoped rows (a cache, a search index, an export, a materialized view) keeps the same predicate.
 
 ## Pinned additions
 

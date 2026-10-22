@@ -19,7 +19,7 @@ Return one verdict per hit id, with the `file:line` that settles it quoted, and 
   - `design` — no single edit fixes it: who can reach a key, which component owns a write, a trust boundary in the wrong place. Give the smaller design that removes it.
   - `nit` — a lateral preference (naming, ordering, style). Say whether a repo convention (a lint rule, a style guide, the dominant pattern in sibling files) supports or contradicts it, and give the edit.
 - **DISMISSED** — the specific reason the scenario cannot happen, or how the hit misreads the code.
-- **OPEN** — only where funds, authority, or data can be lost: what you checked and what you could not.
+- **OPEN** — only where funds, authority, or data can be lost: what you checked, the one fact that would settle it, and who can check that fact.
 - **FIXED** — `address-review` only: a local commit or a later line already resolves it. Name the sha.
 - **ANSWER** — `address-review` only: the hit asks a question and no change follows. The answer, from the code, in under 60 words.
 
