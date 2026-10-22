@@ -9,7 +9,7 @@ The other half of `review`. A reviewer (you through `/review pr`, a teammate, or
 
 Keep the main loop's context for outcomes. Comment bodies, code reads, and lint and test output go to sub-agents and scratchpad files and reach the main loop as paths and short returns. `briefs.md` in this folder holds the scout and verifier briefs; pass its path. `fixer` is the only agent that edits code; the main loop writes the tickets, the commit, the replies, and the miss log. The user rules only on **ask** findings, at step 3 or 4. Push and post at step 7 run without a prompt.
 
-Every `general-purpose` prompt this skill sends ends with: "Send independent reads, searches, and commands in one message. Do not call the advisor." Those agents orchestrate, and an advisor call resends their whole context to Fable uncached. The main loop does not call the advisor either: it already runs on Fable, and each call resends its whole context uncached.
+Every `general-purpose` prompt this skill sends ends with: "Send independent reads, searches, and commands in one message. Do not call the advisor." Those agents orchestrate, and an advisor call resends their whole context to Fable uncached. The main loop calls the advisor only at a real decision, such as a verdict it is unsure of. Each call resends its whole context uncached.
 
 **Invocation:** `/address-review [pr | <n> | #<n> | <PR URL>]`. No argument or `pr`: the PR open for the current branch.
 

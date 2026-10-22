@@ -1,5 +1,5 @@
 - **Code**: before writing, editing, reviewing, testing, or committing code, read `~/.claude/CODING_STANDARDS.md`.
-- **Delegation**: for exploratory requests ("How does X work?", "Find Y"), fire explore agents and direct tools in parallel. Before dispatching any subagent or choosing a model, read `~/.claude/MODEL_ROUTING.md`.
+- **Delegation**: for broad exploratory requests ("How does X work?"), run explore agents in parallel with direct tools. Use direct tools alone for a known file or symbol. Before dispatching any subagent or choosing a model, read `~/.claude/MODEL_ROUTING.md`.
 - **Setup**: before running `/mattpocock-skills:setup-matt-pocock-skills`, read `~/.claude/AGENT_SKILLS_SETUP.md`.
 - **RTK**: when command output looks filtered or truncated, read `~/.claude/RTK.md`.
 

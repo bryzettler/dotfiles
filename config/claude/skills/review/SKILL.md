@@ -9,7 +9,7 @@ One review, two inputs, two outputs. Four axes are the whole review: **Standards
 
 Keep the main loop's context for verdicts. Tool output, spec text, lens text, and full reports go to scratchpad files and reach the main loop as paths. Read a source range or a report file only when a specific verdict needs it. Run `git diff` only with `--shortstat` (size) or `--name-only` (classification). The `brief-*.md`, `domain-*.md`, `scout.md`, and `return-rule.md` files in this folder are for the sub-agents: pass their paths, and keep their text out of the main loop.
 
-Every `general-purpose` prompt this skill sends ends with: "Send independent reads, searches, and commands in one message. Do not call the advisor." Those agents orchestrate, and an advisor call resends their whole context to Fable uncached. The main loop does not call the advisor either: it already runs on Fable, and each call resends its whole context uncached.
+Every `general-purpose` prompt this skill sends ends with: "Send independent reads, searches, and commands in one message. Do not call the advisor." Those agents orchestrate, and an advisor call resends their whole context to Fable uncached. The main loop calls the advisor only at a real decision, such as a verdict it is unsure of. Each call resends its whole context uncached.
 
 `fixer` is the only agent that edits. In PR mode it edits the checkout only. Only an own PR (`author: self` in the manifest) is pushed, per "Own PR" in `pr-mode.md`.
 

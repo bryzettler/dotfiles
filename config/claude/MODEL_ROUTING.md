@@ -2,12 +2,12 @@
 
 Fable reasons better about 3rd-, 4th-, and 5th-order consequences. Opus executes, orchestrates, and codes better.
 
-## Main loop (Fable, the session default)
+## Main loop (Opus, the session default; Fable advises)
 
 - Handle spec planning, debugging, wayfinder, and grilling here.
 - Handle trivial, mechanical, and explicit tasks (specific file/line, clear command) here with direct tools.
 - Keep tasks that need conversation context or back-and-forth here.
-- The main loop skips the advisor: a second Fable rereading the transcript adds cost, not reasoning.
+- Call the Fable advisor at decision points. If you launch with `--model fable`, skip it: a second Fable rereading the transcript adds cost, not reasoning.
 
 ## Subagents
 
@@ -29,4 +29,4 @@ An advisor call resends the caller's whole context to Fable with no cache, about
 
 Agent frontmatter cannot remove the advisor: `disallowedTools` and `tools` filter normal tools but not this server tool (tested on 2.1.291). Only a prompt line turns it off for one agent; `implementer` made 1 call in 14 days under such a line.
 
-For a session that is mostly orchestration (`/implement-tickets`), launch with `claude --model opus`; the Fable advisor carries the hard decisions.
+For a session that needs Fable's reasoning throughout, launch with `claude --model fable` and run `/advisor off`.

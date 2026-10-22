@@ -102,7 +102,7 @@ home.file.".emacs.d/init.el".source = ../../../config/emacs/init.el;
 
 ## Key Configurations
 
-- **Shell**: Fish + Starship, auto-starts tmux "main" session
+- **Shell**: declared as Fish + Starship (auto-starts tmux "main"); live shell is `/bin/zsh` until nix-darwin is installed (see Gotchas)
 - **Terminal**: Ghostty (80% opacity, Catppuccin Mocha)
 - **tmux**: Prefix `Ctrl+\`, sessions persist via continuum
 - **Emacs**: Terminal-only (`emacs -nw`), 24-bit color, LSP via eglot, Claude via claudemacs
