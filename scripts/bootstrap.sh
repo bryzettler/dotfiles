@@ -75,7 +75,7 @@ fi
 
 # 5. trust third-party tap formulae, or brew bundle skips them
 if command -v brew &> /dev/null && brew trust --help &> /dev/null; then
-    for formula in heroku/brew/heroku txtx/taps/surfpool xcodesorg/made/xcodes; do
+    for formula in heroku/brew/heroku oven-sh/bun/bun txtx/taps/surfpool xcodesorg/made/xcodes; do
         brew trust --formula "$formula"
     done
     success "Trusted tapped formulae"

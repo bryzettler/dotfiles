@@ -119,7 +119,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "if [ -x \"$HOME/.bun/bin/bun\" ]; then \"$HOME/.bun/bin/bun\" --env-file /dev/null \"$HOME/.claude/statusline.mjs\"; else node \"$HOME/.claude/statusline.mjs\"; fi"
+    "command": "bun=$(command -v bun || echo \"$HOME/.bun/bin/bun\"); if [ -x \"$bun\" ]; then \"$bun\" --env-file /dev/null \"$HOME/.claude/statusline.mjs\"; else node \"$HOME/.claude/statusline.mjs\"; fi"
   },
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true,

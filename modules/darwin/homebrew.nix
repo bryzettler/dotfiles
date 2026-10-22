@@ -15,6 +15,7 @@
     taps = [
       "homebrew/cask-fonts"
       "heroku/brew"
+      "oven-sh/bun"
       "txtx/taps"
       "xcodesorg/made"
     ];
@@ -66,6 +67,7 @@
 
       # tapped (bootstrap.sh trusts these formulae before brew bundle runs)
       "heroku/brew/heroku"
+      "oven-sh/bun/bun"
       "txtx/taps/surfpool"
       "xcodesorg/made/xcodes"
     ];
