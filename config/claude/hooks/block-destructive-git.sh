@@ -15,6 +15,10 @@ DANGEROUS_PATTERNS=(
   "git checkout \."
   "git restore \."
   "reset --hard"
+  "git checkout +--( |$)"
+  "git stash +(drop|clear)"
+  "git reflog +expire"
+  "git gc .*--prune"
 )
 
 for pattern in "${DANGEROUS_PATTERNS[@]}"; do
@@ -22,6 +26,14 @@ for pattern in "${DANGEROUS_PATTERNS[@]}"; do
     block "matches dangerous pattern '$pattern'"
   fi
 done
+
+# git restore discards worktree changes unless it only unstages (--staged without --worktree)
+RESTORE_SEG=$(echo "$COMMAND" | grep -oE 'git +restore[^;&|]*')
+if [ -n "$RESTORE_SEG" ]; then
+  if ! echo "$RESTORE_SEG" | grep -qE -- '(--staged|-S)( |$)' || echo "$RESTORE_SEG" | grep -qE -- '(--worktree|-W)( |$)'; then
+    block "discards working tree changes"
+  fi
+fi
 
 # Protected branches: the remote's default branch, plus main/master/develop/development (exact match)
 is_protected() {
@@ -41,7 +53,13 @@ if echo "$COMMAND" | grep -qE '(^|[;&| ])git +push'; then
     case "$tok" in
       -f|--force|--force-with-lease|--force-with-lease=*|--force-if-includes)
         block "is a force push" ;;
+      --all|--mirror|--branches)
+        block "pushes every branch" ;;
+      -d|--delete|--prune)
+        block "deletes remote branches" ;;
       -*) ;; # other flags: ignore
+      +*) block "is a force push" ;;
+      :*) block "deletes a remote branch" ;;
       *) ARGS+=("$tok") ;;
     esac
   done
