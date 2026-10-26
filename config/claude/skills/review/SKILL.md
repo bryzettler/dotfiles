@@ -42,6 +42,7 @@ Branch mode's output is edits in the working tree. PR mode's output is a GitHub 
    - **Standards scope** skip: dispatch no Standards agent. The Spec prompt also names `brief-standards.md` for its End state and Public repo lenses.
    - **Value scope** skip: dispatch no Value agent.
    - Spec path "no spec": dispatch no Spec agent.
+   - PR mode, manifest `round:` 4 or more: per "Round cap" in `pr-mode.md`.
    - Diff line count over about 1500: split Defects by package or top-level directory, one agent per slice; each slice's prompt names the files it owns. Split Value by the scout's `flows.md`: one agent per flow group, each prompt naming its flows and every file on them, whatever the package. Changed files on no flow form one more Value slice, by directory.
 
    Each axis writes its own return file before its final message, per `return-rule.md`. The final message carries the hits and suspicions, not the coverage list. When a file is missing, send the agent back once (`SendMessage`) to write it; summarise none, and never rewrite a return from memory after a compaction. Triage reads the summary it needs from the file; the misses log needs the coverage lists whole.

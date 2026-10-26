@@ -98,18 +98,20 @@ def pr_checkout(scratch, n, oid):
     return tree
 
 
-def prior_round(n, slug, login):
-    """The newest review by the current user that approves or whose inline comments carry the marker."""
+def prior_rounds(n, slug, login):
+    """The head sha of each earlier round, oldest first: a review by the current user
+    that approves, whose body carries the marker, or whose inline comments carry it."""
     marked = set(run(
         "gh", "api", "--paginate", f"repos/{slug}/pulls/{n}/comments", "--jq",
         f'.[] | select(.body | startswith("{MARKER}")) | .pull_request_review_id',
     ).split())
     reviews = run(
         "gh", "api", "--paginate", f"repos/{slug}/pulls/{n}/reviews", "--jq",
-        f'.[] | select(.user.login == "{login}") | "\\(.id) \\(.commit_id) \\(.state)"',
+        f'.[] | select(.user.login == "{login}") '
+        f'| "\\(.id) \\(.commit_id) \\(.state) \\((.body // "") | startswith("{MARKER}"))"',
     ).splitlines()
-    rounds = [commit for rid, commit, state in map(str.split, reviews) if rid in marked or state == "APPROVED"]
-    return rounds[-1] if rounds else None
+    return [commit for rid, commit, state, body in map(str.split, reviews)
+            if rid in marked or state == "APPROVED" or body == "true"]
 
 
 def crate_is_solana(path, tree):
@@ -214,12 +216,14 @@ def main():
                 f"author: {'self' if pr['author']['login'] == login else 'other'} ({pr['author']['login']})",
                 f"head branch: {pr['headRepositoryOwner']['login']}/{pr['headRepository']['name']}:{pr['headRefName']}"]
         tip = head
-        since = since or prior_round(n, slug, login)
+        rounds = prior_rounds(n, slug, login)
+        since = since or (rounds[-1] if rounds else None)
         if since and since != head and subprocess.run(["git", "fetch", "origin", since], capture_output=True).returncode:
             fails.append(f"git fetch origin {since}: prior round not fetchable, run a full review")
             since = None
     else:
         tree, base, spec = os.getcwd(), branch_base(target), "# Commits\n\n"
+        rounds = None
         tip = "HEAD"
         head = run("python3", "-I", os.path.join(SKILL, "tools", "snapshot.py"))
         if since and not resolves(since):
@@ -230,6 +234,11 @@ def main():
     if not fixed:
         raise SystemExit(f"FAIL git rev-parse {base}")
     full = f"{fixed}...{head}"
+    if rounds is not None:
+        # A round is a posted review, or on an own PR a fix commit; count whichever is higher.
+        fixes = [subject for subject in run("git", "log", "--format=%s", f"{fixed}..{head}", cwd=tree).splitlines()
+                 if subject.startswith("fix: address review")]
+        out.append(f"round: {max(len(rounds), len(fixes)) + 1}")
     if since and not run("git", "diff", "--name-only", since, head, cwd=tree):
         note = "; in PR mode, check the PR body against the state file" if mode == "pr" else ""
         write(os.path.join(scratch, "pin.md"), "\n".join(out + [f"head: {head}", f"nothing new since {since}{note}"]) + "\n")

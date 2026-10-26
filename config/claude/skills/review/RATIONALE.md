@@ -4,6 +4,7 @@ Why the skill is shaped this way. No step reads this file. Read it before you ch
 
 ## Agents and models
 
+- `REVIEW.md` is the code owners' file for the reviewer (the convention in the same write-up): what matters, what to skip, which paths to ignore. It joins the standards sources, so the Standards axis reads it.
 - Standards and Spec are the two axes of `mattpocock-skills:code-review`, carried in-house so the plugin text and its aggregation stay out of the main loop. They are separate agents so that neither budget crowds the other, and so that a bug can be found twice.
 - Defects and Value run as `tracer` (high): their job is to trace a change to its second- and third-order consequences. Value runs on fable, because a loss of funds lives between layers. Since 2026-10-18 Defects runs on opus: it proves each hit by a run, and opus returns a tool call about 1.5 times faster. Judge that change against `~/.claude/review-misses.md`: a Defects-class miss that a fable round would have seen sends it back. A Value verifier and an audit recheck run as `verifier` (opus, medium): the packet or the rejected line narrows the read, and across two `address-review` runs Opus returned a tool call in 7 to 12 seconds against 9 to 18 for Fable at medium and 11 to 22 at high. Spec, the revert-check verifier, and `fixer` run on `opus`: their job is execution against a fixed procedure. Standards runs on sonnet at medium since 2026-10-18: it checks a rubric, and its findings must clear the +EV bar anyway. The scout runs as `scout` (sonnet, medium): `tools/pin.py` does the mechanical half, the scout is serial on the critical path, and the models page rates Sonnet faster than Opus at half the price. `fixer` and the revert check stay on Opus until a run shows the Sonnet scout is clean: a bad fix costs a round. Routing lives in `~/.claude/MODEL_ROUTING.md`.
 - A Defects hit gets no verifier: the tracer proved it by a run or a quoted `file:line`, and a second read of the same lines adds cost, not evidence.
@@ -28,6 +29,10 @@ One scout (none in a `since` round that names a manifest), four axes (more when 
 - The main loop does not call the advisor. In the week after the Oct 7 change, 31 main-loop sessions still made 82 advisor calls, about 100k uncached tokens each, while the subagents made 15.
 - On #1345 single commands ran 44 to 126 seconds: searches from `~/.cargo/registry`, sibling checkouts, and `find` from a parent directory. Hence dependency sources in the manifest, and the bounded-search rule in `tracer` and `verifier`.
 - Branch mode reviewed "HEAD plus uncommitted changes", a state with no sha. `ts-signatures.mjs` reads both sides with `git show`, so it saw none of the uncommitted work: on the Delta review of an `address-review` fix diff it compared HEAD with HEAD. Hence `tools/snapshot.py`: the scout names the working tree as a commit, and the revert check builds its worktree from one in place of applying a diff by hand.
+
+## Convergence
+
+The Claude Code team's review write-up (Addy Osmani, 2026-10-26) logged one PR that cycled more than fifty times overnight between an agent author and an agent reviewer, and found by `git blame` that about 59% of re-flagged lines had been there since the first pass. Hence the Round cap in `pr-mode.md`: from round 4, only defects, designs, and Value findings, and a **Blocking: approach** question in place of more nits. `pin.py` counts rounds from GitHub (marked reviews, or `fix: address review` commits on an own PR), not from the state file, so a lost state file cannot reset the count. Every posted body carries the marker for the same reason: a comment review with no inline comment must count.
 
 ## Spec
 

@@ -22,10 +22,10 @@ When the prompt names `<last>`, or Prior round below finds one, this is a delta 
 
 **PR.** `gh pr view <n> --json baseRefName,headRefOid,headRefName,headRepository,headRepositoryOwner,author,body`. The PR is `author: self` when `author.login` equals `gh api user --jq .login`, else `author: other`. The **head branch** is `<headRepositoryOwner.login>/<headRepository.name>:<headRefName>`. Check out the PR head: the current worktree when `HEAD` is that sha, else a throwaway worktree in the scratchpad from `git fetch origin pull/<n>/head`. Give a throwaway worktree a `node_modules` symlink from the main checkout for the root and for every workspace package that has one, so tests resolve cross-package imports. Fetch the base and take `origin/<base>` as the fixed point. The spec is the PR body, then the full commit messages from `git log origin/<base>..HEAD`. Also write the PR body alone to `<scratchpad>/pr-body.md`: in a long spec file the body's claims drown in commit messages. Done when the checkout is at `headRefOid`.
 
-**PR, prior round.** Look for an earlier round on this PR: the newest review by the current user (`gh api user --jq .login`) that approves or whose inline comments start with `<!-- review -->`, and the state file `~/.claude/review-state/<owner>__<repo>__<n>.md`.
+**PR, prior round.** Look for an earlier round on this PR: the newest review by the current user (`gh api user --jq .login`) that approves, or whose body or inline comments start with `<!-- review -->`, and the state file `~/.claude/review-state/<owner>__<repo>__<n>.md`.
 
 - Neither exists: this is round one.
-- A prior review exists: its `commit_id` is `<last>`. When the state file names a later head with a posted review (a comment review with no inline comment), that head is `<last>`: pass it to `pin.py` as `--since`. When `<last>` equals `headRefOid` and the PR body is unchanged, return only "nothing new since `<last>`".
+- A prior review exists: its `commit_id` is `<last>`. When `<last>` equals `headRefOid` and the PR body is unchanged, return only "nothing new since `<last>`".
 - `git fetch origin <last>` (a force-pushed head is still fetchable by sha). When that fails, run a full review and say so in the manifest. Otherwise it is a delta round.
 
 ## Domain
@@ -55,8 +55,8 @@ Run whichever of these the repo supports:
 
 ## Scopes and commands
 
-- **Standards scope** — run when a `CODING_STANDARDS.md`, `CONTRIBUTING.md`, `.cursorrules`, or `.cursor/rules/*` covers the language of a changed file; else skip.
-- **Standards sources** — `CODING_STANDARDS.md` and every file it points to, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.cursor/rules/*`, `docs/agents/*`.
+- **Standards scope** — run when a `REVIEW.md`, `CODING_STANDARDS.md`, `CONTRIBUTING.md`, `.cursorrules`, or `.cursor/rules/*` covers the language of a changed file; else skip.
+- **Standards sources** — every `REVIEW.md` at the repo root or in a directory above a changed file (code owners name there what matters, what to skip, and which paths to ignore), `CODING_STANDARDS.md` and every file it points to, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.cursor/rules/*`, `docs/agents/*`.
 - **Value scope** — run when the diff can reach funds, keys, authority, or stored data: a chain or database domain, web code on a trust-boundary grep hit, or a CI file that reads `secrets.*`, runs on `pull_request_target` or `workflow_run`, or grants a write `permissions:` scope. Else skip, with the one reason.
 - **Dependency sources** — one line per external package whose behaviour a lens may need to read: a chain SDK, a program crate, an ORM, or an action that a changed file imports or calls. Each line is the package and the absolute path of the version the repo resolves: `node_modules/<pkg>` in the checkout, the crate directory from `cargo metadata --format-version 1 --offline` (the folder of its `manifest_path`), or a sibling checkout the repo's config points to. At most ten. The axes search inside the repo and these paths only, so a path left out is a dependency read from memory.
 - **Backend command** — per matched database or chain domain: how to start a disposable instance with the schema or program loaded (a docker Postgres plus the repo's migrate command, a local validator, the repo's bankrun or litesvm script). "none" when it cannot start (`docker info` fails, no validator binary).
@@ -71,7 +71,7 @@ Write `flows.md` as one section per flow: its name, its entry point, and every f
 
 Under 300 words:
 
-- fixed point sha, head sha (branch mode: the snapshot), checkout path, spec path ("no spec" when there is none), and in PR mode the `pr-body.md` path, `author: self` or `author: other`, and the head branch
+- fixed point sha, head sha (branch mode: the snapshot), checkout path, spec path ("no spec" when there is none), and in PR mode the `pr-body.md` path, `author: self` or `author: other`, the head branch, and the `round:` line from `pin.md`
 - diff line count from `git diff --shortstat`
 - one line per changed file with its domains
 - tooling output paths, and tools unavailable

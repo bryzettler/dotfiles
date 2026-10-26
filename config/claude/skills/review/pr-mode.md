@@ -6,12 +6,20 @@ When the manifest says `author: self`, the PR is the user's own: follow "Own PR"
 
 ## Gate (step 4)
 
-Every branch below ends with step 9, Persist, before the report: a round that approves or posts nothing still keeps its returns.
+Every branch below ends with step 9, Persist, before the report: a round that approves or posts nothing still keeps its returns. Every review body this mode posts starts with the marker `<!-- review -->` on its own line, so the next round's `pin.py` counts it as a round.
 
-- **Approve** when every dispatched axis agrees the change is valid and the execution evidence is green: every check in `gh pr checks <n>` passed, none pending, none failing; and when no check runs the tests, the test run from step 2 passed. Run `gh pr review <n> --approve --body "LGTM"`, persist, write the report, and stop.
+- **Approve** when every dispatched axis agrees the change is valid and the execution evidence is green: every check in `gh pr checks <n>` passed, none pending, none failing; and when no check runs the tests, the test run from step 2 passed. Run `gh pr review <n> --approve --body-file <file>`, whose body is the marker, then `LGTM`. Persist, write the report, and stop.
 - **Red or pending check, or a failing test run:** this blocks approval regardless of the axes. Submit a comment review that names the check or the failing test, persist, and write the report. Approve no pending check and wait on none: the next round approves when it is green.
 - **Zero confirmed findings, one or more open Value suspicions:** submit `gh pr review <n> --comment --body <file>`, whose body asks the one question per suspicion that would close it. Persist, write the report, and stop.
 - **Confirmed findings:** continue to step 5.
+
+## Round cap
+
+The manifest's `round:` counts the review rounds on this PR, this one included: each earlier review this account posted, or on an own PR each `fix: address review` commit. Rounds past the third mostly find older lines, not the delta, and an agent author and an agent reviewer can loop on them without end. From round 4:
+
+- Step 2 dispatches Defects and Value only.
+- Post or fix only CONFIRMED `defect` and `design` findings and Value findings. A `nit`, Standards, or Spec finding goes to the report only.
+- The review body opens with **Blocking: approach**: the round number, each mechanism class from the state file's `classes:` list and this round's findings, and one question: does the approach still hold, or does a smaller design remove these classes? Own PR: the report leads with that section, and steps 5 to 7 commit and push nothing. The user decides the next step.
 
 ## Steps after the gate
 
@@ -41,13 +49,13 @@ Every branch below ends with step 9, Persist, before the report: a round that ap
 8. **Post** —
    - List existing marker comments as path and line only: `gh api --paginate repos/{owner}/{repo}/pulls/<n>/comments --jq '.[] | select(.body | startswith("<!-- review -->")) | {path, line}'`. Drop any entry whose path and line already appear, so a rerun adds only new findings.
    - Submit one review: `gh api repos/{owner}/{repo}/pulls/<n>/reviews --input <file>`, with the payload `{ "event": "COMMENT", "body": "<body>", "comments": [...] }`.
-   - The body is a one-line summary; then, when there is any Redesign, a **Blocking: design** section with one entry per Redesign (the scenario, then the smaller design); then, when any entry is `unproven`, one line that names each `unproven` comment and the suite it was not run against. The comments carry no such footer.
+   - The body is the marker line, then a one-line summary; then the **Blocking: approach** section when the Round cap applies; then, when there is any Redesign, a **Blocking: design** section with one entry per Redesign (the scenario, then the smaller design); then, when any entry is `unproven`, one line that names each `unproven` comment and the suite it was not run against. The comments carry no such footer.
    - Every comment `body` starts with the marker `<!-- review -->`.
    - This skill submits two events only: `COMMENT` here and `APPROVE` at the gate.
 
    Done when the API returns the review URL.
 
-9. **Persist** — on every path out of the gate, posted or not, and again after the post, write `~/.claude/review-state/<owner>__<repo>__<n>.md` (create the directory), overwriting it each round: the head sha reviewed, the PR body as reviewed, every open suspicion with what was checked and what was not, and every dismissal with its reason. Copy every `return-*.md` and `audit.txt` from steps 2 and 3, byte for byte, to `~/.claude/review-state/<owner>__<repo>__<n>.returns/<head sha>/`, so `address-review` can tell a lens that never fired from one an agent cleared.
+9. **Persist** — on every path out of the gate, posted or not, and again after the post, write `~/.claude/review-state/<owner>__<repo>__<n>.md` (create the directory), overwriting it each round: the head sha reviewed, the round number, the PR body as reviewed, a `classes:` list that adds one line per confirmed finding of this round to the earlier rounds' list (its mechanism as a class, never the instance), every open suspicion with what was checked and what was not, and every dismissal with its reason. Copy every `return-*.md` and `audit.txt` from steps 2 and 3, byte for byte, to `~/.claude/review-state/<owner>__<repo>__<n>.returns/<head sha>/`, so `address-review` can tell a lens that never fired from one an agent cleared.
 
 ## Anchoring
 
@@ -67,7 +75,7 @@ Before posting, count fences: every entry without a `suggestion` fence has a sta
 
 ## Report additions
 
-The review URL and whether it was an approval or a comment review. Per posted comment: `file:line`, a one-line summary, and `suggestion` or `plain: <reason>`.
+The review URL, whether it was an approval or a comment review, and the round number with "capped" from round 4. Per posted comment: `file:line`, a one-line summary, and `suggestion` or `plain: <reason>`.
 
 ## Own PR
 
@@ -78,7 +86,7 @@ The user wrote this PR, so the review fixes it the way branch mode does, then pu
 - Open Value suspicions: the report leads with them, each with the question that would close it. Post nothing.
 - Pending check: report it. Wait on none.
 - A failing test run or a red check is a confirmed finding. Its tail goes to the fixer as the item.
-- Confirmed findings: continue.
+- Confirmed findings: continue, under the Round cap from round 4.
 
 **Fix (step 5).** Step 5 in `SKILL.md`: one `fixer` run in the checkout with plain edits, no JSON and no suggestion fences. Redesign gets no item; it goes in the report.
 
