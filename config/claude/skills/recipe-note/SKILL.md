@@ -11,6 +11,7 @@ description: Save a recipe from a web page as an Apple Note in the Recipes folde
 
 1. Preview: `recipe-note.py URL --title "Title" --dry-run | sed -E 's/<[^>]+>//g'`. Use the user's title when they give one; otherwise omit `--title` and the page's recipe name is used.
 2. Check every ingredient line against the page's recipe. The parser is a heuristic, so look for a merged amount, a lost unit, or a note glued onto the name. If the page has no recipe data, or a line comes out wrong, write a schema.org Recipe JSON file in the scratchpad (`name`, `recipeYield`, `prepTime`/`cookTime`/`totalTime` as ISO 8601 durations, `nutrition.servingSize` such as `1 cup`, `recipeIngredient`, `recipeInstructions`) and use `--recipe-json FILE` in place of URL.
+   If an ingredient has no amount (for example "salt" or "butter"), look for the amounts elsewhere on the page. Mealime keeps them in its step data (`"secondary_message"`, one entry for each step). Add them up across the steps.
    If the fetch fails with HTTP 403 (bot protection, for example budgetbytes.com), read the page through a real browser instead. See [Blocked sites](#blocked-sites).
 3. Create: the same command without `--dry-run`.
 4. Verify: `osascript -e 'tell application "Notes" to get body of note "Title" of folder "Recipes"'`. The servings line is in `<tt>`, the ingredients and steps carry `font-size: 14px` / `15px`. Done when those show.

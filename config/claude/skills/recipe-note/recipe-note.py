@@ -102,7 +102,7 @@ def parse_ingredient(line):
     while re.search(r"\([^()]*\(", line):
         line = re.sub(r"\(([^()]*)\(([^()]*)\)([^()]*)\)", r"(\1\2\3)", line)
     notes = [n for n in re.findall(r"\(([^)]*)\)", line) if n.strip()]
-    m = re.match(r"([\d./½⅓⅔¼¾⅛\s-]+)?\s*(?:\((\d+(?:\.\d+)?)[- ]?(ounce|oz)\)\s*(cans?)\s+)?([a-zA-Z]+\.?)?\s*(.*)", line)
+    m = re.match(r"([\d./½⅓⅔¼¾⅛\s-]+)?\s*(?:\((\d+(?:\.\d+)?)[- ]?(ounce|oz)\)\s*(cans?)\s+)?(?:([a-zA-Z]+\.?)(?=\s|$))?\s*(.*)", line)
     qty, can_size, _, can, unit, rest = m.groups()
     qty = (qty or "").strip()
     if can:
@@ -158,6 +158,7 @@ def blank(size=14):
 
 
 def build_html(title, recipe):
+    title = html.unescape(title)
     size = serving_size(recipe)
     meta = [(servings(recipe), "servings" + (f" ({fraction(size)})" if size else "")), (duration(recipe.get("prepTime")), "prep"),
             (duration(recipe.get("cookTime")), "cook"), (duration(recipe.get("totalTime")), "total")]
@@ -216,7 +217,7 @@ def main():
         print(body)
         return
     subprocess.run(["osascript", "-", body, args.folder], input=CREATE_NOTE, text=True, check=True)
-    print(f"Created note '{args.title or recipe.get('name')}' in folder '{args.folder}'.")
+    print(f"Created note '{html.unescape(args.title or recipe.get('name', 'Recipe'))}' in folder '{args.folder}'.")
 
 
 if __name__ == "__main__":
