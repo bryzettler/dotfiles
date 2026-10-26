@@ -23,10 +23,13 @@ for pattern in "${DANGEROUS_PATTERNS[@]}"; do
   fi
 done
 
-# Protected branch names: exact match, or term followed by a separator (release/1.2, prod-eu)
+# Protected branches: the remote's default branch, plus main/master/develop/development (exact match)
 is_protected() {
   local b="${1#refs/heads/}"
-  echo "$b" | grep -qiE '^(main|master|develop|development|dev|trunk|prod|production|live|stable|release|releases|staging|stage|stg|preprod|pre-prod|uat|qa|sdlc|edge|canary|beta)([/_.-].*)?$'
+  local default
+  default=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)
+  [ -n "$default" ] && [ "$b" = "${default#origin/}" ] && return 0
+  echo "$b" | grep -qiE '^(main|master|develop|development)$'
 }
 
 if echo "$COMMAND" | grep -qE '(^|[;&| ])git +push'; then
