@@ -6,11 +6,13 @@ Find your section by the role your prompt names. Return per `~/.claude/skills/re
 
 Start with `python3 -I ~/.claude/skills/address-review/tools/collect.py <scratchpad> <target>`, run in the checkout. It does Branch check, Collect, and the thread half of Delta, and writes `pr-body-original.md`, `findings.md` with one entry per open thread, `bodies.md` with every review body and PR comment, and `collect.md` with the PR fields, the review rounds, the answered item keys, and the skip counts. A `FAIL` line is the branch-check failure: return it. What stays with you: split `bodies.md` into items, append the item findings to `findings.md`, write each covering item key on its thread's `Item:` line, and find the commands. The sections below are the rules the script follows and the ones you apply to the bodies.
 
-**Branch check.** Resolve the PR: `gh pr view <target> --json number,url,author,headRefName,headRefOid,baseRefName,body`. Write the body to `<scratchpad>/pr-body-original.md`. The run edits your working tree and pushes to the PR branch, so all of these must hold, and the first that fails ends the run with that failure as the return:
+**Branch check.** Resolve the PR: `gh pr view <target> --json number,url,author,headRefName,headRefOid,baseRefName,body`. Write the body to `<scratchpad>/pr-body-original.md`. The run edits your working tree and pushes to the PR branch, so the script first puts the checkout on that branch:
 
-- The current branch is `headRefName`.
-- `git status --porcelain` is empty.
-- After `git fetch origin <headRefName>`, `headRefOid` is an ancestor of `HEAD`. Local commits ahead of it are allowed; name them in the manifest.
+- When `git status --porcelain --untracked-files=no` is not empty, commit the tracked changes on a new `wip/address-review-<n>-<timestamp>` branch, so no work is lost and no branch the user had gets the commit. Untracked files stay where they are and are never staged.
+- Run `git fetch origin <headRefName>`, then `git checkout <headRefName>` when the current branch is another one.
+- `headRefOid` must be an ancestor of `HEAD`. Local commits ahead of it are allowed; name them in the manifest.
+
+Any step that fails ends the run with that failure as the return. Name the branch the run started on and the parked branch, when there is one, in the manifest.
 
 **Collect.** One GraphQL call, paginated with `after:` cursors when a connection returns 100 nodes:
 

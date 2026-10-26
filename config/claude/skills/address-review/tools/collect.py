@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Do the mechanical half of the address-review scout.
 
-Usage (from the checkout, on the PR branch):
+Usage (from the checkout, on any branch):
   python3 -I ~/.claude/skills/address-review/tools/collect.py <scratchpad> [<pr>]
 
 Runs the branch check, fetches every thread, review, and PR comment, and writes:
@@ -79,17 +79,25 @@ def first_line(body):
     return lines[0] if lines else ""
 
 
+def park_changes(branch, n):
+    wip = f"wip/address-review-{n}-{run('date', '+%Y%m%d%H%M%S')}"
+    run("git", "checkout", "-b", wip)
+    run("git", "commit", "-a", "--no-verify", "-m", f"chore: wip from {branch} before address-review #{n}")
+    return wip
+
+
 def branch_check(pr):
     branch = run("git", "rev-parse", "--abbrev-ref", "HEAD")
-    if branch != pr["headRefName"]:
-        raise SystemExit(f"FAIL the current branch is {branch}, the PR branch is {pr['headRefName']}")
-    if run("git", "status", "--porcelain"):
-        raise SystemExit("FAIL git status --porcelain is not empty")
+    parked = None
+    if run("git", "status", "--porcelain", "--untracked-files=no"):
+        parked = park_changes(branch, pr["number"])
     run("git", "fetch", "origin", pr["headRefName"])
+    if parked or branch != pr["headRefName"]:
+        run("git", "checkout", pr["headRefName"])
     oid = pr["headRefOid"]
     if subprocess.run(["git", "merge-base", "--is-ancestor", oid, "HEAD"]).returncode:
         raise SystemExit(f"FAIL the PR head {oid} is not an ancestor of HEAD")
-    return run("git", "log", "--format=%h %s", f"{oid}..HEAD").splitlines()
+    return branch, parked, run("git", "log", "--format=%h %s", f"{oid}..HEAD").splitlines()
 
 
 def thread_entry(k, thread):
@@ -119,7 +127,7 @@ def main():
     pr = json.loads(run("gh", "pr", "view", *target, "--json", fields))
     author = pr["author"]["login"]
     write(os.path.join(scratch, "pr-body-original.md"), pr["body"] + "\n")
-    ahead = branch_check(pr)
+    started_on, parked, ahead = branch_check(pr)
     owner, repo = pr["url"].split("/")[3:5]
 
     threads = fetch_all(owner, repo, pr["number"], "reviewThreads")
@@ -166,6 +174,8 @@ def main():
         f"headRefName: {pr['headRefName']}",
         f"headRefOid: {pr['headRefOid']}",
         f"baseRefName: {pr['baseRefName']}",
+        f"started on: {started_on}",
+        "parked changes: " + (parked or "none"),
         "local commits ahead: " + ("; ".join(ahead) or "none"),
         f"pr body: {scratch}/pr-body-original.md",
         f"findings: {scratch}/findings.md ({len(entries)} thread findings)",
