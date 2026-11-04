@@ -125,7 +125,8 @@
     "rust-analyzer-lsp@claude-plugins-official": true,
     "plannotator@plannotator": false,
     "claude-hud@claude-hud": true,
-    "mattpocock-skills@mattpocock": true
+    "mattpocock-skills@mattpocock": true,
+    "mobile-taste-skill@mobile-taste-skill": true
   },
   "extraKnownMarketplaces": {
     "plannotator": {
@@ -150,6 +151,12 @@
       "source": {
         "source": "github",
         "repo": "mattpocock/skills"
+      }
+    },
+    "mobile-taste-skill": {
+      "source": {
+        "source": "github",
+        "repo": "draftbit/mobile-taste-skill"
       }
     }
   },
