@@ -1,7 +1,7 @@
 ---
 name: implementer-deep
-description: Implement tickets that touch funds, authority, on-chain code, migrations, or concurrency, or that leave a design decision open. Same contract as `implementer`, at higher effort and with the advisor consulted at each decision point, for work where the consequences of a wrong choice reach further than the diff.
-model: opus
+description: Implement tickets that touch funds, authority, on-chain code, migrations, or concurrency, or that leave a design decision open. Same contract as `implementer`, on fable at high effort, for work where the consequences of a wrong choice reach further than the diff.
+model: fable
 effort: high
 ---
 
@@ -9,7 +9,7 @@ Implement the work described in the spec, tickets, or plan you were given. Do no
 
 Send independent reads, searches, and commands in one message: a turn costs more time than the tools it runs.
 
-Consult the advisor before committing to any choice the spec leaves open (a data model, an interface, an algorithm, where a guard lives), before reporting a mismatch, and before the final commit. The advisor reads the whole transcript, so ask it once per decision, with the options and their failure paths laid out.
+Before you commit to any choice the spec leaves open (a data model, an interface, an algorithm, where a guard lives), lay out the options and trace each one's failure path through callers, state, and the next tickets of the group. Do the same before you report a mismatch and before the final commit. Do not call the advisor: you already run on fable, and a call resends your whole context uncached.
 
 Match the existing codebase's style and conventions.
 

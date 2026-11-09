@@ -1,6 +1,8 @@
 # Model Routing
 
-Fable reasons better about 3rd-, 4th-, and 5th-order consequences. Opus executes, orchestrates, and codes better.
+Fable reasons better about 3rd-, 4th-, and 5th-order consequences. Since Fable 5.2 (2026-11), Fable also matches or beats Opus on coding at every effort level (FrontierCode 2.0: 49.1 at xhigh against 45.5; at high, the Opus score for half the cost). Opus stays where tool-call speed decides: Opus 5.5 returned a tool call about 1.5 times faster than Fable 5.1, and Fable 5.2 latency is not measured yet.
+
+Never run Fable 5.2 at `max`: it scores below xhigh on FrontierCode (about 45.7 against 49.1) at about 3 times the cost.
 
 ## Main loop (Opus, the session default; Fable advises)
 
@@ -11,8 +13,8 @@ Fable reasons better about 3rd-, 4th-, and 5th-order consequences. Opus executes
 
 ## Subagents
 
-- Implementation of an approved plan: `implementer` (Opus, effort medium). Use `implementer-deep` (Opus, effort high, consults the advisor) only for money, authority, on-chain, migration, concurrency, or open-design work. Implementers always run on Opus.
-- Consequence tracing: `tracer` (effort high). Value runs on Fable: a loss of funds lives three or four layers from the diff. Defects runs on Opus (`model: "opus"`): it proves each hit by a run or a quoted `file:line`, which is execution work, so Defects hits go straight to the report without a verifier.
+- Implementation of an approved plan: `implementer` (Opus, effort medium). Use `implementer-deep` (Fable, effort high, no advisor) only for money, authority, on-chain, migration, concurrency, or open-design work: it reasons through the whole run for about the cost of Opus at high plus advisor calls.
+- Consequence tracing: `tracer` (effort high). Value runs on Fable: a loss of funds lives three or four layers from the diff. Defects runs on Opus (`model: "opus"`): it proves each hit by a run or a quoted `file:line`, which is execution work, so Defects hits go straight to the report without a verifier. Experiment open: run Defects on Fable 5.2 for a few reviews, time its tool calls, and check its hits against `~/.claude/review-misses.md`. Move it back to Fable if tool calls are near Opus speed.
 - Verifying Value hits, contradictions, audit rejects, and address-review findings: `verifier` (Opus, effort medium). The packet narrows the read, and Opus returns each tool call about 1.5 times faster.
 - Pinning a review or an address-review run: `scout` (Sonnet, effort medium). A script does the mechanical half, and the rest is a fixed procedure. Set the effort on every Sonnet agent: its default is high.
 - Rubric and research work: Standards and the implement-tickets explorer run on Sonnet at effort medium.
@@ -24,8 +26,8 @@ Fable reasons better about 3rd-, 4th-, and 5th-order consequences. Opus executes
 
 An advisor call resends the caller's whole context to Fable with no cache, about 100k input tokens per call. Keep it where a decision is made:
 
-- On: the main loop (`/advisor off` for a session that does not need it), `implementer-deep`, and `implementer` after a repeated error.
-- Off: `tracer`, since Value already runs on Fable and Defects settles by a run, `verifier`, since its packet already narrows the decision, and `scout`, since its brief is a procedure. Off for `general-purpose` orchestrators too: each skill's prompt to them ends with "Do not call the advisor."
+- On: the main loop (`/advisor off` for a session that does not need it) and `implementer` after a repeated error.
+- Off: `implementer-deep`, since it runs on Fable, `tracer`, since Value already runs on Fable and Defects settles by a run, `verifier`, since its packet already narrows the decision, and `scout`, since its brief is a procedure. Off for `general-purpose` orchestrators too: each skill's prompt to them ends with "Do not call the advisor."
 
 Agent frontmatter cannot remove the advisor: `disallowedTools` and `tools` filter normal tools but not this server tool (tested on 2.1.291). Only a prompt line turns it off for one agent; `implementer` made 1 call in 14 days under such a line.
 
