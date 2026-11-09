@@ -4,9 +4,41 @@ onboarding = false
 # Follow Ghostty's ANSI palette (now Catppuccin Mocha) instead of a built-in theme.
 name = "terminal"
 
+[theme.custom]
+# Catppuccin Mocha surfaces so the sidebar reads as its own layer.
+sidebar_bg = "#181825"    # mantle
+active_row_bg = "#313244" # surface0
+selection_bg = "#45475a"  # surface1
+
 [keys]
 # Match tmux: ctrl+\ as the prefix (ctrl+b is emacs backward-char, and we run `emacs -nw`).
 prefix = 'ctrl+\'
+
+# Popups float over the panes without changing the layout.
+# prefix+g/b/s are herdr defaults (goto, toggle sidebar, settings), so these use alt.
+[[keys.command]]
+key = "prefix+alt+g"
+type = "popup"
+command = "lazygit"
+description = "lazygit"
+width = "90%"
+height = "90%"
+
+[[keys.command]]
+key = "prefix+alt+b"
+type = "popup"
+command = "btop"
+description = "btop"
+width = "90%"
+height = "90%"
+
+[[keys.command]]
+key = "prefix+alt+s"
+type = "popup"
+command = "exec \"${SHELL:-sh}\""
+description = "scratch shell"
+width = "80%"
+height = "80%"
 
 [ui.toast]
 # In-UI toasts (replaces the removed Claude Code notifier hooks).
@@ -18,8 +50,44 @@ position = "top-right"
 
 [ui]
 agent_panel_sort = "spaces"
-# Less chrome: no scrollbar column, no tab row until a second tab exists.
+# Wide enough that space names and branches stop truncating.
+sidebar_width = 32
+sidebar_min_width = 26
+sidebar_max_width = 40
+# No scrollbar column.
 pane_scrollbars = false
-hide_tab_bar_when_single_tab = true
+# Name each split after the agent running in it.
+show_agent_labels_on_pane_borders = true
+# Tab row stays visible and doubles as a status line.
+hide_tab_bar_when_single_tab = false
+tab_bar_right_separator = "  "
+tab_bar_right = [
+  { type = "zoom" },
+  { type = "command", command = "~/.dotfiles/config/herdr/fleet.sh", interval_seconds = 3, timeout_seconds = 2 },
+  { type = "datetime", format = "%a %H:%M" },
+]
 # Catppuccin Mocha mauve instead of the default cyan accent.
 accent = "#cba6f7"
+
+[ui.sidebar.spaces]
+row_gap = 1
+rows = [
+  ["state_icon", { token = "workspace", bold = true }],
+  [
+    { token = "branch", fg = "#94e2d5", rules = [
+      { equals = "master", fg = "#fab387" },
+      { equals = "main", fg = "#fab387" },
+    ] },
+    "git_status",
+  ],
+]
+
+[ui.sidebar.agents]
+# Lead with the pane name, so named agents are told apart.
+row_gap = 1
+rows = [
+  # agent stays as a fallback for panes that have no name yet.
+  ["state_icon", { token = "pane", fg = "#cdd6f4", bold = true }, { token = "agent", fg = "#cdd6f4", bold = true, dim = false }, "state_text"],
+  [{ token = "terminal_title_stripped", fg = "#a6adc8" }],
+  [{ token = "workspace", dim = true }, { token = "tab", dim = true }],
+]
