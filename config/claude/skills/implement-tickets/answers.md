@@ -11,6 +11,6 @@ Skip an entry that already has an `Applied:` line, so a rerun applies each answe
 - `followup`, `wontfix: <reason>` → one line in `<issues-folder>/../followups-<group>.md` with the scenario, `file:line`, and the reason.
 - An empty answer → leave the entry as it is.
 
-Under every entry acted on, add `Applied: <date> → <ticket>`.
+Under every entry acted on, add `Applied: <date> → <ticket>`. Append one line per entry acted on to `~/.claude/decisions.md`, in the shape "Decision log" in `~/.claude/skills/distill/SKILL.md` names.
 
 Done when every answered entry has an `Applied:` line. The new tickets are on the frontier at step 1, and every other ticket resumes by its `Status:`.
