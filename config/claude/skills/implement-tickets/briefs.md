@@ -7,13 +7,13 @@ Find your section by the role your prompt names. Return per `~/.claude/skills/re
 1. Read every `*.md` in the issues folder and parse each per "Ticket grammar" in `~/.claude/skills/implement-tickets/tickets.md`.
 2. Read the spec the tickets reference (usually `../spec.md`); its section structure names the target repo per ticket.
 3. Resolve repo names to absolute paths against, in order: explicit paths in the spec or ticket, the current directory, and the parent of the directory containing `.scratch`. Verify each path exists with `ls`.
-4. Classify every ticket by the State classes table in `tickets.md`, compute the topological order from `Blocked by:`, mark the frontier, and propose a tier per frontier and waiting ticket by its Tier rubric.
+4. Classify every ticket by the State classes table in `tickets.md`, compute the topological order from `Blocked by:`, mark the frontier, and propose a tier per frontier and waiting ticket by its Tier rubric. Read the code each ticket lands in to judge Bolt-on; settle each bolt-on per Bolt-on tickets in `tickets.md`, and put each proposed refactor ticket's full text in the plan.
 5. Assign every candidate ticket a PR group by the PR groups and Branch names rules below: its `**PR:**` header, else one group per repo. A spec or map that splits the work into more PRs (a "part 1", a PR list, one PR per issue) counts only when it gives a split reason those rules accept. When a `**PR:**` header breaks the Branch names rule, keep the header and flag the name in the manifest. Record for each group which group it stacks on, if any.
 6. Apply `--only` as a filter on candidates, not on blockers.
 7. Write the full plan to `<scratchpad>/plan.md`: the table, the spec section numbers per ticket, the repo paths, and the PR groups.
 8. Recommend exploration only when two or more tickets would repeat the same codebase or external research, and name the topic.
 
-Return under 300 words: one row per file (number, title, state, repo paths, blockers, tier with a one-phrase reason, PR group, or the skip reason), the spec path, unresolved repo names, and the exploration recommendation.
+Return under 300 words: one row per file (number, title, state, repo paths, blockers, tier with a one-phrase reason, PR group, or the skip reason), one row per proposed refactor ticket with the plan path of its text and the ticket it blocks, the spec path, unresolved repo names, and the exploration recommendation.
 
 ### PR groups
 
@@ -59,7 +59,7 @@ Return under 250 words in this shape:
 
 - `outcome:` one of:
   - `done` — every criterion verified, or the unverified ones named with why.
-  - `mismatch` — the ticket or spec leaves a decision open, conflicts with the code, or contradicts the real system it describes (a dependency graph, an API, an on-chain account). State the question in one sentence, then two or three answers, one marked `recommended:` with a one-line reason drawn from the spec or the code, and stop without implementing any of them.
+  - `mismatch` — the ticket or spec leaves a decision open, conflicts with the code, fits only as a bolt-on (a flag, a special case, or a parallel path beside the existing shape; name the refactor that removes it; standard tier only, since deep lands the refactor itself), or contradicts the real system it describes (a dependency graph, an API, an on-chain account). State the question in one sentence, then two or three answers, one marked `recommended:` with a one-line reason drawn from the spec or the code, and stop without implementing any of them.
   - `blocked` — an environmental failure: name the tool, infrastructure, or dependency.
 - repo, branch, worktree path, commit hashes, the group sha you merged, the head sha
 - per verification command: pass or fail, the output file path, and on failure the failing lines only

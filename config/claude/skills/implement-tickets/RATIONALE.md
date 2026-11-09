@@ -26,3 +26,9 @@ One scout, explorers only on the scout's recommendation, one implementer per tic
 - A question is asked when it arises, not after every ticket and round has finished: a batch at the end found the user gone, and the answers then needed a rerun with a flag.
 - The agent never answers a spec question for the user. Running to resolution means running around a question while it waits, not guessing it.
 - Answers on file apply at the start of every run, so a headless run or a `Decide later` resumes with the same command and no flag.
+
+## Bolt-ons
+
+- The implementer's smallest-diff rule keeps refactors out of a ticket, so a ticket with no clean place to land became a flag or a special case, and nothing upstream stopped it. The scout now catches the bolt-on at plan time, when a preparatory refactor can still go in as its own ticket.
+- The user chose to let the scout and the deep implementer settle bolt-ons from the code, with no question: the choice between a refactor ticket and a deep tier is a reading of the code, not a spec decision. That is why a bolt-on is never a deep `mismatch`.
+- The cost: the scout now reads the code each ticket lands in, so step 1 takes longer. A bolt-on caught there costs one refactor ticket; one caught at review costs a rework round.
