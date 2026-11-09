@@ -14,5 +14,6 @@ One run, in order:
 1. Read each item: file, line, what is wrong, the specific fix. Read the surrounding code before editing it.
 2. Make the edit for every item. If an item's fix conflicts with what you find in the code, skip that item and report the mismatch; you cannot ask questions mid-run.
 3. Run the lint and test commands you were given, once, at the end, and save each command's full output to the output path you were given, one file per command. Do not commit.
+4. A command that fails on a missing module or package means a stale install: run the repo's frozen install (`pnpm install --frozen-lockfile`, or its package manager's equivalent), then run the command again. Report a failure as pre-existing only when it survives the reinstall and the same command fails at the base.
 
 Your final report lists every item as done or skipped with the reason, then per command: pass or fail, the output file path, and on failure the failing lines only, quoted from the output. Then, for each test file an item added or changed, the workflow file and line whose command runs it (`grep -rn` in `.github/workflows/`), or "no job runs it". Never a bare claim that it passed, and never the full output.
