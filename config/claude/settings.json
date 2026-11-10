@@ -114,11 +114,23 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/bry/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
     "type": "command",
-    "command": "bun=$(command -v bun || echo \"$HOME/.bun/bin/bun\"); if [ -x \"$bun\" ]; then \"$bun\" --env-file /dev/null \"$HOME/.claude/statusline.mjs\"; else node \"$HOME/.claude/statusline.mjs\"; fi"
+    "command": "'/Users/bry/.bun/bin/bun' --env-file /dev/null '/Users/bry/.claude/plugins/claude-hud/statusline.mjs'"
   },
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true,
