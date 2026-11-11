@@ -63,8 +63,9 @@ Every `general-purpose` prompt this skill sends ends with: "Send independent rea
    2. Post each thread reply with `gh api -X POST repos/{owner}/{repo}/pulls/<n>/comments/<top comment id>/replies -F body=@<file> --jq .html_url`, and replace each `{{reply:F<k>}}` in the summary with a link to that URL. Then resolve that thread: `gh api graphql -f query='mutation($id:ID!){resolveReviewThread(input:{threadId:$id}){thread{isResolved}}}' -f id=<thread node id> --jq .data.resolveReviewThread.thread.isResolved`.
    3. Post the summary last, with `gh pr comment <n> --body-file <scratchpad>/summary.md`, so every link resolves.
    4. Post `<scratchpad>/pr-body.md`, when a **claim** or a **defer** wrote it, with `gh pr edit <n> --body-file`.
+   5. Call the Skill tool with `ci-fix` and the argument `<n>`. It watches the checks on the pushed head and fixes the failures this PR caused.
 
-   Done when every reply returns a URL and its thread returns `true`.
+   Done when every reply returns a URL, its thread returns `true`, and `ci-fix` has reported.
 
 ## Outcomes
 

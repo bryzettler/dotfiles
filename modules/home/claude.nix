@@ -24,6 +24,8 @@ in
   home.file.".claude/skills/implement-tickets".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/implement-tickets";
   home.file.".claude/skills/address-review".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/address-review";
   home.file.".claude/skills/recipe-note".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/recipe-note";
+  home.file.".claude/skills/relay".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/relay";
+  home.file.".claude/skills/ci-fix".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/ci-fix";
   home.file.".claude/hooks/block-destructive-git.sh".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/hooks/block-destructive-git.sh";
   home.file.".claude/hooks/format-prettier.sh".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/hooks/format-prettier.sh";
   home.file.".claude/hooks/check-comments.py".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/hooks/check-comments.py";

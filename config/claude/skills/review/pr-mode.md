@@ -97,6 +97,8 @@ The user wrote this PR, so the review fixes it the way branch mode does, then pu
 2. Commit the fixer's edits in the checkout as one commit, subject `fix: address review findings` with a scope per `~/.claude/CODING_STANDARDS.md`. The body lists each fixed finding in one line.
 3. Push to the manifest's **head branch**, never with force: `git push origin HEAD:<branch>` when its owner and repo match the PR's repo, else `git push https://github.com/<owner>/<repo>.git HEAD:<branch>`. A rejected push ends the step: report it.
 
-Done when the push returns the new head sha, or the report says why nothing was pushed.
+4. After a push, call the Skill tool with `ci-fix` and the argument `<n>`. It watches the checks on the new head and fixes the failures this PR caused.
+
+Done when the push returns the new head sha and `ci-fix` has reported, or the report says why nothing was pushed.
 
 **Report additions.** The pushed sha and branch, or the reason nothing was pushed. No review URL.
