@@ -97,7 +97,9 @@ def audit(path, n, line, cleared):
             # "admits only <type>, <why>": the text after the comma is the reason
             if admitted.lstrip().lower().startswith("only "):
                 admitted = admitted.split(",", 1)[0]
-            if len(re.split(r",|\band\b|\bor\b|/", admitted)) > 1:
+            values = len(re.split(r",|\band\b|\bor\b|/", admitted))
+            # a fallback (`x ?? 0`, `x !== undefined`) handles each value in its own arm
+            if values > 1 and not (arms and values <= int(arms.group(1))):
                 reasons.append(f"probe admits several types ({admitted.strip()})")
     m = ORDER.search(line)
     if m:

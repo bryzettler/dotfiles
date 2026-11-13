@@ -23,6 +23,7 @@ in
   home.file.".claude/skills/review".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/review";
   home.file.".claude/skills/implement-tickets".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/implement-tickets";
   home.file.".claude/skills/address-review".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/address-review";
+  home.file.".claude/skills/distill".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/distill";
   home.file.".claude/skills/recipe-note".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/recipe-note";
   home.file.".claude/skills/relay".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/relay";
   home.file.".claude/skills/ci-fix".source = config.lib.file.mkOutOfStoreSymlink "${dots}/config/claude/skills/ci-fix";

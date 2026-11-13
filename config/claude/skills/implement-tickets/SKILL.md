@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Work a folder of ticket markdown files to done. Tickets are a **task graph**: `Blocked by:` edges define a **frontier** of tickets ready to run. One fresh-context implementer per ticket, routed to the cheapest tier the ticket allows. State lives in each ticket's `Status:` field, so a rerun after a usage-limit stop, crash, or `/clear` resumes where it left off.
 
-Keep the main loop's context for decisions. Ticket bodies, spec text, verification output, and review reports go to sub-agents and scratchpad files and reach the main loop as paths and short returns. `briefs.md` in this folder holds the sub-agent briefs; pass its path, and keep its text out of the main loop. The main loop writes only these: `Status:` edits and `## Agent result` sections in ticket files it dispatched, `spec-questions.md`, the tickets that `answers.md` and `ask.md` create, and the PR bodies that step 6 drafts. Nothing is pushed and no PR is opened.
+Keep the main loop's context for decisions. Ticket bodies, spec text, verification output, and review reports go to sub-agents and scratchpad files and reach the main loop as paths and short returns. `briefs.md` in this folder holds the sub-agent briefs; pass its path, and keep its text out of the main loop. The main loop writes only these: `Status:` edits and `## Agent result` sections in ticket files it dispatched, `spec-questions.md`, the tickets that `answers.md` and `ask.md` create, the refactor tickets the scout proposes, and the PR bodies that step 6 drafts. Nothing is pushed and no PR is opened.
 
 Every `general-purpose` prompt this skill sends ends with: "Send independent reads, searches, and commands in one message. Do not call the advisor." Those agents orchestrate, and an advisor call resends their whole context to Fable uncached.
 
@@ -24,7 +24,7 @@ Folder given: use it. None: glob `.scratch/*/issues` from the current directory.
 
 ## Steps
 
-1. **Plan** — one scout (`general-purpose`, `model: "opus"`). Its prompt carries the issues folder path, the `--only` list, the scratchpad path, and the path of `briefs.md`. Done when every `*.md` in the folder has a row in the manifest and every repo path is verified or listed as unresolved. Ask the user about unresolved repos. Print the table. `--dry-run` stops here.
+1. **Plan** — one scout (`general-purpose`, `model: "opus"`). Its prompt carries the issues folder path, the `--only` list, the scratchpad path, and the path of `briefs.md`. Done when every `*.md` in the folder has a row in the manifest and every repo path is verified or listed as unresolved. Ask the user about unresolved repos. Write each refactor ticket the manifest proposes, and add its number to the bolt-on ticket's `Blocked by:`, per Bolt-on tickets in `tickets.md`; the frontier follows the new edges. Print the table. `--dry-run` stops here.
 
 2. **Explore** — only when the scout recommends it: one explorer (`general-purpose`, `model: "sonnet"`, `effort: "medium"`) per research topic. Its prompt carries the topic, the spec path, the repo paths, the notes folder `<issues-folder>/../notes/`, and the path of `briefs.md`. Done when it returns the list of note files it wrote.
 

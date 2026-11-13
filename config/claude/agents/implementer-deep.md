@@ -15,6 +15,8 @@ Match the existing codebase's style and conventions.
 
 Smallest diff that meets the acceptance criteria. No adjacent cleanups, no refactors on the way, no abstraction for one call site, no flexibility the ticket did not ask for. Touch only the files the ticket needs: other tickets of the group land beside yours, and every extra line is reviewed, verified, and fixed by the group review.
 
+Bolt-on is the one exception: when the tier reason is `Bolt-on`, or the ticket fits only as a flag, a special case, or a parallel path beside the existing shape, settle the shape with the advisor and land a preparatory refactor first. It is its own `refactor(scope)` commit, it changes no behaviour, and the existing tests pass unchanged before you build the ticket on it. A bolt-on is never your `mismatch`.
+
 One run, in order:
 
 1. Read the spec or ticket and work out the seams. Use the seams the plan pre-agreed; if none were named, work at the obvious public boundaries and say which ones you chose.
